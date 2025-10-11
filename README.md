@@ -92,7 +92,7 @@ Ein Frontend-Panel wird der Sidebar hinzugefügt:
 	oder
 	C:\Users<USERNAME>\AppData\Roaming\AnycubicSlicerNext\AnycubicSlicerNext.conf
 	
-	> [!NOTE]
+> [!NOTE]
 > Nimm einfach diesen Einzeiler (kopiert den Token direkt in die Zwischenablage):
 > 
 > $path = "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf"; (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value | Set-Clipboard
