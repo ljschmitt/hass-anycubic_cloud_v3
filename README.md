@@ -64,6 +64,44 @@ Ein Frontend-Panel wird der Sidebar hinzugefügt:
 
 ---
 
+## Installation über HACS (empfohlen)
+
+1. Öffne **HACS → Integrations** und klicke oben rechts auf **⋯ → Custom repositories**.
+2. Trage als **Repository URL** ein:  
+   `https://github.com/ljschmitt/hass-anycubic_cloud_v3`
+3. Wähle **Category: Integration** und klicke **Add**.
+4. Suche in HACS nach **Anycubic Cloud** (Repo `ljschmitt/hass-anycubic_cloud_v3`) und **installiere** die Integration.
+5. **Home Assistant neu starten.**
+6. Gehe zu **Einstellungen → Geräte & Dienste → Integration hinzufügen** und suche nach **Anycubic Cloud**.
+7. Wähle als **Authentication Mode** *Slicer Next (Windows)* und füge deinen **Access-Token** ein  
+   (siehe Abschnitt *Slicer-Authentifizierung* weiter unten).
+
+> Tipp: Für stabile Updates nutze Releases (z. B. `v0.3.0-lj`). HACS zeigt neue Versionen automatisch an.
+
+---
+
+## Manuelle Installation (ohne HACS)
+
+1. Lade dieses Repository als ZIP herunter (Reiter **Code → Download ZIP**) oder nimm das ZIP aus dem **Release**.
+2. Entpacke den Ordner **`custom_components/anycubic_cloud`** nach  
+   `/config/custom_components/anycubic_cloud/` auf deinem Home-Assistant-System.
+3. **Home Assistant neu starten.**
+4. **Integration hinzufügen** wie oben beschrieben.
+
+> Struktur muss exakt so sein:  
+> `/config/custom_components/anycubic_cloud/__init__.py` etc.
+
+---
+
+## Integration einrichten (kurz)
+
+- **Empfohlen:** *Slicer Next (Windows)* auswählen.  
+- **Token** einfügen (einzeilig, ohne Anführungszeichen).  
+- Drucker auswählen → fertig.
+
+Siehe Abschnitt **„Slicer-Authentifizierung (Token auslesen)“** für einen PowerShell-Einzeiler, der den Token direkt in die Zwischenablage kopiert.
+
+
 ## Installation
 
 1. **Token besorgen** (siehe Auth-Abschnitte unten).  
