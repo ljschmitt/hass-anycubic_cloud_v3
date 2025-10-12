@@ -6,11 +6,6 @@
 > – angepasste Callback-Signaturen (`on_connect/on_subscribe/...` mit `properties=None`, `on_message` **ohne** `properties`)  
 > – kein harter Pin mehr auf `paho-mqtt==1.6.1`
 >
-> **Alter TEXT
-> ~~Anycubic hat versucht, den MQTT-Zugriff zu blockieren, siehe [hier](https://github.com/WaresWichall/hass-anycubic_cloud/issues/33)~~  
-> ~~Ich wechsle zu einer anderen Druckermarke und werde in diesem Projekt nicht mehr so aktiv sein, werde aber weiterhin Fehler beheben.~~  
-> ~~MQTT-Zugriff ist jetzt mit Tokens aus **Slicer Next (Windows-Version)** verfügbar.  ~~
-> ~~Funktioniert weiterhin Stand **01/12/2024**.~~
 
 ---
 
