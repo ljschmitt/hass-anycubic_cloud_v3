@@ -142,7 +142,7 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 
 ➡️ [Letztes Release ansehen](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
 
-> Verwende einen **Release-Tag** (z. B. `v0.3.2-lj`), um automatische Updates in HACS zu erhalten.
+> 
 
 ---
 
