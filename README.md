@@ -9,7 +9,12 @@
 
 ---
 
-# Anycubic Cloud Home Assistant Integration
+# Anycubic HA Integration
+
+➡️ Dies ist ein eigener Fork mit Fehlerkorrekturen, deutschen Texten und MQTT-Erweiterungen.
+
+
+## Anycubic Cloud Home Assistant Integration
 
 Die Komponente funktioniert sehr gut mit:
 - Kobra 3 Combo
@@ -26,7 +31,7 @@ Die Anycubic-Cloud wird **alle 1 Minute** gepollt; **MQTT** liefert Updates **me
 Wenn Sensoren nur minütlich aktualisieren, prüfe den Auth-Modus (Slicer-Token) und öffne ggf. ein Issue.
 
 ## Frontend-Card
-
+das
 Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://github.com/WaresWichall/hass-anycubic_card).
 
 ## Galerie
