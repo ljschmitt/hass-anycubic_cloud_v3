@@ -1,61 +1,94 @@
-# Frontend
+# 🧩 Entwicklung – Anycubic HA Integration
 
-Currently building using node version v18.20.4
+## 🖥️ Frontend (Panel & Card)
 
-Open a terminal inside the `custom_components/anycubic_cloud/frontend_panel` directory.
+Aktuell wird mit **Node.js v18.20.4** gebaut.
 
-Run:
+### 🔧 Vorbereitung
+
+Öffne ein Terminal im Verzeichnis:  
+```
+custom_components/anycubic_ha_integration/frontend_panel
+```
+
+Führe dann aus:
 ```bash
 npm install
 ```
 
-Build both the panel and the card using the command:
+### 🏗️ Build-Befehle
+
+Beide Teile (Panel **und** Card) gleichzeitig bauen:
 ```bash
 npm run build && npm run build_card
 ```
 
-To build just the panel:
+Nur das Panel bauen:
 ```bash
 npm run build
 ```
 
-To build just the card:
+Nur die Card bauen:
 ```bash
 npm run build_card
 ```
 
+Die generierten Dateien werden automatisch im `dist/`-Ordner abgelegt und beim nächsten Home-Assistant-Neustart verwendet.
 
-# Translations
+---
 
-## Component
+## 🌐 Übersetzungen
 
-Edit source translation files in `custom_components/anycubic_cloud/translations/input_translation_files/`
+### 🧠 Komponente (Backend)
 
-Build output json files with:
-
-```bash
-python custom_components/anycubic_cloud/scripts/build_translations.py
+Quell-Übersetzungsdateien befinden sich unter:
+```
+custom_components/anycubic_ha_integration/translations/input_translation_files/
 ```
 
-All service strings are built from the `common` section.
+Aus diesen Quellen werden die endgültigen JSON-Dateien generiert mit:
+```bash
+python custom_components/anycubic_ha_integration/scripts/build_translations.py
+```
 
-## Frontend
+> Alle Service-Texte werden aus dem Abschnitt `common` erzeugt.
 
-Edit source translation files in `custom_components/anycubic_cloud/frontend_panel/localize/languages`
+---
 
-Add new languages to `custom_components/anycubic_cloud/frontend_panel/localize/localize.ts` following the below edits, using German as an example:
+### 🎨 Frontend (UI)
 
+Quell-Übersetzungen liegen hier:
+```
+custom_components/anycubic_ha_integration/frontend_panel/localize/languages/
+```
+
+Wenn du eine neue Sprache hinzufügen möchtest, erweitere die Datei:  
+`custom_components/anycubic_ha_integration/frontend_panel/localize/localize.ts`
+
+Beispiel für Deutsch:
 
 ```ts
 import * as en from './languages/en.json';
 import * as de from './languages/de.json';
-````
+```
 
+Und ergänze im Sprachobjekt:
 ```ts
 var languages: any = {
   en: en,
   de: de,
 };
-````
+```
 
-Rebuild the frontend.
+Danach das Frontend neu bauen:
+```bash
+npm run build
+```
+
+---
+
+## 🧰 Hinweise
+
+- Prüfe vor dem Commit, dass keine temporären Build-Dateien (`node_modules`, `.cache`, `dist/`) eingecheckt werden.  
+- Änderungen an `manifest.json`, `translations`, oder dem Panel erfordern einen **Neustart von Home Assistant**.  
+- Für Tests empfiehlt sich das Add-on **Studio Code Server** oder ein lokales Dev-Setup mit **HA Container**.
