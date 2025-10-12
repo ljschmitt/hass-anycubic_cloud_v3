@@ -11,7 +11,7 @@
     "image",
     "panel_custom"
   ],
-  "documentation": "https://github.com/ljschmitt/hass-anycubic_cloud_v3#readme"
+  "documentation": "https://github.com/ljschmitt/hass-anycubic_cloud_v3#readme",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues",
   "loggers": [],
