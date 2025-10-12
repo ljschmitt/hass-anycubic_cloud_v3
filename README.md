@@ -1,167 +1,152 @@
-> [!NOTE]  
-> **Update (11.10.2025):** Diese Version enthält die **integrierte paho-mqtt-2.x-Lösung** (Callback-API v1) – damit funktionieren **MQTT-Echtzeit-Updates** wieder.  
+# 🧩 Anycubic HA Integration
+
+> 🗓️ **Update (11.10.2025):**  
+> Diese Version enthält die **integrierte `paho-mqtt` 2.x-Lösung** (Callback-API v1) – damit funktionieren **MQTT-Echtzeit-Updates** wieder.  
 > Voraussetzung: **Slicer Next (Windows)** und dessen **Access-Token**.  
-> Hinweise zu den technischen Anpassungen:  
-> – `callback_api_version=CallbackAPIVersion.VERSION1` beim MQTT-Client  
-> – angepasste Callback-Signaturen (`on_connect/on_subscribe/...` mit `properties=None`, `on_message` **ohne** `properties`)  
-> – kein harter Pin mehr auf `paho-mqtt==1.6.1`
->
+> Kein harter Pin mehr auf `paho-mqtt==1.6.1`.
+
+➡️ Eigener Fork mit:
+- Fehlerkorrekturen
+- deutschen Texten
+- MQTT-Erweiterungen
+- verbessertem MQTT-Fallback bei Verbindungsproblemen
 
 ---
 
-# Anycubic HA Integration
+## 🧵 Kompatible Drucker
 
-➡️ Dies ist ein eigener Fork mit Fehlerkorrekturen, deutschen Texten und MQTT-Erweiterungen.
+Die Komponente funktioniert getestet mit:
+- ✅ Kobra 3 Combo
+- ✅ Kobra 2, 2 Max, 2 Pro
+- ✅ Photon Mono M5s (Basis)
+- ✅ Anycubic M7 Pro (Basis)
 
+Du hast andere Modelle? Bitte Rückmeldung geben 🙏
 
-## Anycubic Cloud Home Assistant Integration
+---
 
-Die Komponente funktioniert sehr gut mit:
-- Kobra 3 Combo
-- Kobra 2
-- Kobra 2 Max
-- Kobra 2 Pro
-- Photon Mono M5s (Basis-Support)
-- M7 Pro (Basis-Support)
+## ⚙️ Funktionsweise
 
-Wenn sie bei dir mit anderen Druckern funktioniert, melde es bitte – wenn nicht, ebenfalls :)
+- Cloud-Polling: alle **1 Minute**
+- MQTT (Echtzeit): **mehrfach pro Sekunde**
+- Erfordert **Slicer Next Token** für MQTT-Zugriff
 
-**Update-Pfad / Verhalten:**  
-Die Anycubic-Cloud wird **alle 1 Minute** gepollt; **MQTT** liefert Updates **mehrfach pro Sekunde**.  
-Wenn Sensoren nur minütlich aktualisieren, prüfe den Auth-Modus (Slicer-Token) und öffne ggf. ein Issue.
+---
 
-## Frontend-Card
-das
+## 🎨 Frontend-Card
+
 Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://github.com/WaresWichall/hass-anycubic_card).
 
-## Galerie
+---
 
-<img width="300" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-1.png"> <img width="300" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/anycubic-ace-ui.gif"> <img width="300" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-2.png">
-<img width="300" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-print.png"> <img width="200" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-1.png">
+## 🖼️ Galerie
 
-## Features
+<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-1.png">  
+<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/anycubic-ace-ui.gif">  
+<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-2.png">  
+<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-print.png">  
+<img width="200" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-1.png">
 
-- Unterstützung mehrerer Drucker
-- Druckstart-Services / UI-Panel
-- Pause/Weiter/Abbrechen-Buttons
-- ACE-Slot-Farben/Einstellungen via Services / UI-Panel
-- Dateimanager via Services / UI-Panel
-- Retract/Extrude-Services
-- Drucker-Sensoren (Temperatur, Lüfter, Speed, …)
-- Job-Sensoren (Name, Fortschritt, Vorschaubild, Zeit, Parameter)
-- ACE-Sensoren
+---
+
+## 🧩 Features
+
+- Mehrere Drucker gleichzeitig
+- Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
+- ACE-Slot-Verwaltung (Farbe, Presets, Services)
+- Dateimanager (MQTT benötigt)
+- Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …
 - Firmware-Update-Entitäten
-- ACE-Trocknungs- und Spulen-Management mit Presets
-- Konfigurierbarer MQTT-Verbindungsmodus (Standard: „nur während des Druckens“)
-- Und mehr …
-
-## Panel
-
-Ein Frontend-Panel wird der Sidebar hinzugefügt:  
-- Basis-Infos (+ Druckerkarte)  
-- Dateimanager (**MQTT aktiv** erforderlich)  
-- Druckstart-Services
+- MQTT-Aktivität automatisch während Druck (oder dauerhaft)
+- Frontend-Panel mit Status + Dateimanager
+- Spulen-Trocknung & Materialmanagement (ACE)
+- Konfigurierbarer MQTT-Modus („nur beim Drucken“, dauerhaft, deaktiviert)
 
 ---
 
-## Installation über HACS (empfohlen)
+## 📦 Installation über HACS (empfohlen)
 
-1. Öffne **HACS → Integrations** und klicke oben rechts auf **⋯ → Custom repositories**.
-2. Trage als **Repository URL** ein:  
-   `https://github.com/ljschmitt/hass-anycubic_cloud_v3`
-3. Wähle **Category: Integration** und klicke **Add**.
-4. Suche in HACS nach **Anycubic Cloud** (Repo `ljschmitt/hass-anycubic_cloud_v3`) und **installiere** die Integration.
-5. **Home Assistant neu starten.**
-6. Gehe zu **Einstellungen → Geräte & Dienste → Integration hinzufügen** und suche nach **Anycubic Cloud**.
-7. Wähle als **Authentication Mode** *Slicer Next (Windows)* und füge deinen **Access-Token** ein  
-   (siehe Abschnitt *Slicer-Authentifizierung* weiter unten).
+1. **HACS → Integrationen → ⋯ → Custom Repositories**
+2. Repository:  
+   https://github.com/ljschmitt/hass-anycubic_cloud_v3  
+   Kategorie: **Integration**
+3. **Daten neu laden**
+4. Integration in HACS suchen:  
+   **Anycubic HA Integration**
+5. Installieren → Home Assistant **neustarten**
+6. **Einstellungen → Geräte & Dienste → Integration hinzufügen**
 
-> Tipp: Für stabile Updates nutze Releases (z. B. `v0.3.0-lj`). HACS zeigt neue Versionen automatisch an.
-
----
-
-## Manuelle Installation (ohne HACS)
-
-1. Lade dieses Repository als ZIP herunter (Reiter **Code → Download ZIP**) oder nimm das ZIP aus dem **Release**.
-2. Entpacke den Ordner **`custom_components/anycubic_ha_integration`** nach  
-   `/config/custom_components/anycubic_ha_integration/` auf deinem Home-Assistant-System.
-3. **Home Assistant neu starten.**
-4. **Integration hinzufügen** wie oben beschrieben.
-
-> Struktur muss exakt so sein:  
-> `/config/custom_components/anycubic_ha_integration/__init__.py` etc.
+> ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows)**  
+> und füge den **Access-Token** ein (siehe unten).
 
 ---
 
-## Integration einrichten (kurz)
+## 🖐️ Manuelle Installation
 
-- **Empfohlen:** *Slicer Next (Windows)* auswählen.  
-- **Token** einfügen (einzeilig, ohne Anführungszeichen).  
-- Drucker auswählen → fertig.
-
-Siehe Abschnitt **„Slicer-Authentifizierung (Token auslesen)“** für einen PowerShell-Einzeiler, der den Token direkt in die Zwischenablage kopiert.
-
-
-## Installation
-
-1. **Token besorgen** (siehe Auth-Abschnitte unten).  
-2. Dieses Repository in **HACS** hinzufügen: Menü **… → Custom Repositories** → Kategorie **Integration**.  
-3. **Home Assistant neu starten**.  
-4. **Einstellungen → Integrationen → Neue hinzufügen** → nach **Anycubic** suchen.  
-5. **Authentifizierungsmodus wählen** (empfohlen: *Slicer Next*).  
-6. **Token** in das Feld `User Token` bzw. `Slicer Access Token` einfügen.  
-7. Drucker auswählen → fertig!  
-8. Optional weitere Optionen in **Konfigurieren** der Integration anpassen.
-
-> [!TIP]  
-> In dieser integrierten Version gibt es **keinen** harten Zwang auf `paho-mqtt==1.6.1`. Home Assistant nutzt seine eigene **paho-mqtt 2.x**.  
-> Falls du manuell installiert hast, stelle in `manifest.json` sicher, dass `"requirements": []` (oder `["paho-mqtt>=2.0.0,<3"]`) gesetzt ist.
+1. Repository als ZIP herunterladen  
+2. Entpacken nach:  
+   /config/custom_components/anycubic_ha_integration/
+3. Home Assistant neu starten
+4. Integration hinzufügen wie oben
 
 ---
 
-## Slicer-Authentifizierung (empfohlen, mit MQTT-Echtzeit)
+## 🔐 Token auslesen (Slicer Next)
 
-> [!IMPORTANT]  
-> Getestet/unterstützt mit **Slicer Next für Windows**.
-
-1. Im **Slicer Next** angemeldet sein, dann den Slicer **schließen**.  
-2. Konfigurationsdatei finden:
-	%AppData%\AnycubicSlicerNext\AnycubicSlicerNext.conf
-	oder
-	C:\Users<USERNAME>\AppData\Roaming\AnycubicSlicerNext\AnycubicSlicerNext.conf
-	
-> [!NOTE]
-> Nimm einfach diesen Einzeiler (kopiert den Token direkt in die Zwischenablage):
-> 
-> $path = "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf"; (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value | Set-Clipboard
-> 
-> 
-> Prüfen (nur zur Kontrolle, nichts Sensibles ausgeben):
-> 
-> $token = (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value
-> $token.Length
-> $token.Substring(0,6) + "..." + $token.Substring($token.Length-6)
-> 
-> 
-> Falls in der Datei mehrere Tokens stehen (ältere Einträge), nimm die letzte Übereinstimmung:
-> 
-> $raw = Get-Content "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf" -Raw
-> [regex]::Matches($raw, '"access_token"\s*:\s*"([^"]+)"') | ForEach-Object { $_.Groups[1].Value } | Wher
-> 
----	
-3. Den kompletten Wert von `access_token` **ohne** Anführungszeichen kopieren (typisch ~344 Zeichen, einzeilig).  
-4. **Empfehlung:** Den `access_token` in der Datei danach auf **leer** setzen (`"access_token": ""`), damit nicht Slicer und Home Assistant gleichzeitig dieselbe Session verwenden.
-
-<img width="400" alt="" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/dev/screenshots/auth_slicer_token.png">
+1. **Slicer Next starten → einloggen → schließen**
+2. Öffne:  
+   %AppData%\AnycubicSlicerNext\AnycubicSlicerNext.conf
+3. PowerShell-Befehl (kopiert Token in Zwischenablage):
+   ```powershell
+   $path = "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf"; 
+   (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value | Set-Clipboard
+   ```
+4. In Integration einfügen → fertig  
+   (optional Token in Datei danach leeren: `"access_token": ""`)
 
 ---
 
-## Web-Authentifizierung (Polling-Only)
+## 🌐 Web-Login (ohne MQTT, nur Polling)
 
-> [!IMPORTANT]  
-> **Web-Auth unterstützt kein MQTT** – nur Polling (≈1×/Minute).
+1. [Anycubic Cloud öffnen](https://cloud-universe.anycubic.com/file)  
+2. Developer Tools → Konsole:  
+   ```js
+   window.localStorage["XX-Token"]
+   ```
+3. Token kopieren → Integration einfügen
 
-1. [Anycubic Cloud Website](https://cloud-universe.anycubic.com/file) öffnen und einloggen.  
-2. Browser-DevTools → **Konsole**:
-```js
-window.localStorage["XX-Token"]
+> ⚠️ Hinweis: Diese Methode unterstützt **kein MQTT**, nur 1-Minuten-Updates.
+
+---
+
+## 📥 Releases
+
+➡️ [Letztes Release ansehen](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
+
+> Verwende einen **Release-Tag** (z. B. `v0.3.2-lj`), um automatische Updates in HACS zu erhalten.
+
+---
+
+## 🙌 Mitwirkende
+
+- [@ljschmitt](https://github.com/ljschmitt)
+- [@WaresWichall](https://github.com/WaresWichall) (Original-Entwicklung)
+
+---
+
+## 📄 Lizenz
+
+MIT License – frei für private und kommerzielle Nutzung. Siehe LICENSE-Datei.
+
+---
+
+## 💬 Feedback / Probleme
+
+➡️ [Issue öffnen](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues)
+
+---
+
+## ✅ Kompatibilität
+
+- Home Assistant 2025.10.0 oder neuer
+- Abwärtskompatibel bis v2024.12 getestet
