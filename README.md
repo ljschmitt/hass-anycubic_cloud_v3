@@ -1,4 +1,4 @@
-# 🧩 Anycubic HA Integration
+# Anycubic HA Integration
 
 > 🗓️ **Update (11.10.2025):**  
 > Diese Version enthält die **integrierte `paho-mqtt` 2.x-Lösung** (Callback-API v1) – damit funktionieren **MQTT-Echtzeit-Updates** wieder.  
@@ -10,6 +10,25 @@
 - deutschen Texten
 - MQTT-Erweiterungen
 - verbessertem MQTT-Fallback bei Verbindungsproblemen
+
+---
+
+## 📚 Inhalt
+
+- [🧵 Kompatible Drucker](#-kompatible-drucker)
+- [⚙️ Funktionsweise](#-funktionsweise)
+- [🎨 Frontend-Card](#-frontend-card)
+- [🖼️ Galerie](#-galerie)
+- [🧩 Features](#-features)
+- [📦 Installation über HACS (empfohlen)](#-installation-über-hacs-empfohlen)
+- [🖐️ Manuelle Installation](#-manuelle-installation)
+- [🔐 Token auslesen (Slicer Next)](#-token-auslesen-slicer-next)
+- [🌐 Web-Login (ohne MQTT, nur Polling)](#-web-login-ohne-mqtt-nur-polling)
+- [📥 Releases](#-releases)
+- [🙌 Mitwirkende](#-mitwirkende)
+- [📄 Lizenz](#-lizenz)
+- [💬 Feedback / Probleme](#-feedback--probleme)
+- [✅ Kompatibilität](#-kompatibilität)
 
 ---
 
