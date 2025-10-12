@@ -83,13 +83,13 @@ Ein Frontend-Panel wird der Sidebar hinzugefügt:
 ## Manuelle Installation (ohne HACS)
 
 1. Lade dieses Repository als ZIP herunter (Reiter **Code → Download ZIP**) oder nimm das ZIP aus dem **Release**.
-2. Entpacke den Ordner **`custom_components/anycubic_cloud`** nach  
-   `/config/custom_components/anycubic_cloud/` auf deinem Home-Assistant-System.
+2. Entpacke den Ordner **`custom_components/anycubic_ha_integration`** nach  
+   `/config/custom_components/anycubic_ha_integration/` auf deinem Home-Assistant-System.
 3. **Home Assistant neu starten.**
 4. **Integration hinzufügen** wie oben beschrieben.
 
 > Struktur muss exakt so sein:  
-> `/config/custom_components/anycubic_cloud/__init__.py` etc.
+> `/config/custom_components/anycubic_ha_integration/__init__.py` etc.
 
 ---
 
