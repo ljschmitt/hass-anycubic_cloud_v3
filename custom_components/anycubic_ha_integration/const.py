@@ -9,7 +9,7 @@ DEFAULT_NAME = "Anycubic Cloud Printer"
 MANUFACTURER = "Anycubic"
 MODEL = "main"
 
-DOMAIN = "anycubic_cloud"
+DOMAIN = "anycubic_ha_integration"
 COORDINATOR = "coordinator"
 
 CUSTOM_COMPONENTS = "custom_components"
@@ -21,7 +21,7 @@ PANEL_TITLE = "Anycubic Cloud"
 PANEL_ICON = "mdi:printer-3d"
 
 ATTR_CONFIG_ENTRY = "config_entry"
-ATTR_ANYCUBIC_EVENT = "anycubic_cloud"
+ATTR_ANYCUBIC_EVENT = "anycubic_ha_integration"
 
 ENTITY_ID_DRYING_START_PRESET_ = "drying_start_preset_"
 
