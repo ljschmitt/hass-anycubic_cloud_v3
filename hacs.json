@@ -3,5 +3,5 @@
   "content_in_root": false,
   "render_readme": true,
   "homeassistant": "2025.10.0",
-  "icon": "custom_components/anycubic_ha_integration/icon.png"
+  "icon": "icon.png"
 }
