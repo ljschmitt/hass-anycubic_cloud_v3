@@ -16,5 +16,5 @@
   "issue_tracker": "https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues",
   "loggers": [],
   "requirements": ["paho-mqtt>=2.0.0,<3"],
-  "version": "0.3.1-lj"
+  "version": "0.3.2-lj"
 }
