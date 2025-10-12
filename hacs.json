@@ -1,6 +1,9 @@
 {
-  "name": "Anycubic Cloud",
+  "name": "Anycubic Cloud V3 (Fork)",
   "content_in_root": false,
   "render_readme": true,
-  "homeassistant": "2025.10.0"
+  "homeassistant": "2025.10.0",
+  "domains": ["sensor"],
+  "iot_class": "cloud_polling",
+  "icon": "icon.png"
 }
