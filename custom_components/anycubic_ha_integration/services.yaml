@@ -6,12 +6,12 @@ multi_color_box_set_slot_pla: &multi_color_box_set_slot
       required: true
       selector:
         config_entry:
-          integration: anycubic_cloud
+          integration: anycubic_ha_integration
     device_id: &device_id
       required: false
       selector:
         device:
-          integration: anycubic_cloud
+          integration: anycubic_ha_integration
     printer_id: &printer_id
       required: false
       selector: &bignum_selector
@@ -99,6 +99,12 @@ print_and_upload_save_in_cloud:
       required: true
       selector:
         file:
+          accept:
+            - .gcode
+            - text/x-gcode
+            - text/plain
+            - application/octet-stream
+          multiple: false
 print_and_upload_no_cloud_save:
   fields:
     config_entry: *anycubic_config_entry
