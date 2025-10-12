@@ -2,8 +2,5 @@
   "name": "Anycubic HA Integration",
   "content_in_root": false,
   "render_readme": true,
-  "homeassistant": "2025.10.0",
-  "domains": ["sensor"],
-  "iot_class": "cloud_polling",
-  "icon": "icon.png"
+  "homeassistant": "2025.10.0"
 }
