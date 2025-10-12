@@ -1,0 +1,1075 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Bereits konfiguriert.",
+      "reauth_successful": "Erneute Anmeldung erfolgreich."
+    },
+    "error": {
+      "invalid_auth": "Ungültige Authentifizierung.",
+      "invalid_token": "Ungültiger Benutzertoken.",
+      "cannot_connect": "Verbindung fehlgeschlagen.",
+      "no_printers": "Keine Drucker gefunden.",
+      "invalid_printer": "Ungültiger Drucker."
+    },
+    "step": {
+      "auth_mode_web": {
+        "title": "Authentifizierungsmodus – Web",
+        "description": "Rufe deinen Token unter https://cloud-universe.anycubic.com/file ab. Details siehe README.",
+        "data": {
+          "user_token": "Benutzertoken"
+        }
+      },
+      "auth_mode_slicer": {
+        "title": "Authentifizierungsmodus – Slicer Next",
+        "description": "Token aus %AppData%\\AnycubicSlicerNext\\AnycubicSlicerNext.conf entnehmen. Details siehe README.",
+        "data": {
+          "user_token": "Slicer‑Zugriffstoken"
+        }
+      },
+      "auth_mode_android": {
+        "title": "Authentifizierungsmodus – Android‑App",
+        "description": "Erfordert Token und Geräte‑ID.",
+        "data": {
+          "user_token": "Benutzertoken",
+          "user_device_id": "Geräte‑ID (erforderlich für Android)"
+        }
+      },
+      "printer": {
+        "title": "Drucker auswählen",
+        "data": {
+          "printer_ids": "Überwachte Drucker"
+        }
+      },
+      "auth_mode_pick": {
+        "title": "Authentifizierungsmodus",
+        "description": "Welchen Authentifizierungsmodus möchtest du verwenden?",
+        "menu_options": {
+          "auth_mode_web": "Web (ohne MQTT)",
+          "auth_mode_slicer": "Slicer Next (Windows)",
+          "auth_mode_android": "Android"
+        }
+      },
+      "reauth_or_choose_printer": {
+        "title": "Erneute Anmeldung oder Druckerauswahl",
+        "description": "Möchtest du dich erneut anmelden oder die überwachten Drucker ändern?",
+        "menu_options": {
+          "reauth": "Erneut anmelden",
+          "printer": "Drucker ändern"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "options_menu": {
+        "title": "Anycubic Cloud – Optionen",
+        "menu_options": {
+          "mqtt": "MQTT‑Einstellungen",
+          "drying": "Trocknungsvorgaben",
+          "card_config": "Panel‑Kartenkonfiguration",
+          "debug": "Debug‑Einstellungen"
+        }
+      },
+      "mqtt": {
+        "title": "MQTT‑Einstellungen",
+        "data": {
+          "mqtt_connect_mode": "MQTT‑Verbindungsmodus"
+        }
+      },
+      "drying": {
+        "title": "Trocknungsvorgaben",
+        "data": {
+          "drying_preset_duration_1": "Vorgabe 1 – Dauer",
+          "drying_preset_temperature_1": "Vorgabe 1 – Temperatur",
+          "drying_preset_duration_2": "Vorgabe 2 – Dauer",
+          "drying_preset_temperature_2": "Vorgabe 2 – Temperatur",
+          "drying_preset_duration_3": "Vorgabe 3 – Dauer",
+          "drying_preset_temperature_3": "Vorgabe 3 – Temperatur",
+          "drying_preset_duration_4": "Vorgabe 4 – Dauer",
+          "drying_preset_temperature_4": "Vorgabe 4 – Temperatur"
+        }
+      },
+      "card_config": {
+        "title": "Panel‑Kartenkonfiguration",
+        "data": {
+          "card_config": "Panel‑Kartenkonfiguration (YAML‑Format)"
+        }
+      },
+      "debug": {
+        "title": "Debug‑Einstellungen",
+        "data": {
+          "debug_mqtt_msg": "Alle MQTT‑Nachrichten protokollieren",
+          "debug_api_calls": "Alle API‑Aufrufe protokollieren"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "job_in_progress": {
+        "name": "Druckauftrag läuft"
+      },
+      "job_complete": {
+        "name": "Druckauftrag abgeschlossen"
+      },
+      "job_failed": {
+        "name": "Druckauftrag fehlgeschlagen"
+      },
+      "job_is_paused": {
+        "name": "Druckauftrag pausiert"
+      },
+      "printer_online": {
+        "name": "Drucker online"
+      },
+      "mqtt_connection_active": {
+        "name": "MQTT‑Verbindung aktiv"
+      },
+      "is_busy": {
+        "name": "Beschäftigt"
+      },
+      "is_available": {
+        "name": "Verfügbar"
+      },
+      "dry_status_is_drying": {
+        "name": "Trocknung aktiv"
+      },
+      "secondary_dry_status_is_drying": {
+        "name": "Trocknung (Sekundär) aktiv"
+      }
+    },
+    "button": {
+      "drying_start_preset_1": {
+        "name": "Trocknungsvorgabe 1 starten"
+      },
+      "drying_start_preset_2": {
+        "name": "Trocknungsvorgabe 2 starten"
+      },
+      "drying_start_preset_3": {
+        "name": "Trocknungsvorgabe 3 starten"
+      },
+      "drying_start_preset_4": {
+        "name": "Trocknungsvorgabe 4 starten"
+      },
+      "drying_stop": {
+        "name": "Trocknung stoppen"
+      },
+      "secondary_drying_start_preset_1": {
+        "name": "Trocknungsvorgabe 1 (Sekundär) starten"
+      },
+      "secondary_drying_start_preset_2": {
+        "name": "Trocknungsvorgabe 2 (Sekundär) starten"
+      },
+      "secondary_drying_start_preset_3": {
+        "name": "Trocknungsvorgabe 3 (Sekundär) starten"
+      },
+      "secondary_drying_start_preset_4": {
+        "name": "Trocknungsvorgabe 4 (Sekundär) starten"
+      },
+      "secondary_drying_stop": {
+        "name": "Trocknung (Sekundär) stoppen"
+      },
+      "pause_print": {
+        "name": "Druck pausieren"
+      },
+      "resume_print": {
+        "name": "Druck fortsetzen"
+      },
+      "cancel_print": {
+        "name": "Druck abbrechen"
+      },
+      "request_file_list_local": {
+        "name": "Dateiliste anfordern (Lokal)"
+      },
+      "request_file_list_udisk": {
+        "name": "Dateiliste anfordern (USB‑Datenträger)"
+      },
+      "request_file_list_cloud": {
+        "name": "Dateiliste anfordern (Cloud)"
+      },
+      "refresh_mqtt_connection": {
+        "name": "MQTT‑Verbindung aktualisieren"
+      }
+    },
+    "image": {
+      "job_image_url": {
+        "name": "Auftragsvorschau"
+      }
+    },
+    "sensor": {
+      "current_status": {
+        "name": "Aktueller Status"
+      },
+      "curr_nozzle_temp": {
+        "name": "Düsentemperatur"
+      },
+      "curr_hotbed_temp": {
+        "name": "Heizbett‑Temperatur"
+      },
+      "job_name": {
+        "name": "Auftragsname"
+      },
+      "job_progress": {
+        "name": "Auftragsfortschritt (%)"
+      },
+      "job_time_elapsed": {
+        "name": "Verstrichene Zeit"
+      },
+      "job_time_remaining": {
+        "name": "Verbleibende Zeit"
+      },
+      "job_eta": {
+        "name": "Voraussichtliches Ende (ETA)"
+      },
+      "job_state": {
+        "name": "Auftragsstatus"
+      },
+      "job_current_layer": {
+        "name": "Aktuelle Schicht"
+      },
+      "job_total_layers": {
+        "name": "Gesamtschichten"
+      },
+      "job_speed_mode": {
+        "name": "Geschwindigkeitsmodus"
+      },
+      "job_z_thick": {
+        "name": "Schichthöhe (Z)"
+      },
+      "job_model_height": {
+        "name": "Modellhöhe"
+      },
+      "job_anti_alias_count": {
+        "name": "Anti‑Aliasing‑Stufen"
+      },
+      "job_on_time": {
+        "name": "Belichtungszeit (An)"
+      },
+      "job_off_time": {
+        "name": "Belichtungszeit (Aus)"
+      },
+      "job_bottom_time": {
+        "name": "Boden‑Belichtungszeit"
+      },
+      "job_bottom_layers": {
+        "name": "Bodenschichten"
+      },
+      "job_z_up_height": {
+        "name": "Z‑Hubhöhe"
+      },
+      "job_z_up_speed": {
+        "name": "Z‑Hubgeschwindigkeit"
+      },
+      "job_z_down_speed": {
+        "name": "Z‑Absenkgeschwindigkeit"
+      },
+      "target_nozzle_temp": {
+        "name": "Ziel‑Düsentemperatur"
+      },
+      "target_hotbed_temp": {
+        "name": "Ziel‑Heizbett‑Temperatur"
+      },
+      "print_speed_pct": {
+        "name": "Druckgeschwindigkeit (%)"
+      },
+      "fan_speed_pct": {
+        "name": "Lüftergeschwindigkeit (%)"
+      },
+      "file_list_local": {
+        "name": "Dateiliste (Lokal)"
+      },
+      "file_list_udisk": {
+        "name": "Dateiliste (USB‑Datenträger)"
+      },
+      "file_list_cloud": {
+        "name": "Dateiliste (Cloud)"
+      },
+      "ace_spools": {
+        "name": "ACE‑Spulen"
+      },
+      "ace_current_temperature": {
+        "name": "ACE – Aktuelle Temperatur"
+      },
+      "dry_status_target_temperature": {
+        "name": "Trocknung – Zieltemperatur"
+      },
+      "dry_status_total_duration": {
+        "name": "Trocknung – Gesamtdauer"
+      },
+      "dry_status_remaining_time": {
+        "name": "Trocknung – Verbleibende Zeit"
+      },
+      "secondary_ace_spools": {
+        "name": "ACE‑Spulen (Sekundär)"
+      },
+      "secondary_ace_current_temperature": {
+        "name": "ACE – Aktuelle Temperatur (Sekundär)"
+      },
+      "secondary_dry_status_target_temperature": {
+        "name": "Trocknung – Zieltemperatur (Sekundär)"
+      },
+      "secondary_dry_status_total_duration": {
+        "name": "Trocknung – Gesamtdauer (Sekundär)"
+      },
+      "secondary_dry_status_remaining_time": {
+        "name": "Trocknung – Verbleibende Zeit (Sekundär)"
+      }
+    },
+    "switch": {
+      "multi_color_box_runout_refill": {
+        "name": "ACE – Nachfüllung bei Filamentende"
+      },
+      "secondary_multi_color_box_runout_refill": {
+        "name": "ACE – Nachfüllung bei Filamentende (Sekundär)"
+      },
+      "manual_mqtt_connection_enabled": {
+        "name": "Manuelle MQTT‑Verbindung aktiviert"
+      }
+    },
+    "update": {
+      "fw_version": {
+        "name": "Drucker‑Firmware"
+      },
+      "multi_color_box_fw_version": {
+        "name": "ACE‑Firmware"
+      },
+      "secondary_multi_color_box_fw_version": {
+        "name": "ACE‑Firmware (Sekundär)"
+      }
+    }
+  },
+  "services": {
+    "multi_color_box_set_slot_pla": {
+      "name": "ACE Slot setzen – PLA",
+      "description": "Setzt die Slot‑Eigenschaften (PLA) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_petg": {
+      "name": "ACE Slot setzen – PETG",
+      "description": "Setzt die Slot‑Eigenschaften (PETG) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_abs": {
+      "name": "ACE Slot setzen – ABS",
+      "description": "Setzt die Slot‑Eigenschaften (ABS) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_pacf": {
+      "name": "ACE Slot setzen – PACF",
+      "description": "Setzt die Slot‑Eigenschaften (PACF) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_pc": {
+      "name": "ACE Slot setzen – PC",
+      "description": "Setzt die Slot‑Eigenschaften (PC) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_asa": {
+      "name": "ACE Slot setzen – ASA",
+      "description": "Setzt die Slot‑Eigenschaften (ASA) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_hips": {
+      "name": "ACE Slot setzen – HIPS",
+      "description": "Setzt die Slot‑Eigenschaften (HIPS) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_pa": {
+      "name": "ACE Slot setzen – PA",
+      "description": "Setzt die Slot‑Eigenschaften (PA) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_set_slot_pla_se": {
+      "name": "ACE Slot setzen – PLA SE",
+      "description": "Setzt die Slot‑Eigenschaften (PLA SE) der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "slot_color_red": {
+          "name": "Slot‑Farbe Rot",
+          "description": "Slot‑Farbe Rot (0–255)."
+        },
+        "slot_color_green": {
+          "name": "Slot‑Farbe Grün",
+          "description": "Slot‑Farbe Grün (0–255)."
+        },
+        "slot_color_blue": {
+          "name": "Slot‑Farbe Blau",
+          "description": "Slot‑Farbe Blau (0–255)."
+        }
+      }
+    },
+    "multi_color_box_filament_extrude": {
+      "name": "ACE Filament vorfördern",
+      "description": "Startet das Vorfördern des Filaments an der ACE‑Einheit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        },
+        "slot_number": {
+          "name": "Slot‑Nummer",
+          "description": "Slot‑Nummer (1–4)."
+        },
+        "finished": {
+          "name": "Vorförderung beenden",
+          "description": "Beendet den Filamentvorschub."
+        }
+      }
+    },
+    "multi_color_box_filament_retract": {
+      "name": "ACE Filament zurückziehen",
+      "description": "Zieht das Filament an der ACE‑Einheit zurück.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "box_id": {
+          "name": "Box‑ID",
+          "description": "Box‑ID (0–1)."
+        }
+      }
+    },
+    "print_and_upload_save_in_cloud": {
+      "name": "Drucken und hochladen (in Cloud speichern)",
+      "description": "Startet den Druck, lädt die Datei hoch und speichert sie im Benutzer‑Cloudspeicher.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "slot_number": {
+          "name": "Slotnummernliste",
+          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+        },
+        "uploaded_gcode_file": {
+          "name": "G‑code‑Datei",
+          "description": "Die geslicte .gcode‑Datei."
+        }
+      }
+    },
+    "print_and_upload_no_cloud_save": {
+      "name": "Drucken und hochladen (nicht in Cloud speichern)",
+      "description": "Startet den Druck und lädt die Datei hoch, ohne sie im Benutzer‑Cloudspeicher abzulegen.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "slot_number": {
+          "name": "Slotnummernliste",
+          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+        },
+        "uploaded_gcode_file": {
+          "name": "G‑code‑Datei",
+          "description": "Die geslicte .gcode‑Datei."
+        }
+      }
+    },
+    "delete_file_local": {
+      "name": "Datei löschen (Lokal)",
+      "description": "Löscht eine Datei aus dem lokalen Druckerspeicher.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "filename": {
+          "name": "Dateiname",
+          "description": "Vollständiger Dateiname (mit Erweiterung)."
+        }
+      }
+    },
+    "delete_file_udisk": {
+      "name": "Datei löschen (USB‑Datenträger)",
+      "description": "Löscht eine Datei vom USB‑Datenträger des Druckers.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "filename": {
+          "name": "Dateiname",
+          "description": "Vollständiger Dateiname (mit Erweiterung)."
+        }
+      }
+    },
+    "delete_file_cloud": {
+      "name": "Datei löschen (Cloud)",
+      "description": "Löscht eine Datei aus dem Cloudspeicher des Benutzers.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "file_id": {
+          "name": "Datei‑ID",
+          "description": "Cloud‑Datei‑ID."
+        }
+      }
+    },
+    "change_print_speed_mode": {
+      "name": "Geschwindigkeitsmodus ändern",
+      "description": "Ändert den Geschwindigkeitsmodus des Drucks.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "speed_mode": {
+          "name": "Geschwindigkeitsmodus",
+          "description": "Geschwindigkeitsmodus."
+        }
+      }
+    },
+    "change_print_target_nozzle_temperature": {
+      "name": "Ziel‑Düsentemperatur ändern",
+      "description": "Ändert die Ziel‑Düsentemperatur für den Druck.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "temperature": {
+          "name": "Düsentemperatur",
+          "description": "Temperatur in °C."
+        }
+      }
+    },
+    "change_print_target_hotbed_temperature": {
+      "name": "Ziel‑Heizbett‑Temperatur ändern",
+      "description": "Ändert die Ziel‑Heizbett‑Temperatur für den Druck.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "temperature": {
+          "name": "Heizbett‑Temperatur",
+          "description": "Temperatur in °C."
+        }
+      }
+    },
+    "change_print_fan_speed": {
+      "name": "Lüftergeschwindigkeit ändern",
+      "description": "Ändert die Lüftergeschwindigkeit für den Druck.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "speed": {
+          "name": "Lüftergeschwindigkeit",
+          "description": "Geschwindigkeit in %."
+        }
+      }
+    },
+    "change_print_aux_fan_speed": {
+      "name": "Zusatzlüfter‑Geschwindigkeit ändern",
+      "description": "Ändert die Geschwindigkeit des Zusatzlüfters für den Druck.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "speed": {
+          "name": "Zusatzlüfter‑Geschwindigkeit",
+          "description": "Geschwindigkeit in %."
+        }
+      }
+    },
+    "change_print_box_fan_speed": {
+      "name": "Gehäuselüfter‑Geschwindigkeit ändern",
+      "description": "Ändert die Geschwindigkeit des Gehäuselüfters (ACE/Box).",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "speed": {
+          "name": "Gehäuselüfter‑Geschwindigkeit",
+          "description": "Geschwindigkeit in %."
+        }
+      }
+    },
+    "change_print_bottom_layers": {
+      "name": "Bodenschichten ändern",
+      "description": "Ändert die Anzahl der Bodenschichten.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "layers": {
+          "name": "Bodenschichten",
+          "description": "Anzahl der Schichten."
+        }
+      }
+    },
+    "change_print_bottom_time": {
+      "name": "Boden‑Belichtungszeit ändern",
+      "description": "Ändert die Boden‑Belichtungszeit.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "time": {
+          "name": "Boden‑Belichtungszeit",
+          "description": "Zeit in Sekunden."
+        }
+      }
+    },
+    "change_print_off_time": {
+      "name": "Belichtungszeit (Aus) ändern",
+      "description": "Ändert die Belichtungszeit (Aus).",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "time": {
+          "name": "Belichtungszeit (Aus)",
+          "description": "Zeit in Sekunden."
+        }
+      }
+    },
+    "change_print_on_time": {
+      "name": "Belichtungszeit (An) ändern",
+      "description": "Ändert die Belichtungszeit (An).",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "time": {
+          "name": "Belichtungszeit (An)",
+          "description": "Zeit in Sekunden."
+        }
+      }
+    }
+  },
+  "exceptions": {}
+}
