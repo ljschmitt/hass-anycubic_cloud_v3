@@ -2,8 +2,10 @@
   "domain": "anycubic_ha_integration",
   "name": "Anycubic HA Integration",
   "codeowners": [
-    "@ljschmitt", "@WaresWichall"
+    "@ljschmitt""
   ],
+  "render_readme": true,
+  "content_in_root": false,
   "config_flow": true,
   "dependencies": [
     "file_upload",
@@ -11,7 +13,7 @@
     "image",
     "panel_custom"
   ],
-  "documentation": "https://github.com/ljschmitt/hass-anycubic_cloud_v3#readme",
+  "documentation": "https://github.com/ljschmitt/hass-anycubic_cloud_v3",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues",
   "loggers": [],
