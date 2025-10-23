@@ -99,11 +99,7 @@ print_and_upload_save_in_cloud:
       required: true
       selector:
         file:
-          accept:
-            - .gcode
-            - text/x-gcode
-            - text/plain
-            - application/octet-stream
+          accept: ".gcode,text/x-gcode,text/plain,application/octet-stream"
           multiple: false
 print_and_upload_no_cloud_save:
   fields:
