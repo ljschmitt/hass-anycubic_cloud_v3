@@ -99,8 +99,7 @@ print_and_upload_save_in_cloud:
       required: true
       selector:
         file:
-          accept: ".gcode,text/x-gcode,text/plain,application/octet-stream"
-          multiple: false
+          accept: ".gcode,text/x-gcode,text/plain,application/octet-stream
 print_and_upload_no_cloud_save:
   fields:
     config_entry: *anycubic_config_entry
