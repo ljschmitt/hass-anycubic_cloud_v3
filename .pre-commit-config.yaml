@@ -18,7 +18,7 @@ repos:
     rev: 'v1.11.2'
     hooks:
       - id: mypy
-        exclude: ^custom_components/anycubic_cloud/test_api/
+        exclude: ^custom_components/anycubic_ha_integration/test_api/
         files: custom_components/
         args:
           - "--strict"
@@ -44,8 +44,8 @@ repos:
         files: \.(ts|js)$
         args:
           - "--fix"
-          - "custom_components/anycubic_cloud/frontend_panel/src"
+          - "custom_components/anycubic_ha_integration/frontend_panel/src"
           - "-c"
-          - "custom_components/anycubic_cloud/frontend_panel/.eslintrc.js"
+          - "custom_components/anycubic_ha_integration/frontend_panel/.eslintrc.js"
           - "--ignore-pattern"
-          - "custom_components/anycubic_cloud/frontend_panel/src/lib"
+          - "custom_components/anycubic_ha_integration/frontend_panel/src/lib"
