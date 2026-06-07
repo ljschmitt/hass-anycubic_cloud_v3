@@ -167,5 +167,4 @@ MIT License – frei für private und kommerzielle Nutzung. Siehe LICENSE-Datei.
 
 ## ✅ Kompatibilität
 
-- Home Assistant 2025.10.0 oder neuer
-- Abwärtskompatibel bis v2024.12 getestet
+- Home Assistant 2026.6.1 oder neuer
