@@ -1,9 +1,9 @@
 # Anycubic HA Integration
 
-> 🗓️ **Update (11.10.2025):**  
-> Diese Version enthält die **integrierte `paho-mqtt` 2.x-Lösung** (Callback-API v1) – damit funktionieren **MQTT-Echtzeit-Updates** wieder.  
-> Voraussetzung: **Slicer Next (Windows)** und dessen **Access-Token**.  
-> Kein harter Pin mehr auf `paho-mqtt==1.6.1`.
+> 🗓️ **Update (07.06.2026):**  
+> Diese Version ist auf **Home Assistant 2026.6.1** ausgerichtet und nutzt weiterhin die integrierte **`paho-mqtt` 2.x-Lösung** (Callback-API v1) für **MQTT-Echtzeit-Updates**.  
+> Voraussetzung für MQTT: **Slicer Next (Windows)** und dessen **Access-Token**.  
+> Kein harter Pin auf `paho-mqtt==1.6.1`.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -36,6 +36,7 @@
 
 Die Komponente funktioniert getestet mit:
 - ✅ Kobra 3 Combo
+- ✅ Kobra X (bisher nur mit 4 Farben)
 - ✅ Kobra 2, 2 Max, 2 Pro
 - ✅ Photon Mono M5s (Basis)
 - ✅ Anycubic M7 Pro (Basis)
