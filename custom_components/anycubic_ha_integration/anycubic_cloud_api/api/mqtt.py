@@ -350,8 +350,6 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
                 protocol=mqtt_client.MQTTv311,
                 userdata=self,
             )
-
-
         self._mqtt_client.on_connect = self._mqtt_on_connect
         self._mqtt_client.on_disconnect = self._mqtt_on_disconnect
         self._mqtt_client.on_message = self._mqtt_on_message

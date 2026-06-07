@@ -9867,7 +9867,7 @@
     }
   };
   n([ft()], yo.prototype, "_serviceName", void 0), yo = n([mt("anycubic-view-print-save_in_cloud")], yo);
-  var fo = "0.2.2";
+  var fo = "0.0.61";
   window.console.info(`%c ANYCUBIC-PANEL %c v${fo} `, "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray"), t.AnycubicCloudPanel = class extends ut {
     constructor() {
       super(...arguments), this.selectedPage = "main", this._handleLocationChange = () => {
