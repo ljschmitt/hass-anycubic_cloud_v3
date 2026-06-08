@@ -1,4 +1,4 @@
-export const platform = "anycubic_cloud";
+export const platform = "anycubic_ha_integration";
 
 export const DEBUG = false;
 

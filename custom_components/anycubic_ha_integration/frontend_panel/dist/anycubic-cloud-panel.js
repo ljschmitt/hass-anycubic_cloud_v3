@@ -8256,7 +8256,7 @@
     }
   }
   window.customElements.get("color-picker") || window.customElements.define("color-picker", qs);
-  const Ks = "anycubic_cloud",
+  const Ks = "anycubic_ha_integration",
     Zs = {
       keyframeOptions: {
         duration: 250,
@@ -9899,7 +9899,7 @@
     }
   };
   n([yt()], _o.prototype, "_serviceName", void 0), _o = n([Ai("anycubic-view-print-save_in_cloud")], _o);
-  var fo = "0.0.70";
+  var fo = "0.0.71";
   window.console.info(`%c ANYCUBIC-PANEL %c v${fo} `, "color: orange; font-weight: bold; background: black", "color: white; font-weight: bold; background: dimgray"), t.AnycubicCloudPanel = class extends ut {
     constructor() {
       super(...arguments), this.selectedPage = "main", this._handleLocationChange = () => {
