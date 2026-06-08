@@ -220,6 +220,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _build_printer_dict(self, printer: AnycubicPrinter) -> dict[str, Any]:
         primary_ace_spool_info = printer.primary_multi_color_box_spool_info_object
         secondary_ace_spool_info = printer.secondary_multi_color_box_spool_info_object
+        kobra_x_internal_spool_info = printer.kobra_x_internal_material_rack_spool_info_object
 
         file_list_local = printer.local_file_list_object
         file_list_udisk = printer.udisk_file_list_object
@@ -293,7 +294,12 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         attributes = {
             "ace_spools": {
-                "spool_info": primary_ace_spool_info
+                "spool_info": primary_ace_spool_info,
+                "kobra_x_internal_spool_info": kobra_x_internal_spool_info,
+                "kobra_x_internal_slot_4_reserved_by_ace": (
+                    bool(kobra_x_internal_spool_info)
+                    and printer.connected_ace_units > 0
+                ),
             },
             "secondary_ace_spools": {
                 "spool_info": secondary_ace_spool_info

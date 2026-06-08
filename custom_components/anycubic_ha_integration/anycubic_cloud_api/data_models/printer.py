@@ -1432,6 +1432,10 @@ class AnycubicPrinter:
         return self._has_peripheral_multi_color_box or self.connected_ace_units > 0
 
     @property
+    def is_kobra_x(self) -> bool:
+        return self._machine_type == 20030 or self._machine_name == "Anycubic Kobra X"
+
+    @property
     def has_peripheral_udisk(self) -> bool:
         return self._has_peripheral_udisk
 
@@ -1487,9 +1491,19 @@ class AnycubicPrinter:
         return self._multi_color_box
 
     @property
+    def kobra_x_internal_material_rack(self) -> AnycubicMultiColorBox | None:
+        if self.is_kobra_x and self._multi_color_box and len(self._multi_color_box) > 1:
+            return self._multi_color_box[0]
+
+        return None
+
+    @property
     def connected_ace_units(self) -> int:
         if self._multi_color_box is None:
             return 0
+
+        if self.kobra_x_internal_material_rack is not None:
+            return len(self._multi_color_box) - 1
 
         return len(self._multi_color_box)
 
@@ -1497,6 +1511,8 @@ class AnycubicPrinter:
     def primary_multi_color_box(self) -> AnycubicMultiColorBox | None:
         if self.connected_ace_units > 0:
             assert self._multi_color_box
+            if self.kobra_x_internal_material_rack is not None:
+                return self._multi_color_box[1]
             return self._multi_color_box[0]
 
         return None
@@ -1505,7 +1521,8 @@ class AnycubicPrinter:
     def secondary_multi_color_box(self) -> AnycubicMultiColorBox | None:
         if self.connected_ace_units > 1:
             assert self._multi_color_box
-            return self._multi_color_box[1]
+            box_offset = 1 if self.kobra_x_internal_material_rack is not None else 0
+            return self._multi_color_box[box_offset + 1]
 
         return None
 
@@ -1588,6 +1605,25 @@ class AnycubicPrinter:
     def primary_multi_color_box_spool_info_object(self) -> list[dict[str, Any]] | None:
         if self.primary_multi_color_box:
             return self.primary_multi_color_box.spool_info_object
+
+        return None
+
+    @property
+    def kobra_x_internal_material_rack_spool_info_object(self) -> list[dict[str, Any]] | None:
+        if self.kobra_x_internal_material_rack:
+            spool_info = self.kobra_x_internal_material_rack.spool_info_object
+            if not spool_info:
+                return None
+
+            kobra_x_spool_info = list()
+            for slot_index, spool in enumerate(spool_info, start=1):
+                slot = dict(spool)
+                slot["slot"] = slot_index
+                slot["source"] = "internal"
+                slot["reserved_by_ace"] = slot_index == 4 and self.connected_ace_units > 0
+                kobra_x_spool_info.append(slot)
+
+            return kobra_x_spool_info
 
         return None
 
@@ -2053,7 +2089,8 @@ class AnycubicPrinter:
 
         highest_box = max(slot_index_list) // 4
 
-        if self.connected_ace_units < highest_box + 1:
+        material_source_units = len(self._multi_color_box)
+        if material_source_units < highest_box + 1:
             raise AnycubicAPIError(ErrorsGeneral.insufficent_ace_units.format(
                 highest_box + 1
             ))
