@@ -304,6 +304,23 @@ class AnycubicMachineExternalShelves:
         self._status_type = data['status_type']
         self._current_status = data['current_status']
 
+    @property
+    def spool_info_object(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "material_type": self._type,
+                "color": self._color,
+                "status": self._current_status,
+                "spool_loaded": bool(self._loaded),
+                "local_slot": 1,
+                "slot": 1,
+                "display_slot": 1,
+                "box_id": -1,
+                "source": "external",
+                "reserved_by_ace": False,
+            }
+        ]
+
     def __repr__(self) -> str:
         return (
             f"AnycubicMachineExternalShelves(id={self._id}, type={self._type}, color={self._color}, loaded={self._loaded}, "
@@ -450,6 +467,10 @@ class AnycubicSpoolInfo:
             edit_status=data['edit_status'],
             status=data['status'],
         )
+
+    @property
+    def index(self) -> int:
+        return self._index
 
     @property
     def material_type(self) -> str:
@@ -648,6 +669,10 @@ class AnycubicMultiColorBox:
                 "color": slot.color,
                 "status": slot.status,
                 "spool_loaded": slot.spool_loaded,
+                "local_slot": slot.index + 1,
+                "slot": slot.index + 1,
+                "display_slot": slot.index + 1,
+                "box_id": self.box_id,
             } for slot in self._slots
         ])
         return spool_list

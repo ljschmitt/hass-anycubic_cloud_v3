@@ -114,6 +114,12 @@ FDM_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
         not_measured=True,
     ),
     AnycubicSensorEntityDescription(
+        key="material_rack_spools",
+        translation_key="material_rack_spools",
+        printer_entity_type=PrinterEntityType.FDM,
+        not_measured=True,
+    ),
+    AnycubicSensorEntityDescription(
         key="print_speed_pct",
         translation_key="print_speed_pct",
         printer_entity_type=PrinterEntityType.FDM,

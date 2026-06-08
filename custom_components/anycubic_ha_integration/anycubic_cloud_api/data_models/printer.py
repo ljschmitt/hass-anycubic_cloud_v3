@@ -1657,7 +1657,11 @@ class AnycubicPrinter:
     @property
     def primary_multi_color_box_spool_info_object(self) -> list[dict[str, Any]] | None:
         if self.primary_multi_color_box:
-            return self.primary_multi_color_box.spool_info_object
+            display_slot_start = 4 if self.kobra_x_internal_material_rack else 1
+            return self._multi_color_box_spool_info_object(
+                self.primary_multi_color_box,
+                display_slot_start=display_slot_start,
+            )
 
         return None
 
@@ -1671,7 +1675,9 @@ class AnycubicPrinter:
             kobra_x_spool_info = list()
             for slot_index, spool in enumerate(spool_info, start=1):
                 slot = dict(spool)
+                slot["local_slot"] = slot_index
                 slot["slot"] = slot_index
+                slot["display_slot"] = slot_index
                 slot["source"] = "internal"
                 slot["reserved_by_ace"] = slot_index == 4 and self.connected_ace_units > 0
                 kobra_x_spool_info.append(slot)
@@ -1679,6 +1685,23 @@ class AnycubicPrinter:
             return kobra_x_spool_info
 
         return None
+
+    @property
+    def external_material_rack_spool_info_object(self) -> list[dict[str, Any]] | None:
+        if self.external_shelves:
+            return self.external_shelves.spool_info_object
+
+        return None
+
+    @property
+    def material_rack_spool_info_object(self) -> list[dict[str, Any]] | None:
+        if self.kobra_x_internal_material_rack_spool_info_object:
+            return self.kobra_x_internal_material_rack_spool_info_object
+
+        if self.primary_multi_color_box_spool_info_object:
+            return None
+
+        return self.external_material_rack_spool_info_object
 
     @property
     def primary_multi_color_box_current_temperature(self) -> int:
@@ -1762,9 +1785,35 @@ class AnycubicPrinter:
     @property
     def secondary_multi_color_box_spool_info_object(self) -> list[dict[str, Any]] | None:
         if self.secondary_multi_color_box:
-            return self.secondary_multi_color_box.spool_info_object
+            display_slot_start = 8 if self.kobra_x_internal_material_rack else 5
+            return self._multi_color_box_spool_info_object(
+                self.secondary_multi_color_box,
+                display_slot_start=display_slot_start,
+            )
 
         return None
+
+    def _multi_color_box_spool_info_object(
+        self,
+        box: AnycubicMultiColorBox,
+        display_slot_start: int,
+    ) -> list[dict[str, Any]] | None:
+        spool_info = box.spool_info_object
+        if not spool_info:
+            return None
+
+        ace_spool_info = list()
+        for local_slot_index, spool in enumerate(spool_info, start=1):
+            display_slot = display_slot_start + local_slot_index - 1
+            slot = dict(spool)
+            slot["local_slot"] = local_slot_index
+            slot["slot"] = display_slot
+            slot["display_slot"] = display_slot
+            slot["source"] = "ace"
+            slot["box_id"] = box.box_id
+            ace_spool_info.append(slot)
+
+        return ace_spool_info
 
     @property
     def secondary_multi_color_box_current_temperature(self) -> int:
@@ -2490,6 +2539,12 @@ class AnycubicPrinter:
             self,
             box_id=box_id,
         )
+
+    async def multi_color_box_request_info(
+        self,
+    ) -> str | None:
+
+        return await self._api_parent.multi_color_box_request_info(self)
 
     async def update_printer_firmware(
         self,

@@ -36,6 +36,7 @@ def process_card_config(
 
 def get_panel_module_url(root_dir: str) -> str:
     manifest_path = os.path.join(root_dir, "manifest.json")
+    panel_path = os.path.join(root_dir, PANEL_FOLDER, PANEL_FILENAME)
     try:
         with open(manifest_path, encoding="utf-8") as manifest_file:
             manifest = json.load(manifest_file)
@@ -46,7 +47,12 @@ def get_panel_module_url(root_dir: str) -> str:
     if not version:
         return PANEL_URL
 
-    return f"{PANEL_URL}?v={version}"
+    try:
+        panel_mtime = int(os.path.getmtime(panel_path))
+    except OSError:
+        panel_mtime = 0
+
+    return f"{PANEL_URL}?v={version}.{panel_mtime}"
 
 
 async def async_register_panel(
@@ -59,7 +65,6 @@ async def async_register_panel(
         panel_dir = os.path.join(root_dir, PANEL_FOLDER)
         view_url = os.path.join(panel_dir, PANEL_FILENAME)
         module_url = await hass.async_add_executor_job(get_panel_module_url, root_dir)
-
         try:
             await hass.http.async_register_static_paths(
                 [StaticPathConfig(PANEL_URL, view_url, cache_headers=False)]

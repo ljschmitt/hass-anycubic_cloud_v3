@@ -31,6 +31,10 @@ import {
 } from "./types";
 import * as pkgjson from "../package.json";
 import { localize } from "../localize/localize";
+import {
+  PRINTER_IMAGE_KOBRA_3,
+  PRINTER_IMAGE_KOBRA_X,
+} from "./printer_images";
 
 window.console.info(
   `%c ANYCUBIC-PANEL %c v${pkgjson.version} `,
@@ -198,6 +202,41 @@ export class AnycubicCloudPanel extends LitElement {
     `;
   }
 
+  private _getPrinterImage(device: HassDevice | undefined): string | undefined {
+    const deviceText = `${device?.name ?? ""} ${device?.model ?? ""}`.toLowerCase();
+
+    if (deviceText.includes("kobra x")) {
+      return PRINTER_IMAGE_KOBRA_X;
+    }
+
+    if (deviceText.includes("kobra 3")) {
+      return PRINTER_IMAGE_KOBRA_3;
+    }
+
+    return undefined;
+  }
+
+  private _renderPrinterSelectBox(printerID: string): LitTemplateResult {
+    const printer = this.printers?.[printerID];
+    const printerImage = this._getPrinterImage(printer);
+
+    return html`<li
+      class="printer-select-box"
+      .printer_id=${printerID}
+      @click=${this._handlePrinterClick}
+    >
+      ${printerImage
+        ? html`<img
+            class="printer-select-image"
+            src=${printerImage}
+            alt=""
+            loading="lazy"
+          />`
+        : html`<div class="printer-select-placeholder"></div>`}
+      <div class="printer-select-name">${printer?.name ?? ""}</div>
+    </li>`;
+  }
+
   getInitialView(): LitTemplateResult {
     if (this.selectedPrinterID) {
       return this.renderPrinterPage();
@@ -208,15 +247,8 @@ export class AnycubicCloudPanel extends LitElement {
           <p>${this._selectPrinter}</p>
           <ul class="printers-container">
             ${this.printers
-              ? Object.keys(this.printers).map(
-                  (printerID) =>
-                    html`<li
-                      class="printer-select-box"
-                      .printer_id=${printerID}
-                      @click=${this._handlePrinterClick}
-                    >
-                      ${this.printers ? this.printers[printerID].name : ""}
-                    </li>`,
+              ? Object.keys(this.printers).map((printerID) =>
+                  this._renderPrinterSelectBox(printerID),
                 )
               : null}
           </ul>
@@ -453,29 +485,66 @@ export class AnycubicCloudPanel extends LitElement {
         flex-direction: row;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
       }
 
       .printer-select-box {
         cursor: pointer;
-        display: block;
-        min-height: 60px;
+        display: grid;
+        grid-template-rows: 150px auto;
+        gap: 12px;
+        min-height: 218px;
         min-width: 250px;
+        max-width: 280px;
         border: 2px solid #ccc3;
         border-radius: 16px;
         padding: 16px;
-        line-height: 60px;
         text-align: center;
         font-weight: 900;
+        box-sizing: border-box;
+        overflow: hidden;
       }
 
       .printer-select-box:hover {
         background-color: #ccc3;
         border-color: #ccc9;
       }
+
+      .printer-select-image,
+      .printer-select-placeholder {
+        width: 100%;
+        height: 150px;
+        border-radius: 10px;
+      }
+
+      .printer-select-image {
+        display: block;
+        object-fit: contain;
+        background: #fff;
+      }
+
+      .printer-select-placeholder {
+        background: rgba(var(--rgb-primary-text-color), 0.08);
+      }
+
+      .printer-select-name {
+        align-self: center;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+      }
       @media (max-width: 599px) {
         .view > * {
           min-width: 100%;
           max-width: 100%;
+        }
+
+        .printer-select-box {
+          width: 100%;
+          max-width: 320px;
         }
       }
     `;

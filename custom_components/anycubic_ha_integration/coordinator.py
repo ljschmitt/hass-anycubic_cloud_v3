@@ -99,6 +99,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._mqtt_refresh_lock = asyncio.Lock()
         self._mqtt_file_list_check_lock = asyncio.Lock()
         self._mqtt_last_refresh: int | None = None
+        self._mqtt_last_multi_color_info_request: dict[int, int] = dict()
         self._printer_device_map: dict[str, int] | None = None
         mqtt_connect_mode = self.entry.options.get(CONF_MQTT_CONNECT_MODE)
         self._mqtt_connection_mode = (
@@ -220,6 +221,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _build_printer_dict(self, printer: AnycubicPrinter) -> dict[str, Any]:
         primary_ace_spool_info = printer.primary_multi_color_box_spool_info_object
         secondary_ace_spool_info = printer.secondary_multi_color_box_spool_info_object
+        material_rack_spool_info = printer.material_rack_spool_info_object
         kobra_x_internal_spool_info = printer.kobra_x_internal_material_rack_spool_info_object
 
         file_list_local = printer.local_file_list_object
@@ -251,6 +253,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "secondary_ace_spools": state_string_active(secondary_ace_spool_info),
             "secondary_multi_color_box_runout_refill": printer.secondary_multi_color_box_auto_feed,
             "secondary_ace_current_temperature": printer.secondary_multi_color_box_current_temperature,
+            "material_rack_spools": state_string_active(material_rack_spool_info),
             "dry_status_is_drying": printer.primary_drying_status_is_drying,
             "dry_status_target_temperature": printer.primary_drying_status_target_temperature,
             "dry_status_total_duration": printer.primary_drying_status_total_duration,
@@ -303,6 +306,13 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             },
             "secondary_ace_spools": {
                 "spool_info": secondary_ace_spool_info
+            },
+            "material_rack_spools": {
+                "spool_info": material_rack_spool_info,
+                "slot_4_reserved_by_ace": (
+                    bool(kobra_x_internal_spool_info)
+                    and printer.connected_ace_units > 0
+                ),
             },
             "file_list_local": {
                 "file_info": file_list_local,
@@ -540,6 +550,9 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 if printer.printer_online:
                     await printer.query_printer_options()
+                    if self._printer_needs_multi_color_info_request(printer):
+                        self._mqtt_last_multi_color_info_request[printer.id] = int(time.time())
+                        await printer.multi_color_box_request_info()
             except Exception as error:
                 tb = traceback.format_exc()
                 LOGGER.warning(f"Anycubic MQTT on subscribe error: {error}\n{tb}")
@@ -802,12 +815,59 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "Anycubic MQTT Timed out waiting for connection, try manually enabling MQTT."
             )
 
+    def _printer_needs_multi_color_info_request(
+        self,
+        printer: AnycubicPrinter,
+    ) -> bool:
+        if not printer.printer_online:
+            return False
+
+        if not printer.supports_function_multi_color_box:
+            return False
+
+        if printer.primary_multi_color_box_spool_info_object:
+            return False
+
+        if not (printer.has_peripheral_multi_color_box or printer.is_kobra_x):
+            return False
+
+        last_request = self._mqtt_last_multi_color_info_request.get(printer.id)
+        if last_request and int(time.time()) < last_request + MQTT_IDLE_DISCONNECT_SECONDS:
+            return False
+
+        return True
+
+    async def _request_missing_multi_color_box_info(self) -> None:
+        printers = [
+            printer for printer in self._anycubic_printers.values()
+            if self._printer_needs_multi_color_info_request(printer)
+        ]
+        if not printers:
+            return
+
+        await self._connect_mqtt_for_action_response()
+
+    async def _async_request_missing_multi_color_box_info_after_startup(self) -> None:
+        await asyncio.sleep(30)
+        if self.hass.is_stopping:
+            return
+
+        try:
+            await self._request_missing_multi_color_box_info()
+        except Exception as error:
+            tb = traceback.format_exc()
+            LOGGER.warning(f"Anycubic MQTT multi-color info startup request error: {error}\n{tb}")
+
     async def _async_setup(self) -> None:
         setup_retries = 0
         while setup_retries < API_SETUP_RETRIES + 1:
             try:
                 await self._setup_anycubic_api_connection()
                 await self._setup_anycubic_printer_objects()
+                self.hass.create_task(
+                    self._async_request_missing_multi_color_box_info_after_startup(),
+                    f"Anycubic coordinator {self.entry.entry_id} missing multi-color info startup request",
+                )
                 return
             except AnycubicAPIParsingError as error:
                 if setup_retries >= API_SETUP_RETRIES:
@@ -836,6 +896,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             self._failed_updates = 0
 
+            await self._request_missing_multi_color_box_info()
             await self._check_anycubic_mqtt_connection()
 
         except ConfigEntryAuthFailed:

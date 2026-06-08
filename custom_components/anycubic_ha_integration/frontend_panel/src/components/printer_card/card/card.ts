@@ -128,6 +128,9 @@ export class AnycubicPrintercardCard extends LitElement {
   private hasSecondaryColorbox: boolean = false;
 
   @state()
+  private hasMaterialRack: boolean = false;
+
+  @state()
   private lightIsOn: boolean = false;
 
   @state()
@@ -190,6 +193,14 @@ export class AnycubicPrintercardCard extends LitElement {
           this.printerEntities,
           this.printerEntityIdPart,
           "ace_spools",
+          "inactive",
+        ).state === "active";
+      this.hasMaterialRack =
+        getPrinterSensorStateObj(
+          this.hass,
+          this.printerEntities,
+          this.printerEntityIdPart,
+          "material_rack_spools",
           "inactive",
         ).state === "active";
       this.hasSecondaryColorbox =
@@ -392,6 +403,7 @@ export class AnycubicPrintercardCard extends LitElement {
         </div>
       </div>
       ${this._renderPrintSettingsContainer()}
+      ${this._renderMaterialRackContainer()}
       ${this._renderMultiColorBoxContainer()}
       ${this._renderSecondaryMultiColorBoxContainer()}
     `;
@@ -428,6 +440,39 @@ export class AnycubicPrintercardCard extends LitElement {
                 <ha-svg-icon .path=${mdiCog}></ha-svg-icon>
                 ${this._buttonPrintSettings}
               </button>
+            </div>
+          </div>
+        `
+      : nothing;
+  }
+
+  private _renderMaterialRackContainer(): LitTemplateResult {
+    const classesMain = {
+      "ac-card-vertical": !!this.vertical,
+    };
+    const stylesMain = {
+      height: this.isHidden ? "1px" : "auto",
+      opacity: this.isHidden ? 0.0 : 1.0,
+      scale: this.isHidden ? 0.0 : 1.0,
+    };
+
+    return this.hasMaterialRack
+      ? html`
+          <div
+            class="ac-printer-card-infocontainer ${classMap(classesMain)}"
+            style=${styleMap(stylesMain)}
+            ${animate({ ...animOptionsCard })}
+          >
+            <div class="ac-printer-card-mcbsection ${classMap(classesMain)}">
+              <anycubic-printercard-multicolorbox_view
+                .hass=${this.hass}
+                .language=${this.language}
+                .printerEntities=${this.printerEntities}
+                .printerEntityIdPart=${this.printerEntityIdPart}
+                .spoolsEntityId=${"material_rack_spools"}
+                .showControls=${false}
+                .allowSpoolEdit=${true}
+              ></anycubic-printercard-multicolorbox_view>
             </div>
           </div>
         `

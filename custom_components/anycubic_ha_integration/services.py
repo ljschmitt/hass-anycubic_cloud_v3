@@ -79,7 +79,9 @@ def build_anycubic_service_schema(
         )
 
     if with_opt_box:
-        service_schema[vol.Optional(CONF_BOX_ID)] = cv.positive_int
+        service_schema[vol.Optional(CONF_BOX_ID)] = vol.All(
+            vol.Coerce(int), vol.Range(min=-1, max=7)
+        )
 
     if with_speed:
         service_schema[vol.Required(CONF_SPEED)] = cv.positive_int

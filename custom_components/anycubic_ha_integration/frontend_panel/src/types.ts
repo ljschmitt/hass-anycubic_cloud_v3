@@ -272,6 +272,12 @@ export interface AnycubicSpoolInfo {
   color: number[];
   status: number;
   spool_loaded: boolean;
+  local_slot?: number;
+  slot?: number;
+  display_slot?: number;
+  source?: string;
+  box_id?: number;
+  reserved_by_ace?: boolean;
 }
 
 export interface AnycubicSpeedMode {
@@ -383,6 +389,7 @@ export interface ModalEventDrying extends ModalEventBase {
 export interface ModalEventSpool extends ModalEventBase {
   box_id: number | string;
   spool_index: number | string;
+  display_slot?: number | string;
   material_type?: string;
   color: number[] | string | undefined;
 }
@@ -457,6 +464,9 @@ export interface EvtTargDirection extends EventTarget {
 
 export interface EvtTargSpoolEdit extends EventTarget {
   index: number;
+  local_slot?: number;
+  display_slot?: number;
+  box_id?: number;
   material_type: string;
   color: number[];
 }

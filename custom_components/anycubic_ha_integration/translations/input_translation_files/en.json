@@ -428,6 +428,9 @@
       "ace_spools": {
         "name": "ACE Spools"
       },
+      "material_rack_spools": {
+        "name": "Material Rack Spools"
+      },
       "ace_current_temperature": {
         "name": "ACE Current [%key:common::temperature%]"
       },

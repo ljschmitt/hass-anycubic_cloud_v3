@@ -1170,6 +1170,12 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
 
         return resp
 
+    async def multi_color_box_request_info(
+        self,
+        printer: AnycubicPrinter,
+    ) -> str | None:
+        return await self._send_order_multi_color_box_get_info(printer)
+
     async def multi_color_box_set_auto_feed(
         self,
         printer: AnycubicPrinter,

@@ -286,6 +286,9 @@
       "ace_spools": {
         "name": "ACE‑Spulen"
       },
+      "material_rack_spools": {
+        "name": "Materialregal‑Spulen"
+      },
       "ace_current_temperature": {
         "name": "ACE – Aktuelle Temperatur"
       },

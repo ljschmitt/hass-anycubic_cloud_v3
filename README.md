@@ -4,6 +4,9 @@
 > Diese Version ist mit **Home Assistant 2026.6.1** getestet und bleibt ab **Home Assistant 2025.10.0** freigegeben. Sie nutzt weiterhin die integrierte **`paho-mqtt` 2.x-Lösung** (Callback-API v1) für **MQTT-Echtzeit-Updates**.  
 > Voraussetzung für MQTT: **Slicer Next (Windows)** und dessen **Access-Token**.  
 > Kein harter Pin auf `paho-mqtt==1.6.1`.
+>
+> 🗓️ **Update (08.06.2026):**  
+> Die Druckerauswahl zeigt jetzt passende Druckerbilder fuer Kobra 3 und Kobra X. Die Kobra-X-Materialanzeige trennt internes Materialregal und ACE-Zugaenge klarer.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -22,6 +25,7 @@
 - [🧩 Features](#-features)
 - [📦 Installation über HACS (empfohlen)](#-installation-über-hacs-empfohlen)
 - [🖐️ Manuelle Installation](#-manuelle-installation)
+- [⚠️ Sicherheit und Haftung](#️-sicherheit-und-haftung)
 - [🔐 Token auslesen (Slicer Next)](#-token-auslesen-slicer-next)
 - [🌐 Web-Login (ohne MQTT, nur Polling)](#-web-login-ohne-mqtt-nur-polling)
 - [📥 Releases](#-releases)
@@ -61,6 +65,8 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 
 ## 🖼️ Galerie
 
+<img width="300" src="custom_components/anycubic_ha_integration/frontend_panel/dist/assets/printer-kobra-3.webp">
+<img width="300" src="custom_components/anycubic_ha_integration/frontend_panel/dist/assets/printer-kobra-x.webp">
 <img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-1.png">  
 <img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/anycubic-ace-ui.gif">  
 <img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-2.png">  
@@ -108,6 +114,16 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
    /config/custom_components/anycubic_ha_integration/
 3. Home Assistant neu starten
 4. Integration hinzufügen wie oben
+
+---
+
+## ⚠️ Sicherheit und Haftung
+
+Diese Integration steuert und liest 3D-Drucker ueber Anycubic Cloud, Services und optional MQTT. Die Nutzung erfolgt auf eigene Verantwortung.
+
+Ich uebernehme keine Haftung fuer Schaeden am 3D-Drucker, an angeschlossenem Zubehoer, an Filament, Druckobjekten oder der Umgebung. Bitte alle Funktionen vorsichtig verwenden, neue Versionen gruendlich testen und insbesondere Steuerbefehle wie Druckstart, Pause, Abbruch, Temperatur-, ACE- und Materialslot-Aenderungen aufmerksam pruefen.
+
+Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen koennen gerne ueber GitHub Issues gemeldet werden.
 
 ---
 

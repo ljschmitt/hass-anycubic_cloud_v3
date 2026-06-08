@@ -68,6 +68,9 @@ export class AnycubicPrintercardMulticolorboxModalSpool extends LitElement {
   private spool_index: number = -1;
 
   @state()
+  private display_slot: number = -1;
+
+  @state()
   private material_type: AnycubicMaterialType | undefined;
 
   @state()
@@ -168,7 +171,7 @@ export class AnycubicPrintercardMulticolorboxModalSpool extends LitElement {
       ? html`
           <div>
             <div class="ac-slot-title">
-              ${this._heading}: ${this.spool_index + 1}
+              ${this._heading}: ${this.display_slot > 0 ? this.display_slot : this.spool_index + 1}
             </div>
             <div>
               <div>
@@ -241,6 +244,7 @@ export class AnycubicPrintercardMulticolorboxModalSpool extends LitElement {
       this._isOpen = true;
       this.box_id = Number(e.detail.box_id);
       this.spool_index = Number(e.detail.spool_index);
+      this.display_slot = Number(e.detail.display_slot ?? this.spool_index + 1);
       this.material_type = materialTypeFromString(e.detail.material_type);
       this.color = e.detail.color;
     }
@@ -309,6 +313,7 @@ export class AnycubicPrintercardMulticolorboxModalSpool extends LitElement {
     }
     this._isOpen = false;
     this.spool_index = -1;
+    this.display_slot = -1;
     this.material_type = undefined;
     this.color = undefined;
     this.box_id = 0;
