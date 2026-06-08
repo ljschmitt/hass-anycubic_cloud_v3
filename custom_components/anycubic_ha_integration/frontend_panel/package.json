@@ -1,6 +1,6 @@
 {
   "name": "anycubic_ha_integration",
-  "version": "0.0.64",
+  "version": "0.0.65",
   "description": "anycubic panel for hass",
   "main": "src/index.ts",
   "scripts": {

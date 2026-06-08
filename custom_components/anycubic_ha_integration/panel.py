@@ -1,6 +1,7 @@
 """Anycubic Cloud frontend panel."""
 from __future__ import annotations
 
+import json
 import os
 from typing import Any
 
@@ -33,6 +34,21 @@ def process_card_config(
         return {}
 
 
+def get_panel_module_url(root_dir: str) -> str:
+    manifest_path = os.path.join(root_dir, "manifest.json")
+    try:
+        with open(manifest_path, encoding="utf-8") as manifest_file:
+            manifest = json.load(manifest_file)
+    except (OSError, ValueError):
+        return PANEL_URL
+
+    version = manifest.get("version")
+    if not version:
+        return PANEL_URL
+
+    return f"{PANEL_URL}?v={version}"
+
+
 async def async_register_panel(
     hass: HomeAssistant,
     conf_object: Any,
@@ -42,6 +58,7 @@ async def async_register_panel(
         root_dir = os.path.join(hass.config.path(CUSTOM_COMPONENTS), INTEGRATION_FOLDER)
         panel_dir = os.path.join(root_dir, PANEL_FOLDER)
         view_url = os.path.join(panel_dir, PANEL_FILENAME)
+        module_url = get_panel_module_url(root_dir)
 
         try:
             await hass.http.async_register_static_paths(
@@ -59,7 +76,7 @@ async def async_register_panel(
             hass,
             webcomponent_name=PANEL_NAME,
             frontend_url_path=DOMAIN,
-            module_url=PANEL_URL,
+            module_url=module_url,
             sidebar_title=PANEL_TITLE,
             sidebar_icon=PANEL_ICON,
             require_admin=False,
