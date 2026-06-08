@@ -1,5 +1,5 @@
 import { LitElement, PropertyValues, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
 import * as pkgjson from "../../../package.json";
 
@@ -20,6 +20,7 @@ import {
   getSelectedPrinter,
   undefinedDefault,
 } from "../../helpers";
+import { customElementIfUndef } from "../../internal/register-custom-element";
 
 import "./card/card.ts";
 import "./configure/configure.ts";
@@ -32,7 +33,7 @@ window.console.info(
 
 const defaultConfig = getDefaultCardConfig();
 
-@customElement("anycubic-card-editor")
+@customElementIfUndef("anycubic-card-editor")
 export class AnycubicPrintercardEditor extends LitElement {
   @property()
   public hass!: HomeAssistant;
@@ -114,7 +115,7 @@ export class AnycubicPrintercardEditor extends LitElement {
   }
 }
 
-@customElement("anycubic-card")
+@customElementIfUndef("anycubic-card")
 export class AnycubicCard extends LitElement {
   @property()
   public hass!: HomeAssistant;

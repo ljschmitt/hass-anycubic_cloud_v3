@@ -1,5 +1,5 @@
 import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
 import { localize } from "../../../../localize/localize";
 
@@ -36,12 +36,13 @@ import {
   StatTypeLCD,
   TemperatureUnit,
 } from "../../../types";
+import { customElementIfUndef } from "../../../internal/register-custom-element";
 
 import "../../ui/multi-select-reorder.ts";
 
 const defaultConfig = getDefaultCardConfig();
 
-@customElement("anycubic-printercard-configure")
+@customElementIfUndef("anycubic-printercard-configure")
 export class AnycubicPrintercardConfigure extends LitElement {
   @property()
   public hass!: HomeAssistant;

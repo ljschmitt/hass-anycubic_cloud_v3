@@ -1,8 +1,9 @@
 import { PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 
 import { AnycubicViewFilesBase } from "./view-files_base";
 import { platform } from "../../const";
+import { customElementIfUndef } from "../../internal/register-custom-element";
 import {
   getEntityState,
   getFileListCloudFilesEntity,
@@ -15,7 +16,7 @@ import {
   EvtTargFileInfo,
 } from "../../types";
 
-@customElement("anycubic-view-files_cloud")
+@customElementIfUndef("anycubic-view-files_cloud")
 export class AnycubicViewFilesCloud extends AnycubicViewFilesBase {
   @state()
   protected _fileArray: AnycubicFileCloud[] | undefined;

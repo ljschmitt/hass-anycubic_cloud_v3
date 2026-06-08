@@ -1062,6 +1062,18 @@ class AnycubicPrinter:
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.peripherals)
 
+    def _process_mqtt_update_light(
+        self,
+        action: str,
+        state: str,
+        payload: AnycubicConsumableData,
+    ) -> None:
+        if action == 'query' and state == 'done':
+            payload.force_empty()
+            return
+        else:
+            raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('light'))
+
     def process_mqtt_update(
         self,
         topic: str,
@@ -1109,6 +1121,9 @@ class AnycubicPrinter:
 
         elif msg_type == 'peripherie':
             self._process_mqtt_update_peripherals(action, state, payload)
+
+        elif msg_type == 'light':
+            self._process_mqtt_update_light(action, state, payload)
 
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format(msg_type))

@@ -58,7 +58,7 @@ async def async_register_panel(
         root_dir = os.path.join(hass.config.path(CUSTOM_COMPONENTS), INTEGRATION_FOLDER)
         panel_dir = os.path.join(root_dir, PANEL_FOLDER)
         view_url = os.path.join(panel_dir, PANEL_FILENAME)
-        module_url = get_panel_module_url(root_dir)
+        module_url = await hass.async_add_executor_job(get_panel_module_url, root_dir)
 
         try:
             await hass.http.async_register_static_paths(

@@ -26,6 +26,24 @@ import {
   TemperatureUnit,
 } from "./types";
 
+const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
+  ace_firmware: ["multi_color_box_fw_version"],
+  drying_active: ["dry_status_is_drying"],
+  drying_remaining_time: ["dry_status_remaining_time"],
+  drying_total_duration: ["dry_status_total_duration"],
+  fan_speed: ["fan_speed_pct"],
+  hotbed_temperature: ["curr_hotbed_temp"],
+  nozzle_temperature: ["curr_nozzle_temp"],
+  printer_firmware: ["fw_version"],
+  secondary_multi_color_box_spools: ["secondary_ace_spools"],
+  target_hotbed_temperature: ["target_hotbed_temp"],
+  target_nozzle_temperature: ["target_nozzle_temp"],
+};
+
+function getEntityTranslationKeys(matchSuffix: string): string[] {
+  return [matchSuffix, ...(ENTITY_TRANSLATION_KEY_ALIASES[matchSuffix] ?? [])];
+}
+
 const stylePxKeys = ["width", "height", "left", "top"];
 
 export function updateElementStyleWithObject(
@@ -163,11 +181,19 @@ export function getMatchingEntity(
   match_domain: string,
   match_suffix: string,
 ): HassEntityInfo | undefined {
+  const translationKeys = getEntityTranslationKeys(match_suffix);
   for (const key in entities) {
     const ent = entities[key];
     const splitID = key.split(".");
     const domain: string = splitID[0];
     const entity_id: string = splitID[1];
+
+    if (
+      domain === match_domain &&
+      translationKeys.includes(ent.translation_key ?? "")
+    ) {
+      return ent;
+    }
 
     if (domain === match_domain && entity_id.endsWith(match_suffix)) {
       return ent;
@@ -190,6 +216,20 @@ export function getStrictMatchingEntity(
   match_domain: string,
   match_suffix: string,
 ): HassEntityInfo | undefined {
+  const translationKeys = getEntityTranslationKeys(match_suffix);
+  for (const key in entities) {
+    const ent = entities[key];
+    const splitID = key.split(".");
+    const domain: string = splitID[0];
+
+    if (
+      domain === match_domain &&
+      translationKeys.includes(ent.translation_key ?? "")
+    ) {
+      return ent;
+    }
+  }
+
   if (!printerEntityIdPart) {
     return undefined;
   }

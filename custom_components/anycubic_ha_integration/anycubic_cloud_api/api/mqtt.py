@@ -147,7 +147,12 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
         else:
             printer_key = get_part_from_mqtt_topic(topic, 6)
 
-            if get_part_from_mqtt_topic(topic, 7) == 'response' and len(payload.keys()) == 1:
+            if (
+                get_part_from_mqtt_topic(topic, 7) == 'response'
+                and not payload.get('type')
+                and not payload.get('action')
+                and not payload.get('state')
+            ):
                 return
 
             if printer_key not in self._mqtt_subscribed_printers:

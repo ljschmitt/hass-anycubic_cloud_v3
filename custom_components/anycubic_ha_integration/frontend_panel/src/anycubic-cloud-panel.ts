@@ -1,5 +1,5 @@
 import { CSSResult, LitElement, PropertyValues, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
 import "./views/debug/view-debug.ts";
 import "./views/main/view-main.ts";
@@ -19,6 +19,7 @@ import {
   navigateToPage,
   navigateToPrinter,
 } from "./helpers";
+import { customElementIfUndef } from "./internal/register-custom-element";
 import {
   DomClickEvent,
   EvtTargPrinterDevId,
@@ -39,7 +40,7 @@ window.console.info(
   "color: white; font-weight: bold; background: dimgray",
 );
 
-@customElement("anycubic-cloud-panel")
+@customElementIfUndef("anycubic-cloud-panel")
 export class AnycubicCloudPanel extends LitElement {
   @property()
   public hass!: HomeAssistant;

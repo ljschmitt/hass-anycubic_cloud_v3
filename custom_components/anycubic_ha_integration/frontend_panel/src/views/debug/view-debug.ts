@@ -1,7 +1,8 @@
 import { CSSResult, LitElement, PropertyValues, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
 import { getPrinterEntities } from "../../helpers";
+import { customElementIfUndef } from "../../internal/register-custom-element";
 import {
   HassDevice,
   HassDeviceList,
@@ -12,7 +13,7 @@ import {
   LitTemplateResult,
 } from "../../types";
 
-@customElement("anycubic-view-debug")
+@customElementIfUndef("anycubic-view-debug")
 export class AnycubicViewDebug extends LitElement {
   @property()
   public hass!: HomeAssistant;
