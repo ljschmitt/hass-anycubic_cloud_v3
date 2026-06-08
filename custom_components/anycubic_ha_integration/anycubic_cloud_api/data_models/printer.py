@@ -272,12 +272,34 @@ class AnycubicPrinter:
                 raise AnycubicDataParsingError(ErrorsDataParsing.udisk_file_list.format(file_list))
 
     def _set_multi_color_box(self, multi_color_box: list[dict[str, Any]] | dict[str, Any] | None) -> None:
-        self._multi_color_box: list[AnycubicMultiColorBox] | None = None
         try:
             if multi_color_box is None or isinstance(multi_color_box, list):
                 multi_color_box_list = multi_color_box
             else:
                 multi_color_box_list = list([multi_color_box])
+
+            existing_multi_color_box = getattr(self, "_multi_color_box", None)
+
+            if (
+                self.is_kobra_x and
+                existing_multi_color_box is not None and
+                len(existing_multi_color_box) > 1 and
+                multi_color_box_list is not None and
+                len(multi_color_box_list) == 1
+            ):
+                updated_box = AnycubicMultiColorBox.from_json(multi_color_box_list[0])
+                if not updated_box:
+                    raise AnycubicDataParsingError(ErrorsDataParsing.ace.format(multi_color_box))
+
+                for box_index, existing_box in enumerate(existing_multi_color_box):
+                    if existing_box.box_id == updated_box.box_id:
+                        existing_multi_color_box[box_index] = updated_box
+                        return
+
+                existing_multi_color_box[0] = updated_box
+                return
+
+            self._multi_color_box: list[AnycubicMultiColorBox] | None = None
             if multi_color_box_list is not None:
                 self._multi_color_box = list()
                 for x in multi_color_box_list:
@@ -1074,11 +1096,24 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action == 'query' and state == 'done':
+        if action in ('query', 'control') and state == 'done':
+            payload.get('data')
             payload.force_empty()
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('light'))
+
+    def _process_mqtt_update_video(
+        self,
+        action: str,
+        state: str,
+        payload: AnycubicConsumableData,
+    ) -> None:
+        if action == 'startCapture' and state in ('joinSuccess', 'pushStarted', 'pushStoped', 'done'):
+            payload.force_empty()
+            return
+        else:
+            raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('video'))
 
     def process_mqtt_update(
         self,
@@ -1130,6 +1165,9 @@ class AnycubicPrinter:
 
         elif msg_type == 'light':
             self._process_mqtt_update_light(action, state, payload)
+
+        elif msg_type == 'video':
+            self._process_mqtt_update_video(action, state, payload)
 
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format(msg_type))
