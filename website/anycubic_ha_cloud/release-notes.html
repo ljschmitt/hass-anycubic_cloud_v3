@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Release Notes - Anycubic HA Integration</title>
+    <meta
+      name="description"
+      content="Release Notes der Anycubic HA Integration fuer Home Assistant."
+    >
+    <link rel="icon" href="assets/icon.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Zur Startseite">
+        <img src="assets/icon.png" alt="">
+        <span>Anycubic HA</span>
+      </a>
+      <nav class="top-nav" aria-label="Seitennavigation">
+        <a href="index.html#installation">Installation</a>
+        <a href="index.html#token">Token</a>
+        <a href="index.html#features">Features</a>
+        <a href="release-notes.html" aria-current="page">Release Notes</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">Aenderungen</p>
+        <h1>Release Notes</h1>
+        <p class="lead">
+          Die wichtigsten Aenderungen der aktuellen Versionen fuer Home Assistant,
+          HACS und die Anycubic-Cloud-Anbindung.
+        </p>
+      </section>
+
+      <section class="section release-section">
+        <article class="release-note">
+          <div class="release-meta">
+            <span>v0.0.70</span>
+            <time datetime="2026-06-08">08.06.2026</time>
+          </div>
+          <h2>Frontend-Anzeige und Zeitwerte korrigiert</h2>
+          <ul>
+            <li>Die Anycubic-Cloud-Tab-Leiste nutzt keine veralteten Paper-Tabs mehr.</li>
+            <li>ETA wird bei beendeten Drucken nicht mehr aus der aktuellen Uhrzeit neu berechnet.</li>
+            <li>Elapsed und Remaining laufen in der Karte nicht mehr weiter, wenn der Druck nicht aktiv ist.</li>
+          </ul>
+        </article>
+
+        <article class="release-note">
+          <div class="release-meta">
+            <span>v0.0.69</span>
+            <time datetime="2026-06-08">08.06.2026</time>
+          </div>
+          <h2>Kobra X ACE-Daten bleiben erhalten</h2>
+          <ul>
+            <li>Kobra X verliert die ACE-Daten nicht mehr, wenn spaetere Cloud-Details nur das interne Materialregal liefern.</li>
+            <li>Licht-Steuerungsantworten und Video-/Capture-Statusmeldungen erzeugen keine unbekannten MQTT-Updates mehr.</li>
+          </ul>
+        </article>
+
+        <article class="release-note">
+          <div class="release-meta">
+            <span>v0.0.68</span>
+            <time datetime="2026-06-08">08.06.2026</time>
+          </div>
+          <h2>Kobra X Rollenlogik erweitert</h2>
+          <ul>
+            <li>Grundlage fuer die getrennte Behandlung von internem Materialregal und ACE beim Kobra X.</li>
+            <li>Versionen und HACS-Metadaten wurden fuer aktuelle Home-Assistant-Versionen nachgezogen.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>Anycubic HA Integration</strong>
+        <p>Fork mit deutschen Texten, MQTT-Erweiterungen und verbessertem MQTT-Fallback.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest" rel="noreferrer">Latest Release</a>
+        <a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues" rel="noreferrer">Issue melden</a>
+        <a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3" rel="noreferrer">Repository</a>
+      </div>
+    </footer>
+  </body>
+</html>

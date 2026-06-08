@@ -35,6 +35,9 @@ export class AnycubicPrintercardStatTime extends LitElement {
   @property({ attribute: "is-seconds", type: Boolean })
   public isSeconds?: boolean;
 
+  @property({ type: Boolean })
+  public running?: boolean = true;
+
   @state()
   private currentTime: number | string | undefined = 0;
 
@@ -54,13 +57,30 @@ export class AnycubicPrintercardStatTime extends LitElement {
 
     this.currentTime = getEntityTotalSeconds(this.timeEntity);
 
-    this.lastIntervalId = setInterval(() => {
-      this._incTime();
-    }, 1000);
+    this._updateInterval();
   }
 
   public connectedCallback(): void {
     super.connectedCallback();
+    this._updateInterval();
+  }
+
+  protected override updated(changedProperties: PropertyValues): void {
+    super.updated(changedProperties);
+    if (changedProperties.has("running")) {
+      this._updateInterval();
+    }
+  }
+
+  private _updateInterval(): void {
+    if (!this.running) {
+      if (this.lastIntervalId !== -1) {
+        clearInterval(this.lastIntervalId);
+        this.lastIntervalId = -1;
+      }
+      return;
+    }
+
     if (this.lastIntervalId === -1) {
       this.lastIntervalId = setInterval(() => {
         this._incTime();

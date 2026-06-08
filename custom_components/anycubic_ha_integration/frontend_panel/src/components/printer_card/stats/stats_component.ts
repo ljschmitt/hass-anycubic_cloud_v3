@@ -9,6 +9,7 @@ import { customElementIfUndef } from "../../../internal/register-custom-element"
 import {
   getPrinterBinarySensorState,
   getPrinterSensorStateObj,
+  isPrintStatePrinting,
   speedModesFromStateObj,
   toTitleCase,
 } from "../../../helpers";
@@ -138,6 +139,9 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
   @state()
   private _valZDownSpeed: string;
 
+  @state()
+  private _timersRunning: boolean = false;
+
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
     if (
@@ -187,14 +191,14 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
         this.printerEntityIdPart,
         "target_nozzle_temperature",
       );
-      this._valStatus = toTitleCase(
-        getPrinterSensorStateObj(
-          this.hass,
-          this.printerEntities,
-          this.printerEntityIdPart,
-          "job_state",
-        ).state,
+      const jobState = getPrinterSensorStateObj(
+        this.hass,
+        this.printerEntities,
+        this.printerEntityIdPart,
+        "job_state",
       );
+      this._valStatus = toTitleCase(jobState.state);
+      this._timersRunning = isPrintStatePrinting(jobState.state.toLowerCase());
       this._valOnline = getPrinterBinarySensorState(
         this.hass,
         this.printerEntities,
@@ -383,6 +387,14 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
               ></anycubic-printercard-stat-line>
             `;
           case PrinterCardStatType.ETA:
+            if (!this._timersRunning) {
+              return html`
+                <anycubic-printercard-stat-line
+                  .name=${this._statTranslations[condition]}
+                  .value=${"-"}
+                ></anycubic-printercard-stat-line>
+              `;
+            }
             return html`
               <anycubic-printercard-stat-time
                 .timeEntity=${this._entETA}
@@ -391,6 +403,7 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
                 .direction=${0}
                 .round=${this.round}
                 .use_24hr=${this.use_24hr}
+                .running=${this._timersRunning}
               ></anycubic-printercard-stat-time>
             `;
           case PrinterCardStatType.Elapsed:
@@ -402,6 +415,7 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
                 .direction=${1}
                 .round=${this.round}
                 .use_24hr=${this.use_24hr}
+                .running=${this._timersRunning}
               ></anycubic-printercard-stat-time>
             `;
 
@@ -414,6 +428,7 @@ export class AnycubicPrintercardStatsComponent extends LitElement {
                 .direction=${-1}
                 .round=${this.round}
                 .use_24hr=${this.use_24hr}
+                .running=${this._timersRunning}
               ></anycubic-printercard-stat-time>
             `;
 

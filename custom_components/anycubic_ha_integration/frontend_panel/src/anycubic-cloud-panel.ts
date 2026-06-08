@@ -10,7 +10,6 @@ import "./views/print/view-print-no_cloud_save.ts";
 import "./views/print/view-print-save_in_cloud.ts";
 
 import { DEBUG } from "./const";
-import { HASSDomEvent } from "./fire_event";
 import {
   getPage,
   getPrinterDevID,
@@ -29,7 +28,6 @@ import {
   HassRoute,
   HomeAssistant,
   LitTemplateResult,
-  PageChangeDetail,
 } from "./types";
 import * as pkgjson from "../package.json";
 import { localize } from "../localize/localize";
@@ -157,36 +155,33 @@ export class AnycubicCloudPanel extends LitElement {
     return html`
       <div class="header">
         ${this.renderToolbar()}
-        <ha-tabs
-          scrollable
-          attr-for-selected="page-name"
-          .selected=${this.selectedPage}
-          @iron-activate=${this.handlePageSelected}
-        >
-          <paper-tab page-name="main"> ${this._tabMain} </paper-tab>
-          <paper-tab page-name="local-files">
-            ${this._tabFilesLocal}
-          </paper-tab>
-          <paper-tab page-name="udisk-files">
-            ${this._tabFilesUdisk}
-          </paper-tab>
-          <paper-tab page-name="cloud-files">
-            ${this._tabFilesCloud}
-          </paper-tab>
-          <paper-tab page-name="print-no_cloud_save">
-            ${this._tabPrintNoSave}
-          </paper-tab>
-          <paper-tab page-name="print-save_in_cloud">
-            ${this._tabPrintSave}
-          </paper-tab>
+        <nav class="tabs" role="tablist">
+          ${this._renderTab("main", this._tabMain)}
+          ${this._renderTab("local-files", this._tabFilesLocal)}
+          ${this._renderTab("udisk-files", this._tabFilesUdisk)}
+          ${this._renderTab("cloud-files", this._tabFilesCloud)}
+          ${this._renderTab("print-no_cloud_save", this._tabPrintNoSave)}
+          ${this._renderTab("print-save_in_cloud", this._tabPrintSave)}
           ${DEBUG // eslint-disable-line @typescript-eslint/no-unnecessary-condition
-            ? html`
-                <paper-tab page-name="debug"> ${this._tabDebug} </paper-tab>
-              `
+            ? this._renderTab("debug", this._tabDebug)
             : null}
-        </ha-tabs>
+        </nav>
       </div>
       <div class="view">${this.getView(this.route)}</div>
+    `;
+  }
+
+  private _renderTab(page: string, label: string): LitTemplateResult {
+    return html`
+      <button
+        class=${this.selectedPage === page ? "tab selected" : "tab"}
+        data-page=${page}
+        role="tab"
+        aria-selected=${this.selectedPage === page ? "true" : "false"}
+        @click=${this.handlePageSelected}
+      >
+        ${label}
+      </button>
     `;
   }
 
@@ -339,8 +334,8 @@ export class AnycubicCloudPanel extends LitElement {
     this.requestUpdate();
   };
 
-  handlePageSelected = (ev: HASSDomEvent<PageChangeDetail>): void => {
-    const newPage = ev.detail.item.getAttribute("page-name") as string;
+  handlePageSelected = (ev: MouseEvent): void => {
+    const newPage = (ev.currentTarget as HTMLElement).dataset.page as string;
     if (newPage !== getPage(this.route)) {
       navigateToPage(this, newPage);
       this.requestUpdate();
@@ -374,14 +369,50 @@ export class AnycubicCloudPanel extends LitElement {
         line-height: 20px;
         flex-grow: 1;
       }
-      ha-tabs {
+      .tabs {
         margin-left: max(env(safe-area-inset-left), 24px);
         margin-right: max(env(safe-area-inset-right), 24px);
-        --paper-tabs-selection-bar-color: var(
-          --app-header-selection-bar-color,
-          var(--app-header-text-color, #fff)
-        );
+        display: flex;
+        align-items: end;
+        gap: 18px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+
+      .tab {
+        position: relative;
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--secondary-text-color);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        min-height: 48px;
+        padding: 0;
         text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .tab:hover,
+      .tab:focus-visible {
+        color: var(--primary-text-color);
+      }
+
+      .tab.selected {
+        color: var(--primary-text-color);
+        font-weight: 700;
+      }
+
+      .tab.selected::after {
+        background: var(--app-header-selection-bar-color, var(--primary-color));
+        bottom: 0;
+        content: "";
+        height: 2px;
+        left: 0;
+        position: absolute;
+        right: 0;
       }
 
       .version {
