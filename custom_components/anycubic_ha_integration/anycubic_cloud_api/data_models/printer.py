@@ -939,7 +939,9 @@ class AnycubicPrinter:
         payload: AnycubicConsumableData,
     ) -> None:
         if action == 'getInfo' and state == 'success':
-            data = payload['data']['multi_color_box']
+            payload_data = payload['data']
+            data = payload_data['multi_color_box']
+            payload_data.get('head_tools_model')
             self._set_multi_color_box(data)
             return
         elif action in ['setInfo', 'refresh'] and state == 'success':
@@ -1057,6 +1059,10 @@ class AnycubicPrinter:
 
             if 'udisk' in data:
                 self.set_has_peripheral_udisk(data['udisk'])
+
+            data.get('mount_path')
+            data.get('ret_code')
+            data.get('usb_path')
 
             return
         else:
