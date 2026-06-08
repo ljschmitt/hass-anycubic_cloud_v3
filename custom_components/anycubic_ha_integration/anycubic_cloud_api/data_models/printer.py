@@ -357,13 +357,17 @@ class AnycubicPrinter:
 
     def _set_multi_color_box_fw_version(
         self,
-        multi_color_box_fw_version: list[dict[str, Any]] | None,
+        multi_color_box_fw_version: list[dict[str, Any]] | dict[str, Any] | None,
     ) -> None:
         self._multi_color_box_fw_version: list[AnycubicMachineFirmwareInfo] | None = None
         try:
-            if multi_color_box_fw_version is not None:
+            if multi_color_box_fw_version is None or isinstance(multi_color_box_fw_version, list):
+                multi_color_box_fw_version_list = multi_color_box_fw_version
+            else:
+                multi_color_box_fw_version_list = list([multi_color_box_fw_version])
+            if multi_color_box_fw_version_list is not None:
                 self._multi_color_box_fw_version = list()
-                for x in multi_color_box_fw_version:
+                for x in multi_color_box_fw_version_list:
                     ace = AnycubicMachineFirmwareInfo.from_json(x)
                     if ace:
                         self._multi_color_box_fw_version.append(ace)
@@ -401,8 +405,11 @@ class AnycubicPrinter:
 
     def _update_multi_color_box_fw_version_from_json(
         self,
-        multi_color_box_fw_version: list[dict[str, Any]] | None,
+        multi_color_box_fw_version: list[dict[str, Any]] | dict[str, Any] | None,
     ) -> None:
+        if multi_color_box_fw_version is not None and not isinstance(multi_color_box_fw_version, list):
+            multi_color_box_fw_version = list([multi_color_box_fw_version])
+
         if (
             multi_color_box_fw_version is None or
             not isinstance(multi_color_box_fw_version, list) or
@@ -1401,7 +1408,7 @@ class AnycubicPrinter:
 
     @property
     def has_peripheral_multi_color_box(self) -> bool:
-        return self._has_peripheral_multi_color_box
+        return self._has_peripheral_multi_color_box or self.connected_ace_units > 0
 
     @property
     def has_peripheral_udisk(self) -> bool:
