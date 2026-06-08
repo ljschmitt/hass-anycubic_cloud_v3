@@ -314,6 +314,16 @@ class AnycubicPrinter:
             if not self._ignore_init_errors:
                 raise e
 
+    def _multi_color_box_index_by_id(self, box_id: int) -> int | None:
+        if not self._multi_color_box:
+            return None
+
+        for box_index, box in enumerate(self._multi_color_box):
+            if box.box_id == box_id:
+                return box_index
+
+        return None
+
     def _set_machine_data(
         self,
         machine_data: dict[str, Any] | None,
@@ -970,55 +980,60 @@ class AnycubicPrinter:
             data = payload['data']['multi_color_box']
             for box in data:
                 box_id = int(box['id'])
-                if self.connected_ace_units < box_id + 1:
+                box_index = self._multi_color_box_index_by_id(box_id)
+                if box_index is None:
                     continue
                 assert self._multi_color_box
-                self._multi_color_box[box_id].update_slots_with_mqtt_data(box['slots'])
+                self._multi_color_box[box_index].update_slots_with_mqtt_data(box['slots'])
             return
 
         elif action == 'autoUpdateInfo' and state == 'done':
             data = payload['data']
             box_id = int(data['id'])
             loaded_slot = int(data['loaded_slot'])
-            if self.connected_ace_units < box_id + 1:
+            box_index = self._multi_color_box_index_by_id(box_id)
+            if box_index is None:
                 return
 
             assert self._multi_color_box
-            self._multi_color_box[box_id].set_slot_loaded(loaded_slot)
+            self._multi_color_box[box_index].set_slot_loaded(loaded_slot)
             return
         elif action in ['autoUpdateDryStatus', 'setDry'] and state == 'success':
             data = payload['data']['multi_color_box']
             for box in data:
                 box_id = int(box['id'])
-                if self.connected_ace_units < box_id + 1:
+                box_index = self._multi_color_box_index_by_id(box_id)
+                if box_index is None:
                     continue
 
                 assert self._multi_color_box
-                self._multi_color_box[box_id].set_current_temperature(box['temp'])
-                self._multi_color_box[box_id].set_drying_status(box['drying_status'])
+                self._multi_color_box[box_index].set_current_temperature(box['temp'])
+                self._multi_color_box[box_index].set_drying_status(box['drying_status'])
             return
         elif action == 'feedFilament' and state == 'done':
             data = payload['data']['multi_color_box']
             for box in data:
                 box_id = int(box['id'])
-                if self.connected_ace_units < box_id + 1:
+                box_index = self._multi_color_box_index_by_id(box_id)
+                if box_index is None:
                     continue
 
                 loaded_slot = int(box['loaded_slot'])
 
                 assert self._multi_color_box
-                self._multi_color_box[box_id].set_slot_loaded(loaded_slot)
-                self._multi_color_box[box_id].set_feed_status(box['feed_status'])
+                self._multi_color_box[box_index].set_slot_loaded(loaded_slot)
+                self._multi_color_box[box_index].set_feed_status(box['feed_status'])
             return
         elif action == 'setAutoFeed' and state == 'done':
             data = payload['data']['multi_color_box']
             for box in data:
                 box_id = int(box['id'])
-                if self.connected_ace_units < box_id + 1:
+                box_index = self._multi_color_box_index_by_id(box_id)
+                if box_index is None:
                     continue
 
                 assert self._multi_color_box
-                self._multi_color_box[box_id].set_auto_feed(box['auto_feed'])
+                self._multi_color_box[box_index].set_auto_feed(box['auto_feed'])
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.ace)
@@ -1530,7 +1545,7 @@ class AnycubicPrinter:
 
     @property
     def kobra_x_internal_material_rack(self) -> AnycubicMultiColorBox | None:
-        if self.is_kobra_x and self._multi_color_box and len(self._multi_color_box) > 1:
+        if self.is_kobra_x and self._multi_color_box and len(self._multi_color_box) > 0:
             return self._multi_color_box[0]
 
         return None
