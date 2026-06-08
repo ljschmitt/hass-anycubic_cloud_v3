@@ -1,4 +1,4 @@
 aiofiles==24.1.0
 homeassistant==2026.6.1
-pydantic==2.9.2
+pydantic==2.12.2
 types-aiofiles==24.1.0.20240626
