@@ -1,7 +1,7 @@
 # Anycubic HA Integration
 
 > 🗓️ **Update (07.06.2026):**  
-> Diese Version ist auf **Home Assistant 2026.6.1** ausgerichtet und nutzt weiterhin die integrierte **`paho-mqtt` 2.x-Lösung** (Callback-API v1) für **MQTT-Echtzeit-Updates**.  
+> Diese Version ist mit **Home Assistant 2026.6.1** getestet und bleibt ab **Home Assistant 2025.10.0** freigegeben. Sie nutzt weiterhin die integrierte **`paho-mqtt` 2.x-Lösung** (Callback-API v1) für **MQTT-Echtzeit-Updates**.  
 > Voraussetzung für MQTT: **Slicer Next (Windows)** und dessen **Access-Token**.  
 > Kein harter Pin auf `paho-mqtt==1.6.1`.
 
@@ -168,4 +168,5 @@ MIT License – frei für private und kommerzielle Nutzung. Siehe LICENSE-Datei.
 
 ## ✅ Kompatibilität
 
-- Home Assistant 2026.6.1 oder neuer
+- Home Assistant 2025.10.0 oder neuer
+- Getestet mit Home Assistant 2026.6.1
