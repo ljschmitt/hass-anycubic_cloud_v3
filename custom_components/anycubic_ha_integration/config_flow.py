@@ -178,7 +178,12 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         assert self._anycubic_api
         success = await self._anycubic_api.check_api_tokens()
         if not success:
-            LOGGER.error("Authentication failed. Check credentials.")
+            LOGGER.error(
+                "Authentication failed. Check credentials. auth_mode=%s token_len=%s jwt_parts=%s",
+                self._user_auth_mode,
+                len(self._user_token) if self._user_token else 0,
+                self._user_token.count(".") + 1 if self._user_token else 0,
+            )
             return {"base": "invalid_auth"}
 
         LOGGER.debug("Config flow auth successful.")
@@ -193,12 +198,21 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         try:
             self._user_token = remove_quotes_from_string(user_input[CONF_USER_TOKEN])
         except TypeError as error:
-            LOGGER.warning(f"Token appears invalid: {error}")
+            LOGGER.warning("Token normalization failed: %s", error)
 
             self._user_token = user_input[CONF_USER_TOKEN]
 
+        if isinstance(self._user_token, str):
+            self._user_token = self._user_token.strip()
+
         self._user_auth_mode = auth_mode
         self._user_device_id = user_input.get(CONF_USER_DEVICE_ID)
+        LOGGER.debug(
+            "Config flow received auth input. auth_mode=%s token_len=%s jwt_parts=%s",
+            self._user_auth_mode,
+            len(self._user_token) if self._user_token else 0,
+            self._user_token.count(".") + 1 if self._user_token else 0,
+        )
 
         try:
             await self._async_check_anycubic_api_instance_exists()

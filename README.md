@@ -7,6 +7,9 @@
 >
 > 🗓️ **Update (08.06.2026):**  
 > Die Druckerauswahl zeigt jetzt passende Druckerbilder fuer Kobra 3 und Kobra X. Die Kobra-X-Materialanzeige trennt internes Materialregal und ACE-Zugaenge klarer.
+>
+> 🗓️ **Update (20.06.2026):**
+> Slicer Next 1.4.1.2 speichert den Access-Token nicht mehr als Klartext-`access_token` in der `.conf`. Version **0.0.75** akzeptiert Tokens robuster und protokolliert Anycubic-Loginfehler ohne Token-Inhalt. MQTT-Updates laufen außerdem weiter, wenn Anycubic `print_speed_pct` nicht mehr im Payload mitsendet.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -129,16 +132,21 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 
 ## 🔐 Token auslesen (Slicer Next)
 
-1. **Slicer Next starten → einloggen → schließen**
-2. Öffne:  
-   %AppData%\AnycubicSlicerNext\AnycubicSlicerNext.conf
-3. PowerShell-Befehl (kopiert Token in Zwischenablage):
+1. **Slicer Next starten und eingeloggt lassen**
+2. PowerShell-Befehl fuer Slicer Next 1.4.1.2+ (kopiert den neuesten Access-Token aus dem aktuellen Log in die Zwischenablage):
+   ```powershell
+   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log" -Filter "debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+   $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\s]+)' | Select-Object -Last 1
+   $token.Matches.Groups[1].Value | Set-Clipboard
+   ```
+3. Alternative fuer aeltere Slicer-Versionen mit Klartext-Token in der `.conf`:
    ```powershell
    $path = "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf"; 
    (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value | Set-Clipboard
    ```
-4. In Integration einfügen → fertig  
-   (optional Token in Datei danach leeren: `"access_token": ""`)
+4. In Integration einfügen → fertig
+
+> Hinweis: Der aktuelle Slicer-Next-Token ist ein JWT und besteht aus drei durch Punkte getrennten Teilen. Die Integration entfernt Anführungszeichen, Whitespace und kann auch Log-Zeilen wie `accessToken = ...` verarbeiten.
 
 ---
 

@@ -308,8 +308,11 @@ class AnycubicAPIBase:
         )
         if not resp or not resp['data']:
             server_message = resp.get('msg') if resp else None
+            server_code = resp.get('code') if resp else None
             error_message = ErrorsAuth.access_token_login_failed.format(server_message)
-            self._log_to_debug(error_message)
+            self._log_to_debug(
+                f"{error_message} code={server_code} has_response={resp is not None}"
+            )
             raise AnycubicAuthError(error_message)
         self.anycubic_auth.set_auth_token(
             resp['data']['token']
@@ -355,13 +358,17 @@ class AnycubicAPIBase:
         if self.anycubic_auth.requires_access_token:
             try:
                 await self._get_user_token_with_access_token_with_retry()
-            except AnycubicAuthError:
+            except AnycubicAuthError as error:
+                self._log_to_debug(f"Access-token login failed: {error}")
                 return False
         try:
             await self.get_user_info()
             return True
         except AnycubicAuthTokensExpired:
             self._log_to_debug("Tokens expired.")
+            return False
+        except AnycubicAuthError as error:
+            self._log_to_debug(f"User-info auth check failed: {error}")
             return False
 
     async def check_api_tokens(self) -> bool:

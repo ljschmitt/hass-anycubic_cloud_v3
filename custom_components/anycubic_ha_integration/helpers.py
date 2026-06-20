@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from enum import IntEnum
 from types import MappingProxyType
@@ -244,13 +245,39 @@ def state_string_loaded(state: Any) -> str:
 
 
 REGEX_NOQUOTE_STRING = re.compile(r"^['\"]?([^'\"]+)['\"]?$")
+REGEX_TOKEN_FROM_TEXT = re.compile(
+    r"(?:access_token|accessToken|id_token|token)\s*[=:]\s*['\"]?([^'\"\s,&]+)",
+    re.IGNORECASE,
+)
 
 
 def remove_quotes_from_string(input_string: str) -> str:
+    input_string = input_string.strip()
+
+    if not input_string:
+        raise TypeError("Empty token string.")
+
+    try:
+        decoded = json.loads(input_string)
+    except json.JSONDecodeError:
+        decoded = None
+
+    if isinstance(decoded, str):
+        input_string = decoded.strip()
+    elif isinstance(decoded, dict):
+        for key in ("access_token", "accessToken", "id_token", "token"):
+            value = decoded.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+
+    token_match = REGEX_TOKEN_FROM_TEXT.search(input_string)
+    if token_match:
+        return token_match.group(1).strip()
+
     matches = REGEX_NOQUOTE_STRING.findall(input_string)
 
     if len(matches) == 1:
-        return str(matches[0])
+        return str(matches[0]).strip()
 
     raise TypeError("Unexpected quotes in string.")
 
