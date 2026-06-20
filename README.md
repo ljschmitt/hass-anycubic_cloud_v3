@@ -12,6 +12,7 @@
 > Slicer Next 1.4.1.2 speichert den Access-Token nicht mehr als Klartext-`access_token` in der `.conf`. Version **0.0.75** akzeptiert Tokens robuster und protokolliert Anycubic-Loginfehler ohne Token-Inhalt. MQTT-Updates laufen außerdem weiter, wenn Anycubic `print_speed_pct` nicht mehr im Payload mitsendet.
 > Version **0.0.76** zeigt den neuen PowerShell-Befehl zusätzlich direkt im Slicer-Next-Einrichtungsdialog an.
 > Version **0.0.77** behandelt neue MQTT-Startup-Reports (`info`, `hardwareProfile`, `aiSettings`, leere `videoThumbnailList`) als bekannte Meldungen statt sie als Fehler zu loggen.
+> Version **0.0.78** baut das Frontend-Panel und die Card mit der aktuellen Versionsnummer neu, damit die Anzeige in Home Assistant nicht mehr die alte Bundle-Version zeigt.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
