@@ -1,18 +1,21 @@
 import * as en from './languages/en.json';
+import * as de from './languages/de.json';
 
 import IntlMessageFormat from 'intl-messageformat';
 
 var languages: any = {
   en: en,
+  de: de,
 };
 
 export function localize(string: string, language: string, ...args: any[]): string {
   const lang = language.replace(/['"]+/g, '');
+  const baseLang = lang.split('-')[0];
 
   var translated: string;
 
   try {
-    translated = string.split('.').reduce((o, i) => o[i], languages[lang]);
+    translated = string.split('.').reduce((o, i) => o[i], languages[lang] || languages[baseLang]);
   } catch (e) {
     translated = string.split('.').reduce((o, i) => o[i], languages['en']);
   }

@@ -1,0 +1,156 @@
+{
+  "title": "Anycubic Cloud",
+  "common": {
+    "actions": {
+      "cancel": "Abbrechen",
+      "pause": "Pausieren",
+      "print": "Drucken",
+      "resume": "Fortsetzen",
+      "yes": "Ja",
+      "no": "Nein",
+      "save": "Speichern"
+    },
+    "messages": {
+      "mqtt_unsupported": "Diese Funktion benötigt MQTT zum Abrufen der Daten. MQTT wird mit dem gewählten Authentifizierungsmodus leider nicht unterstützt."
+    }
+  },
+  "card": {
+    "buttons": {
+      "print_settings": "Druckeinstellungen",
+      "dry": "Trocknen",
+      "runout_refill": "Nachfüllen"
+    },
+    "configure": {
+      "tabs": {
+        "main": "Hauptansicht",
+        "stats": "Statistiken",
+        "colours": "ACE-Farbprofile"
+      },
+      "labels": {
+        "printer_id": "Drucker auswählen",
+        "vertical": "Vertikales Layout?",
+        "round": "Runde Statistiken?",
+        "use_24hr": "24-Stunden-Format verwenden?",
+        "show_settings_button": "Schaltfläche für Druckeinstellungen immer anzeigen?",
+        "always_show": "Karte immer anzeigen?",
+        "temperature_unit": "Temperatureinheit",
+        "light_entity_id": "Licht-Entität",
+        "power_entity_id": "Strom-Entität",
+        "camera_entity_id": "Kamera-Entität",
+        "scale_factor": "Skalierungsfaktor",
+        "slot_colors": "Slot-Farbprofile"
+      }
+    },
+    "print_settings": {
+      "confirm_message": "Möchtest du den Druck wirklich {action}?",
+      "label_nozzle_temp": "Düsentemperatur",
+      "label_hotbed_temp": "Heizbetttemperatur",
+      "label_fan_speed": "Lüftergeschwindigkeit",
+      "label_aux_fan_speed": "AUX-Lüftergeschwindigkeit",
+      "label_box_fan_speed": "Gehäuselüftergeschwindigkeit",
+      "print_pause": "Druck pausieren",
+      "print_resume": "Druck fortsetzen",
+      "print_cancel": "Druck abbrechen",
+      "save_speed_mode": "Geschwindigkeitsmodus speichern",
+      "save_target_nozzle": "Ziel-Düsentemperatur speichern",
+      "save_target_hotbed": "Ziel-Heizbetttemperatur speichern",
+      "save_fan_speed": "Lüftergeschwindigkeit speichern",
+      "save_aux_fan_speed": "AUX-Lüftergeschwindigkeit speichern",
+      "save_box_fan_speed": "Gehäuselüftergeschwindigkeit speichern"
+    },
+    "drying_settings": {
+      "heading": "Trocknungseinstellungen",
+      "button_preset": "Voreinstellung",
+      "button_stop_drying": "Trocknung stoppen",
+      "button_minutes": "Min."
+    },
+    "spool_settings": {
+      "heading": "Slot bearbeiten",
+      "label_select_material": "Material auswählen",
+      "label_select_colour": "Farbe manuell auswählen"
+    },
+    "monitored_stats": {
+      "ETA": "ETA",
+      "Elapsed": "Vergangen",
+      "Remaining": "Verbleibend",
+      "Status": "Status",
+      "Online": "Online",
+      "Availability": "Verfügbarkeit",
+      "Project": "Projekt",
+      "Layer": "Schicht",
+      "Hotend": "Hotend",
+      "Bed": "Bett",
+      "T Hotend": "Ziel-Hotend",
+      "T Bed": "Ziel-Bett",
+      "Dry Status": "Trocknungsstatus",
+      "Dry Time": "Trocknungszeit",
+      "Speed Mode": "Geschwindigkeitsmodus",
+      "Fan Speed": "Lüftergeschwindigkeit",
+      "On Time": "Belichtungszeit",
+      "Off Time": "Ausschaltzeit",
+      "Bottom Time": "Bodenzeit",
+      "Model Height": "Modellhöhe",
+      "Bottom Layers": "Bodenschichten",
+      "Z Up Height": "Z-Hubhöhe",
+      "Z Up Speed": "Z-Hubgeschwindigkeit",
+      "Z Down Speed": "Z-Senkgeschwindigkeit"
+    }
+  },
+  "panels": {
+    "initial": {
+      "printer_select": "Drucker auswählen."
+    },
+    "main": {
+      "title": "Hauptansicht",
+      "cards": {
+        "main": {
+          "description": "Allgemeine Informationen zum Drucker.",
+          "fields": {
+            "printer_name": "Name",
+            "printer_id": "ID",
+            "printer_mac": "MAC",
+            "printer_model": "Modell",
+            "printer_fw_version": "FW-Version",
+            "printer_fw_update_available": "FW-Status",
+            "printer_online": "Online",
+            "printer_available": "Verfügbar",
+            "curr_nozzle_temp": "Aktuelle Düsentemperatur",
+            "curr_hotbed_temp": "Aktuelle Heizbetttemperatur",
+            "target_nozzle_temp": "Ziel-Düsentemperatur",
+            "target_hotbed_temp": "Ziel-Heizbetttemperatur",
+            "job_state": "Auftragsstatus",
+            "job_progress": "Auftragsfortschritt",
+            "ace_fw_version": "ACE-FW-Version",
+            "ace_fw_update_available": "ACE-FW-Status",
+            "drying_active": "ACE-Trocknungsstatus",
+            "drying_progress": "ACE-Trocknungsfortschritt"
+          }
+        }
+      }
+    },
+    "files_cloud": {
+      "title": "Cloud-Dateien",
+      "cards": {}
+    },
+    "files_local": {
+      "title": "Lokale Dateien",
+      "cards": {}
+    },
+    "files_udisk": {
+      "title": "USB-Dateien",
+      "cards": {}
+    },
+    "print_save_in_cloud": {
+      "title": "Drucken (in Benutzer-Cloud speichern)",
+      "cards": {}
+    },
+    "print_no_cloud_save": {
+      "title": "Drucken (nicht in Cloud speichern)",
+      "cards": {}
+    },
+    "debug": {
+      "title": "Debug",
+      "cards": {}
+    }
+  }
+}
