@@ -1079,6 +1079,11 @@ class AnycubicPrinter:
             # Not Yet Needed
             payload.force_empty()
             return
+        elif action == 'videoThumbnailList' and state == 'done':
+            # Sent by newer firmware during startup. The current integration
+            # does not use video thumbnails.
+            payload.force_empty()
+            return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.file)
 
@@ -1186,6 +1191,11 @@ class AnycubicPrinter:
 
         elif msg_type == 'video':
             self._process_mqtt_update_video(action, state, payload)
+
+        elif msg_type in ('info', 'hardwareProfile', 'aiSettings'):
+            # Informational startup reports from newer firmware. They do not
+            # currently drive HA entities, so consume them without error noise.
+            payload.force_empty()
 
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format(msg_type))
