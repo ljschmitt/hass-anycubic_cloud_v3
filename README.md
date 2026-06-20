@@ -10,6 +10,7 @@
 >
 > 🗓️ **Update (20.06.2026):**
 > Slicer Next 1.4.1.2 speichert den Access-Token nicht mehr als Klartext-`access_token` in der `.conf`. Version **0.0.75** akzeptiert Tokens robuster und protokolliert Anycubic-Loginfehler ohne Token-Inhalt. MQTT-Updates laufen außerdem weiter, wenn Anycubic `print_speed_pct` nicht mehr im Payload mitsendet.
+> Version **0.0.76** zeigt den neuen PowerShell-Befehl zusätzlich direkt im Slicer-Next-Einrichtungsdialog an.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen

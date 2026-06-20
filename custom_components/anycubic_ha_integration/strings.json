@@ -21,7 +21,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Retrieve your token from %AppData%\\AnycubicSlicerNext\\AnycubicSlicerNext.conf following the steps in the readme.",
+        "description": "Slicer Next 1.4.1.2+: keep Slicer logged in and run this PowerShell command to copy the current token: $log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\" -Filter \"debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\\s]+)' | Select-Object -Last 1; $token.Matches.Groups[1].Value | Set-Clipboard. Older versions may still store access_token in AnycubicSlicerNext.conf. See README.",
         "data": {
           "user_token": "Slicer Access Token"
         }
