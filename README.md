@@ -1,19 +1,17 @@
 # Anycubic HA Integration
 
-> 🗓️ **Update (07.06.2026):**  
-> Diese Version ist mit **Home Assistant 2026.6.1** getestet und bleibt ab **Home Assistant 2025.10.0** freigegeben. Sie nutzt weiterhin die integrierte **`paho-mqtt` 2.x-Lösung** (Callback-API v1) für **MQTT-Echtzeit-Updates**.  
-> Voraussetzung für MQTT: **Slicer Next (Windows)** und dessen **Access-Token**.  
-> Kein harter Pin auf `paho-mqtt==1.6.1`.
+Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
+
+> 🗓️ **Aktuelles Release: 0.1.0**
 >
-> 🗓️ **Update (08.06.2026):**  
-> Die Druckerauswahl zeigt jetzt passende Druckerbilder fuer Kobra 3 und Kobra X. Die Kobra-X-Materialanzeige trennt internes Materialregal und ACE-Zugaenge klarer.
+> - Neue **Nebenansicht** mit Kamerastream, digitalem Zoom und Vollbild
+> - Anycubic-Cloudstream per Agora/WebRTC
+> - Optionale Home-Assistant-`camera.*`-Entities pro Drucker fuer lokale Kameraquellen
+> - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-Reports
+> - Verbesserte Kobra-X-Material-/ACE-Erkennung fuer bekannte 4-Farben-Setups
 >
-> 🗓️ **Update (20.06.2026):**
-> Slicer Next 1.4.1.2 speichert den Access-Token nicht mehr als Klartext-`access_token` in der `.conf`. Version **0.0.75** akzeptiert Tokens robuster und protokolliert Anycubic-Loginfehler ohne Token-Inhalt. MQTT-Updates laufen außerdem weiter, wenn Anycubic `print_speed_pct` nicht mehr im Payload mitsendet.
-> Version **0.0.76** zeigt den neuen PowerShell-Befehl zusätzlich direkt im Slicer-Next-Einrichtungsdialog an.
-> Version **0.0.77** behandelt neue MQTT-Startup-Reports (`info`, `hardwareProfile`, `aiSettings`, leere `videoThumbnailList`) als bekannte Meldungen statt sie als Fehler zu loggen.
-> Version **0.0.78** baut das Frontend-Panel und die Card mit der aktuellen Versionsnummer neu, damit die Anzeige in Home Assistant nicht mehr die alte Bundle-Version zeigt.
-> Version **0.1.0** ergänzt die Nebenansicht mit Kamerastream, Zoom und Vollbild, unterstützt den Anycubic-Cloudstream per Agora/WebRTC und erlaubt optionale Home-Assistant-`camera.*`-Entities pro Drucker für lokale Kameraquellen.
+> Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
+> MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -46,14 +44,19 @@
 
 ## 🧵 Kompatible Drucker
 
-Die Komponente funktioniert getestet mit:
+### Getestet / rueckgemeldet
+
 - ✅ Kobra 3 Combo
-- ✅ Kobra X (bisher nur mit 4 Farben)
+- ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert)
 - ✅ Kobra 2, 2 Max, 2 Pro
 - ✅ Photon Mono M5s (Basis)
 - ✅ Anycubic M7 Pro (Basis)
 
-Du hast andere Modelle? Bitte Rückmeldung geben 🙏
+### Zum Testen / Rueckmeldung gesucht
+
+- 🧪 Kobra S1
+
+Wenn du einen Kobra S1 oder ein anderes noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wird das Geraet angelegt, welche Entitaeten funktionieren, gibt es MQTT- oder Kamera-Auffaelligkeiten? Bitte keine Tokens, privaten IPs, Seriennummern oder persoenlichen Daten in Issues hochladen.
 
 ---
 
