@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from datetime import timedelta
 
     from ..anycubic_api import AnycubicAPI
+    from .orders import AnycubicCameraSession
     from .print_response import AnycubicPrintResponse
     from .printer_properties import AnycubicDryingStatus, AnycubicMaterialMapping
 
@@ -2251,6 +2252,14 @@ class AnycubicPrinter:
     ) -> str | None:
 
         return await self._api_parent._send_order_list_udisk_files(
+            self,
+        )
+
+    async def get_camera_session(
+        self,
+    ) -> AnycubicCameraSession | None:
+
+        return await self._api_parent.get_camera_session(
             self,
         )
 

@@ -25,6 +25,7 @@ from ..data_models.orders import (
     AnycubicBaseOrderRequest,
     AnycubicBaseProjectOrderRequest,
     AnycubicBaseStartPrintRequest,
+    AnycubicCameraSession,
     AnycubicCameraToken,
     AnycubicProjectCtrlOrderRequest,
     AnycubicProjectOrderRequest,
@@ -851,6 +852,48 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             msg_id=data['msgid'],
         )
         return token
+
+    async def get_camera_session(
+        self,
+        printer: AnycubicPrinter,
+        raw_data: bool = False,
+    ) -> AnycubicCameraSession | None | dict[str, Any]:
+        """Request the Agora WebRTC camera session used by Anycubic Slicer Next."""
+        if not printer:
+            return None
+
+        order_request = AnycubicBaseOrderRequest(
+            order_id=int(AnycubicOrderID.CAMERA_OPEN),
+            printer_id=printer.id,
+        )
+        params = {
+            **order_request.order_request_data,
+            "shengwang_rtc_support": True,
+        }
+        resp = await self._fetch_api_resp(
+            endpoint=API_ENDPOINT.send_order,
+            params=params,
+        )
+        if raw_data:
+            return resp
+
+        data = resp.get("data") if resp is not None else None
+        shengwang = data.get("shengwang") if isinstance(data, dict) else None
+        if not isinstance(shengwang, dict):
+            raise AnycubicAPIParsingError("Unexpected camera session response.")
+
+        device = data.get("shengwang_device") if isinstance(data, dict) else None
+
+        return AnycubicCameraSession(
+            appid=shengwang["appid"],
+            channel=shengwang["channel"],
+            rtc_token=shengwang["rtc_token"],
+            client_uid=shengwang["client_uid"],
+            printer_uid=device.get("uid") if isinstance(device, dict) else None,
+            encryption_kdf_salt=shengwang["encryption_kdf_salt"],
+            encryption_key=shengwang["encryption_key"],
+            encryption_mode=shengwang["encryption_mode"],
+        )
 
     async def _send_order_multi_color_box_get_info(
         self,

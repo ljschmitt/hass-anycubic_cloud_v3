@@ -13,6 +13,9 @@ from .const import (
 from .coordinator import AnycubicCloudDataUpdateCoordinator
 from .panel import async_register_panel, async_unregister_panel
 from .services import SERVICES
+from .websocket_api import async_register_websocket_api
+
+WEBSOCKET_API_REGISTERED = "websocket_api_registered"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -21,7 +24,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = AnycubicCloudDataUpdateCoordinator(hass, entry)
 
     await coordinator.async_config_entry_first_refresh()
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    if not domain_data.get(WEBSOCKET_API_REGISTERED):
+        async_register_websocket_api(hass)
+        domain_data[WEBSOCKET_API_REGISTERED] = True
+
+    domain_data[entry.entry_id] = {
         COORDINATOR: coordinator,
     }
 
@@ -64,7 +72,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await host[COORDINATOR].stop_anycubic_mqtt_connection_if_started()
 
     # unregister service calls
-    if unload_ok and not hass.data[DOMAIN]:  # check if this is the last entry to unload
+    remaining_entries = [
+        key for key in hass.data[DOMAIN]
+        if key != WEBSOCKET_API_REGISTERED
+    ]
+
+    if unload_ok and not remaining_entries:  # check if this is the last entry to unload
         for service_name, _ in SERVICES:
             hass.services.async_remove(DOMAIN, service_name)
 

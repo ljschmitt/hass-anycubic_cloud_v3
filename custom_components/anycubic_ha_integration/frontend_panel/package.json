@@ -1,6 +1,6 @@
 {
   "name": "anycubic_ha_integration",
-  "version": "0.0.79",
+  "version": "0.1.0",
   "description": "anycubic panel for hass",
   "main": "src/index.ts",
   "scripts": {
@@ -38,6 +38,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
+    "agora-rtc-sdk-ng": "^4.24.4",
     "date-fns": "^4.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",

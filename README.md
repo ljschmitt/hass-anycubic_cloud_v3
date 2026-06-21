@@ -13,6 +13,7 @@
 > Version **0.0.76** zeigt den neuen PowerShell-Befehl zusätzlich direkt im Slicer-Next-Einrichtungsdialog an.
 > Version **0.0.77** behandelt neue MQTT-Startup-Reports (`info`, `hardwareProfile`, `aiSettings`, leere `videoThumbnailList`) als bekannte Meldungen statt sie als Fehler zu loggen.
 > Version **0.0.78** baut das Frontend-Panel und die Card mit der aktuellen Versionsnummer neu, damit die Anzeige in Home Assistant nicht mehr die alte Bundle-Version zeigt.
+> Version **0.1.0** ergänzt die Nebenansicht mit Kamerastream, Zoom und Vollbild, unterstützt den Anycubic-Cloudstream per Agora/WebRTC und erlaubt optionale Home-Assistant-`camera.*`-Entities pro Drucker für lokale Kameraquellen.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -29,6 +30,7 @@
 - [🎨 Frontend-Card](#-frontend-card)
 - [🖼️ Galerie](#-galerie)
 - [🧩 Features](#-features)
+- [📷 Kamera / Nebenansicht](#-kamera--nebenansicht)
 - [📦 Installation über HACS (empfohlen)](#-installation-über-hacs-empfohlen)
 - [🖐️ Manuelle Installation](#-manuelle-installation)
 - [⚠️ Sicherheit und Haftung](#️-sicherheit-und-haftung)
@@ -90,9 +92,62 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …
 - Firmware-Update-Entitäten
 - MQTT-Aktivität automatisch während Druck (oder dauerhaft)
-- Frontend-Panel mit Status + Dateimanager
+- Frontend-Panel mit Status, Nebenansicht + Dateimanager
 - Spulen-Trocknung & Materialmanagement (ACE)
 - Konfigurierbarer MQTT-Modus („nur beim Drucken“, dauerhaft, deaktiviert)
+
+---
+
+## 📷 Kamera / Nebenansicht
+
+Die Nebenansicht zeigt standardmaessig den Anycubic-Cloud-Kamerastream des ausgewaehlten Druckers. Fuer normale Anycubic-Firmware muss dafuer nichts weiter eingerichtet werden.
+
+Bei Druckern mit alternativer Firmware oder lokaler Kamera-Bruecke, z. B. Rinkhals/Moonraker, kann optional pro Drucker eine Home-Assistant-`camera.*`-Entity verwendet werden. Das ueberschreibt nicht die Standardkamera fuer alle Drucker, sondern nur den jeweils gemappten Drucker.
+
+Hinweis zum Anycubic-Cloudstream: Der verschluesselte WebRTC-Stream benoetigt im Browser einen sicheren Kontext, also z. B. HTTPS, Home Assistant Cloud oder localhost. Wenn Home Assistant nur ueber unverschluesseltes HTTP aufgerufen wird, kann der Browser die Kamera blockieren. Eine lokale Home-Assistant-`camera.*`-Entity wird dagegen ueber den Home-Assistant-Kameraproxy geladen und ist deshalb der sauberste Weg fuer lokale Streams.
+
+### Integrierte Rinkhals/Moonraker-Webcam als HA-Kamera anlegen
+
+Die integrierte Rinkhals-Webcam wird von Moonraker meist als MJPEG-Stream angeboten:
+
+```text
+Snapshot: http://<drucker-ip>:4409/webcam/?action=snapshot
+Stream:   http://<drucker-ip>:4409/webcam/?action=stream
+```
+
+In Home Assistant:
+
+1. **Einstellungen -> Geraete & Dienste -> Integration hinzufuegen**
+2. **Generic Camera** suchen und auswaehlen
+3. Als **Still Image URL** die Snapshot-URL eintragen
+4. Als **Stream Source URL** die Stream-URL eintragen
+5. Optional einen Namen vergeben, z. B. `Printer Webcam`
+6. Nach dem Anlegen die Entity-ID pruefen, z. B. `camera.printer_webcam`
+
+> Wichtig: Nicht die Fluidd-Webcam-Ansicht oder eine go2rtc-Raumkamera-URL eintragen, wenn die integrierte Drucker-Webcam verwendet werden soll. Fuer Rinkhals ist die integrierte Kamera in der Regel der `/webcam/`-Pfad des Druckers.
+
+### Kamera einem bestimmten Drucker zuordnen
+
+Anschliessend wird die Kamera im Anycubic-Panel nur fuer diesen Drucker gemappt. Das Mapping gehoert in die Panel-Card-Konfiguration der Integration:
+
+```yaml
+cameraEntityIds:
+  "<printer-id-or-serial>": camera.printer_webcam
+```
+
+Der Schluessel kann die Anycubic-Drucker-ID bzw. Seriennummer sein. Alternativ kann die Home-Assistant-Device-ID des Druckers verwendet werden.
+
+Beispiel mit mehreren Druckern:
+
+```yaml
+cameraEntityIds:
+  "<first-printer-id-or-serial>": camera.first_printer_webcam
+  "<second-printer-id-or-serial>": camera.second_printer_webcam
+```
+
+Drucker ohne Eintrag in `cameraEntityIds` verwenden weiterhin automatisch den Anycubic-Cloud-Kamerastream.
+
+Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `cameraEntityId` verwendet werden. `cameraEntityIds` hat Vorrang und ist fuer mehrere Drucker die empfohlene Variante.
 
 ---
 
@@ -128,6 +183,8 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 Diese Integration steuert und liest 3D-Drucker ueber Anycubic Cloud, Services und optional MQTT. Die Nutzung erfolgt auf eigene Verantwortung.
 
 Ich uebernehme keine Haftung fuer Schaeden am 3D-Drucker, an angeschlossenem Zubehoer, an Filament, Druckobjekten oder der Umgebung. Bitte alle Funktionen vorsichtig verwenden, neue Versionen gruendlich testen und insbesondere Steuerbefehle wie Druckstart, Pause, Abbruch, Temperatur-, ACE- und Materialslot-Aenderungen aufmerksam pruefen.
+
+Fuer die Anycubic-MQTT-Verbindung sind die im Projekt enthaltenen Anycubic-TLS-Client-Zertifikatsdateien erforderlich. Sie gehoeren zur Anycubic-Protokollanbindung und enthalten keine benutzerspezifischen Home-Assistant- oder Anycubic-Zugangsdaten. Eigene Tokens, Logs, Screenshots mit Tokens oder lokale Konfigurationsdateien sollten niemals in Issues, Pull Requests oder Releases hochgeladen werden.
 
 Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen koennen gerne ueber GitHub Issues gemeldet werden.
 

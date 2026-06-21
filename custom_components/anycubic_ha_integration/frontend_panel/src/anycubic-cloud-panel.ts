@@ -3,6 +3,7 @@ import { property, state } from "lit/decorators.js";
 
 import "./views/debug/view-debug.ts";
 import "./views/main/view-main.ts";
+import "./views/side/view-side.ts";
 import "./views/files/view-files_cloud.ts";
 import "./views/files/view-files_local.ts";
 import "./views/files/view-files_udisk.ts";
@@ -75,6 +76,9 @@ export class AnycubicCloudPanel extends LitElement {
   private _tabMain: string;
 
   @state()
+  private _tabSide: string;
+
+  @state()
   private _tabFilesLocal: string;
 
   @state()
@@ -121,6 +125,7 @@ export class AnycubicCloudPanel extends LitElement {
     if (changedProperties.has("hass") && this.hass.language !== this.language) {
       this.language = this.hass.language;
       this._tabMain = localize("panels.main.title", this.language);
+      this._tabSide = localize("panels.side.title", this.language);
       this._tabFilesLocal = localize("panels.files_local.title", this.language);
       this._tabFilesUdisk = localize("panels.files_udisk.title", this.language);
       this._tabFilesCloud = localize("panels.files_cloud.title", this.language);
@@ -161,6 +166,7 @@ export class AnycubicCloudPanel extends LitElement {
         ${this.renderToolbar()}
         <nav class="tabs" role="tablist">
           ${this._renderTab("main", this._tabMain)}
+          ${this._renderTab("side", this._tabSide)}
           ${this._renderTab("local-files", this._tabFilesLocal)}
           ${this._renderTab("udisk-files", this._tabFilesUdisk)}
           ${this._renderTab("cloud-files", this._tabFilesCloud)}
@@ -259,6 +265,19 @@ export class AnycubicCloudPanel extends LitElement {
 
   getView(route: HassRoute): LitTemplateResult {
     switch (this.selectedPage) {
+      case "side":
+        return html`
+          <anycubic-view-side
+            class="ac_wide_view"
+            .hass=${this.hass}
+            .language=${this.language}
+            .narrow=${this.narrow}
+            .route=${route}
+            .panel=${this.panel}
+            .selectedPrinterID=${this.selectedPrinterID}
+            .selectedPrinterDevice=${this.selectedPrinterDevice}
+          ></anycubic-view-side>
+        `;
       case "local-files":
         return html`
           <anycubic-view-files_local

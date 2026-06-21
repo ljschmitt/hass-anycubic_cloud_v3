@@ -362,8 +362,111 @@ class AnycubicCameraToken:
         return (
             f"AnycubicCameraToken("
             f"secret_id={self.secret_id}, "
-            f"secret_key={self.secret_key}, "
-            f"session_token={self.session_token}, "
+            f"secret_key=<redacted>, "
+            f"session_token=<redacted>, "
             f"region={self.region}, "
             f"msg_id={self.msg_id})"
+        )
+
+
+class AnycubicCameraSession:
+    __slots__ = (
+        "_appid",
+        "_channel",
+        "_rtc_token",
+        "_client_uid",
+        "_printer_uid",
+        "_encryption_kdf_salt",
+        "_encryption_key",
+        "_encryption_mode",
+    )
+
+    def __init__(
+        self,
+        appid: str,
+        channel: str,
+        rtc_token: str,
+        client_uid: int,
+        printer_uid: int | None,
+        encryption_kdf_salt: str,
+        encryption_key: str,
+        encryption_mode: str,
+    ) -> None:
+        self._appid = appid
+        self._channel = channel
+        self._rtc_token = rtc_token
+        self._client_uid = int(client_uid)
+        self._printer_uid = int(printer_uid) if printer_uid is not None else None
+        self._encryption_kdf_salt = encryption_kdf_salt
+        self._encryption_key = encryption_key
+        self._encryption_mode = encryption_mode
+
+    @property
+    def appid(self) -> str:
+        return self._appid
+
+    @property
+    def channel(self) -> str:
+        return self._channel
+
+    @property
+    def rtc_token(self) -> str:
+        return self._rtc_token
+
+    @property
+    def client_uid(self) -> int:
+        return self._client_uid
+
+    @property
+    def printer_uid(self) -> int | None:
+        return self._printer_uid
+
+    @property
+    def encryption_kdf_salt(self) -> str:
+        return self._encryption_kdf_salt
+
+    @property
+    def encryption_key(self) -> str:
+        return self._encryption_key
+
+    @property
+    def encryption_mode(self) -> str:
+        return self._encryption_mode
+
+    @property
+    def data(self) -> dict[str, Any]:
+        return {
+            "appid": self.appid,
+            "channel": self.channel,
+            "rtc_token": self.rtc_token,
+            "client_uid": self.client_uid,
+            "printer_uid": self.printer_uid,
+            "encryption_kdf_salt": self.encryption_kdf_salt,
+            "encryption_key": self.encryption_key,
+            "encryption_mode": self.encryption_mode,
+        }
+
+    @property
+    def safe_summary(self) -> dict[str, Any]:
+        return {
+            "appid": self.appid,
+            "channel": self.channel,
+            "has_rtc_token": bool(self.rtc_token),
+            "client_uid": self.client_uid,
+            "printer_uid": self.printer_uid,
+            "has_encryption_kdf_salt": bool(self.encryption_kdf_salt),
+            "has_encryption_key": bool(self.encryption_key),
+            "encryption_mode": self.encryption_mode,
+        }
+
+    def __repr__(self) -> str:
+        return (
+            f"AnycubicCameraSession("
+            f"appid={self.appid}, "
+            f"channel={self.channel}, "
+            f"rtc_token=<redacted>, "
+            f"client_uid={self.client_uid}, "
+            f"printer_uid={self.printer_uid}, "
+            f"encryption_key=<redacted>, "
+            f"encryption_mode={self.encryption_mode})"
         )

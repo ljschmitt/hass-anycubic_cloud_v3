@@ -255,9 +255,14 @@ export class AnycubicPrintercardCard extends LitElement {
         </div>
         <anycubic-printercard-camera_view
           class=${classMap(classesCam)}
+          .hass=${this.hass}
+          .language=${this.language}
           .showVideo=${this._showVideo}
           .toggleVideo=${this._toggleVideo}
           .cameraEntity=${this.cameraEntityState}
+          .configEntryId=${this.selectedPrinterDevice?.primary_config_entry ||
+          this.selectedPrinterDevice?.config_entries?.[0]}
+          .printerId=${this.selectedPrinterDevice?.serial_number}
         ></anycubic-printercard-camera_view>
         <anycubic-printercard-multicolorbox_modal_spool
           .hass=${this.hass}
@@ -410,7 +415,15 @@ export class AnycubicPrintercardCard extends LitElement {
   }
 
   private _toggleVideo = (): void => {
-    this._showVideo = !!(this.cameraEntityState && !this._showVideo);
+    const hasCloudCameraConfig = !!(
+      this.selectedPrinterDevice?.serial_number &&
+      (this.selectedPrinterDevice.primary_config_entry ||
+        this.selectedPrinterDevice.config_entries?.[0])
+    );
+    this._showVideo = !!(
+      (this.cameraEntityState || hasCloudCameraConfig) &&
+      !this._showVideo
+    );
   };
 
   private _renderPrintSettingsContainer(): LitTemplateResult {

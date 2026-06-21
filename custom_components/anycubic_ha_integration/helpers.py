@@ -345,6 +345,7 @@ def extract_panel_card_config(
     update_dict_and_validate(card_conf, input_conf, 'lightEntityId', str)
     update_dict_and_validate(card_conf, input_conf, 'powerEntityId', str)
     update_dict_and_validate(card_conf, input_conf, 'cameraEntityId', str)
+    update_dict_and_validate(card_conf, input_conf, 'cameraEntityIds', dict)
     update_dict_and_validate(card_conf, input_conf, 'monitoredStats', str, allow_lists=True)
     update_dict_and_validate(card_conf, input_conf, 'scaleFactor', float)
     update_dict_and_validate(card_conf, input_conf, 'slotColors', str, allow_lists=True)

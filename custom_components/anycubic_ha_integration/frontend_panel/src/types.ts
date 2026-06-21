@@ -302,6 +302,7 @@ export interface AnycubicCardConfig {
   lightEntityId?: string;
   powerEntityId?: string;
   cameraEntityId?: string;
+  cameraEntityIds?: Record<string, string>;
   monitoredStats?: PrinterCardStatType[];
   scaleFactor?: number;
   slotColors?: string[];

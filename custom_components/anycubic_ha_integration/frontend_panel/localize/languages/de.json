@@ -14,6 +14,26 @@
       "mqtt_unsupported": "Diese Funktion benötigt MQTT zum Abrufen der Daten. MQTT wird mit dem gewählten Authentifizierungsmodus leider nicht unterstützt."
     }
   },
+  "camera": {
+    "controls": {
+      "fullscreen": "Vollbild",
+      "reset_zoom": "Zoom zurücksetzen",
+      "zoom_in": "Zoom vergrößern",
+      "zoom_out": "Zoom verkleinern"
+    },
+    "errors": {
+      "camera_left": "Die Kamera hat die Verbindung getrennt.",
+      "connection_lost": "Die Kameraverbindung wurde getrennt.",
+      "secure_context_required": "Der verschlüsselte Kamerastream benötigt eine sichere Home-Assistant-Verbindung. Verwende Home Assistant Cloud/Nabu Casa, HTTPS oder localhost.",
+      "session_expired": "Die Kamera-Session ist abgelaufen.",
+      "session_renew_failed": "Die Kamera-Session konnte nicht erneuert werden.",
+      "stream_interrupted": "Der Kamerastream wurde unterbrochen.",
+      "unavailable": "Kamera nicht erreichbar"
+    },
+    "status": {
+      "connecting": "Verbinde Kamera..."
+    }
+  },
   "card": {
     "buttons": {
       "print_settings": "Druckeinstellungen",
@@ -127,6 +147,10 @@
           }
         }
       }
+    },
+    "side": {
+      "title": "Nebenansicht",
+      "cards": {}
     },
     "files_cloud": {
       "title": "Cloud-Dateien",
