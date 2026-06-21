@@ -121,11 +121,13 @@ Stream:   http://<drucker-ip>:4409/webcam/?action=stream
 In Home Assistant:
 
 1. **Einstellungen -> Geraete & Dienste -> Integration hinzufuegen**
-2. **Generic Camera** suchen und auswaehlen
-3. Als **Still Image URL** die Snapshot-URL eintragen
-4. Als **Stream Source URL** die Stream-URL eintragen
+2. **MJPEG IP Camera** suchen und auswaehlen
+3. Als **MJPEG URL** die Stream-URL eintragen
+4. Als **Still Image URL** die Snapshot-URL eintragen
 5. Optional einen Namen vergeben, z. B. `Printer Webcam`
 6. Nach dem Anlegen die Entity-ID pruefen, z. B. `camera.printer_webcam`
+
+> Hinweis: Wenn beim Einrichten mit **Generic Camera** zwar der Snapshot angezeigt wird, der Stream aber nur laedt, ist das fuer diese Moonraker-URL normal. Die `/webcam/?action=stream`-Adresse ist ein MJPEG-HTTP-Stream und gehoert in Home Assistant zur **MJPEG IP Camera**-Integration. **Generic Camera** ist eher fuer Snapshot plus separate RTSP-/Streaming-Quelle geeignet.
 
 > Wichtig: Nicht die Fluidd-Webcam-Ansicht oder eine go2rtc-Raumkamera-URL eintragen, wenn die integrierte Drucker-Webcam verwendet werden soll. Fuer Rinkhals ist die integrierte Kamera in der Regel der `/webcam/`-Pfad des Druckers.
 
