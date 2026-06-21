@@ -133,21 +133,38 @@ In Home Assistant:
 
 ### Kamera einem bestimmten Drucker zuordnen
 
-Anschliessend wird die Kamera im Anycubic-Panel nur fuer diesen Drucker gemappt. Das Mapping gehoert in die Panel-Card-Konfiguration der Integration:
+Anschliessend wird die Kamera im Anycubic-Panel nur fuer diesen Drucker gemappt. Die Home-Assistant-Bereichs- oder Geraetezuordnung der Kamera reicht dafuer nicht aus; sie dient nur der Home-Assistant-Organisation.
+
+Das Mapping gehoert in die **Panel-Kartenkonfiguration** der Anycubic-Integration:
+
+1. **Einstellungen -> Geraete & Dienste -> Anycubic HA Integration**
+2. Beim Integrationseintrag **Konfigurieren** auswaehlen
+3. **Panel-Kartenkonfiguration** oeffnen
+4. Falls dort `null` steht, den Inhalt durch die YAML-Konfiguration ersetzen
+
+Die Drucker-ID fuer den Schluessel kann direkt aus der Anycubic-Panel-URL abgelesen werden. Wenn die URL z. B. so aussieht:
+
+```text
+/anycubic_ha_integration/<printer-panel-id>/main
+```
+
+dann ist `<printer-panel-id>` der Schluessel fuer `cameraEntityIds`.
+
+Die Kamera-Entity-ID findest du in Home Assistant auf der Kamera-Entity, z. B. `camera.printer_webcam`.
 
 ```yaml
 cameraEntityIds:
-  "<printer-id-or-serial>": camera.printer_webcam
+  "<printer-panel-id>": camera.printer_webcam
 ```
 
-Der Schluessel kann die Anycubic-Drucker-ID bzw. Seriennummer sein. Alternativ kann die Home-Assistant-Device-ID des Druckers verwendet werden.
+Der Schluessel kann ausserdem die Anycubic-Drucker-ID bzw. Seriennummer sein. Alternativ kann die Home-Assistant-Device-ID des Druckers verwendet werden.
 
 Beispiel mit mehreren Druckern:
 
 ```yaml
 cameraEntityIds:
-  "<first-printer-id-or-serial>": camera.first_printer_webcam
-  "<second-printer-id-or-serial>": camera.second_printer_webcam
+  "<first-printer-panel-id>": camera.first_printer_webcam
+  "<second-printer-panel-id>": camera.second_printer_webcam
 ```
 
 Drucker ohne Eintrag in `cameraEntityIds` verwenden weiterhin automatisch den Anycubic-Cloud-Kamerastream.
