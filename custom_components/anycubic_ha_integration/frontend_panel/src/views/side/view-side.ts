@@ -1,3 +1,4 @@
+import { mdiPlay, mdiStop } from "@mdi/js";
 import { CSSResult, LitElement, PropertyValues, css, html } from "lit";
 import { property, state } from "lit/decorators.js";
 
@@ -44,6 +45,9 @@ export class AnycubicViewSide extends LitElement {
   @state()
   private _cameraEntity: HassEntity | undefined;
 
+  @state()
+  private _showCamera: boolean = false;
+
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
 
@@ -59,6 +63,13 @@ export class AnycubicViewSide extends LitElement {
     ) {
       this._cameraEntity = this._getConfiguredCameraEntity();
     }
+
+    if (
+      changedProperties.has("selectedPrinterID") ||
+      changedProperties.has("selectedPrinterDevice")
+    ) {
+      this._showCamera = false;
+    }
   }
 
   render(): LitTemplateResult {
@@ -69,28 +80,68 @@ export class AnycubicViewSide extends LitElement {
           <span>${this.selectedPrinterDevice?.name ?? ""}</span>
         </header>
         <div class="camera-stage">
-          <anycubic-printercard-camera_view
-            .hass=${this.hass}
-            .language=${this.language}
-            .showVideo=${true}
-            .showControls=${true}
-            .cameraEntity=${this._cameraEntity}
-            .configEntryId=${this.selectedPrinterDevice?.primary_config_entry ||
-            this.selectedPrinterDevice?.config_entries?.[0]}
-            .printerId=${this.selectedPrinterDevice?.serial_number}
-          ></anycubic-printercard-camera_view>
+          ${this._showCamera
+            ? this._renderCamera()
+            : this._renderCameraPlaceholder()}
         </div>
       </section>
     `;
   }
 
+  private _renderCamera(): LitTemplateResult {
+    return html`
+      <anycubic-printercard-camera_view
+        .hass=${this.hass}
+        .language=${this.language}
+        .showVideo=${true}
+        .showControls=${true}
+        .cameraEntity=${this._cameraEntity}
+        .configEntryId=${this.selectedPrinterDevice?.primary_config_entry ||
+        this.selectedPrinterDevice?.config_entries[0]}
+        .printerId=${this.selectedPrinterDevice?.serial_number}
+      ></anycubic-printercard-camera_view>
+      <button
+        class="camera-stop"
+        @click=${this._stopCamera}
+        title=${localize("camera.controls.stop", this.language)}
+        aria-label=${localize("camera.controls.stop", this.language)}
+      >
+        <ha-svg-icon .path=${mdiStop}></ha-svg-icon>
+      </button>
+    `;
+  }
+
+  private _renderCameraPlaceholder(): LitTemplateResult {
+    return html`
+      <button
+        class="camera-play"
+        @click=${this._startCamera}
+        title=${localize("camera.controls.play", this.language)}
+        aria-label=${localize("camera.controls.play", this.language)}
+      >
+        <ha-svg-icon .path=${mdiPlay}></ha-svg-icon>
+      </button>
+    `;
+  }
+
+  private _startCamera = (): void => {
+    this._showCamera = true;
+  };
+
+  private _stopCamera = (ev: Event): void => {
+    ev.stopPropagation();
+    this._showCamera = false;
+  };
+
   private _getConfiguredCameraEntity(): HassEntity | undefined {
     const entityId = this._getConfiguredCameraEntityId();
-    return entityId ? getEntityState(this.hass, { entity_id: entityId }) : undefined;
+    return entityId
+      ? getEntityState(this.hass, { entity_id: entityId })
+      : undefined;
   }
 
   private _getConfiguredCameraEntityId(): string | undefined {
-    const configured = this.panel?.config?.cameraEntityIds;
+    const configured = this.panel.config.cameraEntityIds;
     const mappedEntityId = configured
       ? (this.selectedPrinterID
           ? configured[this.selectedPrinterID]
@@ -100,7 +151,7 @@ export class AnycubicViewSide extends LitElement {
           : undefined)
       : undefined;
 
-    return mappedEntityId || this.panel?.config?.cameraEntityId;
+    return mappedEntityId || this.panel.config.cameraEntityId;
   }
 
   static get styles(): CSSResult {
@@ -152,6 +203,57 @@ export class AnycubicViewSide extends LitElement {
         overflow: hidden;
         position: relative;
         width: 100%;
+      }
+
+      .camera-play,
+      .camera-stop {
+        align-items: center;
+        background: rgb(255 255 255 / 12%);
+        border: 1px solid rgb(255 255 255 / 28%);
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        height: 52px;
+        justify-content: center;
+        padding: 0;
+        transition:
+          background 140ms ease,
+          border-color 140ms ease,
+          transform 140ms ease;
+        width: 52px;
+      }
+
+      .camera-play {
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .camera-stop {
+        height: 36px;
+        position: absolute;
+        right: 14px;
+        top: 14px;
+        width: 36px;
+        z-index: 2;
+      }
+
+      .camera-play:hover,
+      .camera-stop:hover {
+        background: rgb(255 255 255 / 20%);
+        border-color: rgb(255 255 255 / 46%);
+      }
+
+      .camera-play ha-svg-icon {
+        height: 30px;
+        width: 30px;
+      }
+
+      .camera-stop ha-svg-icon {
+        height: 22px;
+        width: 22px;
       }
 
       @media (max-width: 599px) {

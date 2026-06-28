@@ -17,7 +17,9 @@
   "camera": {
     "controls": {
       "fullscreen": "Fullscreen",
+      "play": "Start camera",
       "reset_zoom": "Reset zoom",
+      "stop": "Stop camera",
       "zoom_in": "Zoom in",
       "zoom_out": "Zoom out"
     },
