@@ -2,7 +2,7 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.2**
+> 🗓️ **Aktuelles Release: 0.1.4**
 >
 > - Offline gemeldete Drucker werden nicht mehr parallel als verfuegbar/beschaeftigt angezeigt
 > - Nebenansicht startet Kamerastreams nur noch manuell per Play und beendet sie bei Stop, Druckerwechsel oder Verlassen der Ansicht
