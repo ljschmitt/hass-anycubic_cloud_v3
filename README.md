@@ -4,7 +4,7 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 > 🗓️ **Aktuelles Release: 0.1.0**
 >
-> - Neue **Nebenansicht** mit Kamerastream, digitalem Zoom und Vollbild
+> - Neue **Nebenansicht** mit Kamerastream, manuellem Start per Play, digitalem Zoom und Vollbild
 > - Anycubic-Cloudstream per Agora/WebRTC
 > - Optionale Home-Assistant-`camera.*`-Entities pro Drucker fuer lokale Kameraquellen
 > - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-Reports
@@ -103,7 +103,9 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 
 ## 📷 Kamera / Nebenansicht
 
-Die Nebenansicht zeigt standardmaessig den Anycubic-Cloud-Kamerastream des ausgewaehlten Druckers. Fuer normale Anycubic-Firmware muss dafuer nichts weiter eingerichtet werden.
+Die Nebenansicht bietet standardmaessig den Anycubic-Cloud-Kamerastream des ausgewaehlten Druckers an. Fuer normale Anycubic-Firmware muss dafuer nichts weiter eingerichtet werden.
+
+Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Erst wenn in der Nebenansicht der Play-Button gedrueckt wird, wird die lokale Kameraquelle bzw. die Anycubic-Cloud-Kamerasession angefragt. Beim Stoppen, Verlassen der Ansicht oder Wechsel auf einen anderen Drucker wird der Stream wieder beendet.
 
 Bei Druckern mit alternativer Firmware oder lokaler Kamera-Bruecke, z. B. Rinkhals/Moonraker, kann optional pro Drucker eine Home-Assistant-`camera.*`-Entity verwendet werden. Das ueberschreibt nicht die Standardkamera fuer alle Drucker, sondern nur den jeweils gemappten Drucker.
 
