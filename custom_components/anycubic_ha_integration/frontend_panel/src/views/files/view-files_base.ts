@@ -165,36 +165,36 @@ export class AnycubicViewFilesBase extends LitElement {
                             <ha-icon icon="mdi:file-outline"></ha-icon>
                             <span>${fileInfo.name}</span>
                           </div>
-                          ${this.canPrintFile(fileInfo)
-                            ? html`
-                                <button
-                                  class="file-action-button"
-                                  .disabled=${this._isPrinting}
-                                  .file_info=${fileInfo}
-                                  title=${localize(
-                                    "files.actions.prepare_print",
-                                    this.language,
-                                  )}
-                                  @click=${this.openPrintPreparation}
-                                >
-                                  <ha-icon icon="mdi:play"></ha-icon>
-                                </button>
-                              `
-                            : nothing}
-                          <button
-                            class="file-action-button"
-                            .disabled=${this._isDeleting}
-                            .file_info=${fileInfo}
-                            title=${localize(
-                              "files.actions.delete",
-                              this.language,
-                            )}
-                            @click=${this.deleteFile}
-                          >
-                            <ha-icon
-                              icon="mdi:delete"
-                            ></ha-icon>
-                          </button>
+                          <div class="file-actions">
+                            ${this.canPrintFile(fileInfo)
+                              ? html`
+                                  <button
+                                    class="file-action-button"
+                                    .disabled=${this._isPrinting}
+                                    .file_info=${fileInfo}
+                                    title=${localize(
+                                      "files.actions.prepare_print",
+                                      this.language,
+                                    )}
+                                    @click=${this.openPrintPreparation}
+                                  >
+                                    <ha-icon icon="mdi:play"></ha-icon>
+                                  </button>
+                                `
+                              : nothing}
+                            <button
+                              class="file-action-button"
+                              .disabled=${this._isDeleting}
+                              .file_info=${fileInfo}
+                              title=${localize(
+                                "files.actions.delete",
+                                this.language,
+                              )}
+                              @click=${this.deleteFile}
+                            >
+                              <ha-icon icon="mdi:delete"></ha-icon>
+                            </button>
+                          </div>
                         `}
                   </li>
                 `,

@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.3**
+> 🗓️ **Aktuelles Release: 0.2.4**
 >
+> - Ordnet die Datei-Aktionsbuttons im lokalen/USB-Dateimanager sauber rechts an: Play steht direkt vor Loeschen
 > - Lokale und USB-Dateien koennen im Panel vorsichtig zum Druck vorbereitet werden: Der Play-Button oeffnet zuerst eine Vorbereitungsansicht mit Abbrechen/Drucken und optionaler ACE-Slotnummernliste
 > - Neue Services `print_file_local` und `print_file_udisk` starten vorhandene Dateien vom Druckerspeicher bzw. USB-Speicher ohne vorherigen Datei-Upload
 > - Ersetzt das zurueckgezogene Release 0.1.9 und behebt dessen Dateilisten-Pfadfehler beim Coordinator-Update

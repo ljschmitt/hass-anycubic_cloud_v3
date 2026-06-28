@@ -48,8 +48,17 @@ export const commonFilesStyle: CSSResult = css`
     align-items: center;
   }
 
+  .file-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
   .file-name {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
     gap: 8px;
     line-height: 20px;
@@ -57,7 +66,7 @@ export const commonFilesStyle: CSSResult = css`
     font-weight: 900;
     margin: 6px;
     word-wrap: break-word;
-    max-width: calc(100% - 58px);
+    max-width: none;
     min-width: 0;
   }
 
@@ -96,7 +105,6 @@ export const commonFilesStyle: CSSResult = css`
 
   .file-action-button {
     padding: 4px;
-    margin-left: 10px;
     min-width: 40px;
     min-height: 40px;
     display: inline-flex;
