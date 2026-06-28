@@ -1671,7 +1671,6 @@ class AnycubicPrinter:
         return file_list
 
     @property
-    @property
     def local_file_list_path(self) -> str:
         return self._local_file_list_path
 

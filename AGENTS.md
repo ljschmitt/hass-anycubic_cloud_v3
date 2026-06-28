@@ -22,6 +22,8 @@
 
 - The root `Version` file is the canonical project version. Run `python scripts/sync_version.py` after changing it, or `python scripts/sync_version.py --check` to verify generated version files.
 - Keep `custom_components/anycubic_ha_integration/manifest.json`, `custom_components/anycubic_ha_integration/frontend_panel/package.json`, `custom_components/anycubic_ha_integration/frontend_panel/package-lock.json`, and the README release line synchronized through `scripts/sync_version.py`.
+- Use semantic versioning intentionally. Normal user-facing feature work should use the next appropriate normal version such as `0.2.0`.
+- If a published release causes a startup/crash bug, delete that faulty GitHub release and tag, then publish the crash fix by appending a bugfix digit to the faulty version, for example `0.1.9` -> `0.1.91`. Use this special appended bugfix version only for crash-release replacements; after that, continue normal versioning.
 - Before creating a release, perform a version collision check: verify the intended `v<version>` tag does not already exist on the remote, verify no GitHub release for that tag exists, and verify the local version files are synchronized. If the tag already exists, stop and choose a new version before publishing.
 - Every committed version bump must be finished with a matching pushed GitHub tag and published release, for example `v0.1.2`.
 - After publishing, verify the pushed tag points to the current release commit and that GitHub lists the new release as the latest release.

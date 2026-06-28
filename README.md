@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.9**
+> 🗓️ **Aktuelles Release: 0.1.91**
 >
+> - Ersetzt das zurueckgezogene Release 0.1.9 und behebt dessen Dateilisten-Pfadfehler beim Coordinator-Update
 > - USB- und lokale Dateilisten behalten Ordnerinformationen, zeigen Ordner als klickbare Eintraege und fragen Unterordner mit passendem Pfad an
 > - Frontend-Panel-Bundle neu gebaut, damit die im Panel angezeigte Version zur Release-Version passt
 > - Bereinigt bekannte MQTT-Dateilisten-Reports mit `list_mode`, damit `listLocal`/`listUdisk` keine unhandled-data-Fehler mehr protokollieren
