@@ -31,11 +31,16 @@ export class AnycubicViewFilesLocal extends AnycubicViewFilesBase {
       this._fileArray = fileListState
         ? fileListState.attributes.file_info
         : undefined;
+      this._currentPath = this.normalizePath(fileListState?.attributes.path);
       this._listRefreshEntity = getFileListLocalRefreshEntity(
         this.printerEntities,
       );
     }
   }
+
+  protected requestFileList = (path: string): void => {
+    this.requestFileListService("request_file_list_local", path);
+  };
 
   deleteFile = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileLocal = ev.currentTarget
@@ -47,6 +52,7 @@ export class AnycubicViewFilesLocal extends AnycubicViewFilesBase {
           config_entry: this.selectedPrinterDevice.primary_config_entry,
           device_id: this.selectedPrinterDevice.id,
           filename: fileInfo.name,
+          path: this._currentPath,
         })
         .then(() => {
           this._isDeleting = false;

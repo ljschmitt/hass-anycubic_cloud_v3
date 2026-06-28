@@ -143,6 +143,8 @@ export interface HaFormBaseSchema {
 export interface AnycubicFileLocal {
   name: string;
   size_mb: number;
+  is_dir?: boolean;
+  path?: string;
 }
 
 export interface AnycubicFileCloud extends AnycubicFileLocal {
@@ -331,6 +333,7 @@ export enum AnycubicPrintOptionConfirmationType {
 export interface AnycubicFileListEntity extends HassEntity {
   attributes: HassEntityAttributeBase & {
     file_info?: AnycubicFileLocal[];
+    path?: string;
   };
 }
 

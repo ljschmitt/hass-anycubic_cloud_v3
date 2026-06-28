@@ -701,32 +701,44 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
     async def _send_order_list_local_files(
         self,
         printer: AnycubicPrinter,
+        file_path: str = "/",
     ) -> str | None:
         """ Response sent via MQTT """
         if not printer:
             return None
+
+        order_data = {
+            'path': file_path,
+        }
 
         return await self._send_anycubic_order(
             order_request=AnycubicProjectOrderRequest(
                 order_id=AnycubicOrderID.LIST_LOCAL_FILES,
                 printer_id=printer.id,
                 project_id=0,
+                order_data=order_data,
             ),
         )
 
     async def _send_order_list_udisk_files(
         self,
         printer: AnycubicPrinter,
+        file_path: str = "/",
     ) -> str | None:
         """ Response sent via MQTT """
         if not printer:
             return None
+
+        order_data = {
+            'path': file_path,
+        }
 
         return await self._send_anycubic_order(
             order_request=AnycubicProjectOrderRequest(
                 order_id=AnycubicOrderID.LIST_UDISK_FILES,
                 printer_id=printer.id,
                 project_id=0,
+                order_data=order_data,
             ),
         )
 
@@ -734,6 +746,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         self,
         printer: AnycubicPrinter,
         file_name: str,
+        file_path: str = "/",
     ) -> str | None:
         """ Response sent via MQTT """
         if not printer:
@@ -742,7 +755,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         order_data = {
             'filename': file_name,
             'filetype': -1,
-            'path': '/',
+            'path': file_path,
         }
 
         return await self._send_anycubic_order(
@@ -758,6 +771,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         self,
         printer: AnycubicPrinter,
         file_name: str,
+        file_path: str = "/",
     ) -> str | None:
         """ Response sent via MQTT """
         if not printer:
@@ -766,7 +780,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         order_data = {
             'filename': file_name,
             'filetype': -1,
-            'path': '/',
+            'path': file_path,
         }
 
         return await self._send_anycubic_order(

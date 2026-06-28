@@ -26,6 +26,7 @@ from .const import (
     ATTR_CONFIG_ENTRY,
     CONF_BOX_ID,
     CONF_FILE_ID,
+    CONF_FILE_PATH,
     CONF_FINISHED,
     CONF_LAYERS,
     CONF_PRINTER_ID,
@@ -555,8 +556,49 @@ class BaseDeletePrinterFile(AnycubicCloudServiceCall):
     schema = build_anycubic_service_schema(
         input_service_schema={
             vol.Required(CONF_FILENAME): cv.string,
+            vol.Optional(CONF_FILE_PATH, default="/"): cv.string,
         }
     )
+
+
+class BaseRequestPrinterFileList(AnycubicCloudServiceCall):
+    """Base for printer file list requests."""
+
+    schema = build_anycubic_service_schema(
+        input_service_schema={
+            vol.Optional(CONF_FILE_PATH, default="/"): cv.string,
+        }
+    )
+
+
+class RequestFileListLocal(BaseRequestPrinterFileList):
+    """Request a local printer file list."""
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        file_path = service.data[CONF_FILE_PATH]
+        printer = self._get_printer(service)
+
+        try:
+            await printer.request_local_file_list(file_path=file_path)
+        except Exception as error:
+            raise HomeAssistantError(error) from error
+
+
+class RequestFileListUdisk(BaseRequestPrinterFileList):
+    """Request a USB disk printer file list."""
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        file_path = service.data[CONF_FILE_PATH]
+        printer = self._get_printer(service)
+
+        try:
+            await printer.request_udisk_file_list(file_path=file_path)
+        except Exception as error:
+            raise HomeAssistantError(error) from error
 
 
 class DeleteFileLocal(BaseDeletePrinterFile):
@@ -566,17 +608,19 @@ class DeleteFileLocal(BaseDeletePrinterFile):
         """Execute service call."""
 
         file_name = service.data[CONF_FILENAME]
+        file_path = service.data[CONF_FILE_PATH]
         printer = self._get_printer(service)
 
         try:
 
             await printer.delete_local_file(
                 file_name=file_name,
+                file_path=file_path,
             )
             await asyncio.sleep(2)
-            await printer.request_local_file_list()
+            await printer.request_local_file_list(file_path=file_path)
             await asyncio.sleep(5)
-            await printer.request_local_file_list()
+            await printer.request_local_file_list(file_path=file_path)
 
         except Exception as error:
             raise HomeAssistantError(error) from error
@@ -589,17 +633,19 @@ class DeleteFileUdisk(BaseDeletePrinterFile):
         """Execute service call."""
 
         file_name = service.data[CONF_FILENAME]
+        file_path = service.data[CONF_FILE_PATH]
         printer = self._get_printer(service)
 
         try:
 
             await printer.delete_udisk_file(
                 file_name=file_name,
+                file_path=file_path,
             )
             await asyncio.sleep(2)
-            await printer.request_udisk_file_list()
+            await printer.request_udisk_file_list(file_path=file_path)
             await asyncio.sleep(5)
-            await printer.request_udisk_file_list()
+            await printer.request_udisk_file_list(file_path=file_path)
 
         except Exception as error:
             raise HomeAssistantError(error) from error
@@ -879,6 +925,8 @@ SERVICES = (
     ("multi_color_box_filament_retract", MultiColorBoxFilamentRetract),
     ("print_and_upload_save_in_cloud", PrintAndUploadSaveInCloud),
     ("print_and_upload_no_cloud_save", PrintAndUploadNoCloudSave),
+    ("request_file_list_local", RequestFileListLocal),
+    ("request_file_list_udisk", RequestFileListUdisk),
     ("delete_file_local", DeleteFileLocal),
     ("delete_file_udisk", DeleteFileUdisk),
     ("delete_file_cloud", DeleteFileCloud),

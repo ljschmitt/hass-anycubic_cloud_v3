@@ -248,10 +248,7 @@
       <div class="ac-printercard-mcbview">
         ${this.showControls?J`
               <div class="ac-printercard-mcbmenu ac-printercard-menuleft">
-                <div
-                  class="ac-switch"
-                  @click=${this._handleRunoutRefillChanged}
-                >
+                <div class="ac-switch" @click=${this._handleRunoutRefillChanged}>
                   <div class="ac-switch-label">${this._buttonRefill}</div>
                   <ha-entity-toggle
                     .hass=${this.hass}
@@ -1767,8 +1764,7 @@
     `;}_renderCard(){return this.spool_index>=0?J`
           <div>
             <div class="ac-slot-title">
-              ${this._heading}:
-              ${this.display_slot>0?this.display_slot:this.spool_index+1}
+              ${this._heading}: ${this.display_slot>0?this.display_slot:this.spool_index+1}
             </div>
             <div>
               <div>
@@ -2069,20 +2065,20 @@
       .ac-confirm-buttons ha-control-button {
         margin: 20px 30px 0px 30px;
       }
-    `;}};r([Ee()],_s.prototype,"hass",void 0),r([Ee()],_s.prototype,"language",void 0),r([Ee({attribute:"selected-printer-device"})],_s.prototype,"selectedPrinterDevice",void 0),r([Ee({attribute:"printer-entities"})],_s.prototype,"printerEntities",void 0),r([Ee({attribute:"printer-entity-id-part"})],_s.prototype,"printerEntityIdPart",void 0),r([ge()],_s.prototype,"availableSpeedModes",void 0),r([ge()],_s.prototype,"isFDM",void 0),r([ge()],_s.prototype,"currentSpeedModeKey",void 0),r([ge()],_s.prototype,"currentSpeedModeDescr",void 0),r([ge()],_s.prototype,"_userEditSpeedMode",void 0),r([ge()],_s.prototype,"currentFanSpeed",void 0),r([ge()],_s.prototype,"_userEditFanSpeed",void 0),r([ge()],_s.prototype,"currentAuxFanSpeed",void 0),r([ge()],_s.prototype,"_userEditAuxFanSpeed",void 0),r([ge()],_s.prototype,"currentBoxFanSpeed",void 0),r([ge()],_s.prototype,"_userEditBoxFanSpeed",void 0),r([ge()],_s.prototype,"currentTargetTempNozzle",void 0),r([ge()],_s.prototype,"minTargetTempNozzle",void 0),r([ge()],_s.prototype,"maxTargetTempNozzle",void 0),r([ge()],_s.prototype,"_userEditTargetTempNozzle",void 0),r([ge()],_s.prototype,"currentTargetTempHotbed",void 0),r([ge()],_s.prototype,"minTargetTempHotbed",void 0),r([ge()],_s.prototype,"maxTargetTempHotbed",void 0),r([ge()],_s.prototype,"_userEditTargetTempHotbed",void 0),r([ge()],_s.prototype,"_confirmationType",void 0),r([ge()],_s.prototype,"_isOpen",void 0),r([ge()],_s.prototype,"_confirmMessage",void 0),r([ge()],_s.prototype,"_labelNozzleTemperature",void 0),r([ge()],_s.prototype,"_labelHotbedTemperature",void 0),r([ge()],_s.prototype,"_labelFanSpeed",void 0),r([ge()],_s.prototype,"_labelAuxFanSpeed",void 0),r([ge()],_s.prototype,"_labelBoxFanSpeed",void 0),r([ge()],_s.prototype,"_buttonYes",void 0),r([ge()],_s.prototype,"_buttonNo",void 0),r([ge()],_s.prototype,"_buttonPrintPause",void 0),r([ge()],_s.prototype,"_buttonPrintResume",void 0),r([ge()],_s.prototype,"_buttonPrintCancel",void 0),r([ge()],_s.prototype,"_buttonSaveSpeedMode",void 0),r([ge()],_s.prototype,"_buttonSaveTargetNozzle",void 0),r([ge()],_s.prototype,"_buttonSaveTargetHotbed",void 0),r([ge()],_s.prototype,"_buttonSaveFanSpeed",void 0),r([ge()],_s.prototype,"_buttonSaveAuxFanSpeed",void 0),r([ge()],_s.prototype,"_buttonSaveBoxFanSpeed",void 0),r([ge()],_s.prototype,"_changingSettings",void 0),_s=r([Ii("anycubic-printercard-printsettings_modal")],_s);const ms={keyframeOptions:{duration:250,direction:"normal",easing:"ease-in-out"},properties:["height","opacity","scale"]},fs=Ti();let Es=class extends pe{constructor(){super(...arguments),this.monitoredStats=fs,this.round=!0,this.temperatureUnit=Vt.C,this._showVideo=!1,this.cameraEntityState=void 0,this.isHidden=!1,this.isPrinting=!1,this.hiddenOverride=!1,this.hasColorbox=!1,this.hasSecondaryColorbox=!1,this.hasMaterialRack=!1,this.lightIsOn=!1,this.statusColor="#ffc107",this.progressPercent=0,this._togglingLight=!1,this._togglingPower=!1,this._toggleVideo=()=>{var e;const t=!(!(null===(e=this.selectedPrinterDevice)||void 0===e?void 0:e.serial_number)||!this.selectedPrinterDevice.primary_config_entry&&!this.selectedPrinterDevice.config_entries[0]);this._showVideo=!(!this.cameraEntityState&&!t||this._showVideo);},this._openPrintSettingsModal=()=>{xt(this._printerCardContainer,"ac-printset-modal",{modalOpen:!0});},this._toggleLightEntity=()=>{this.lightEntityId&&(this._togglingLight=!0,this.hass.callService("homeassistant","toggle",{entity_id:this.lightEntityId}).then(()=>{this._togglingLight=!1;}).catch(e=>{this._togglingLight=!1;}));},this._togglePowerEntity=()=>{this.powerEntityId&&(this._togglingPower=!0,this.hass.callService("homeassistant","toggle",{entity_id:this.powerEntityId}).then(()=>{this._togglingPower=!1;}).catch(e=>{this._togglingPower=!1;}));},this._toggleHiddenOveride=()=>{this.hiddenOverride=!this.hiddenOverride;};}willUpdate(e){var t,i,n,r;if(super.willUpdate(e),e.has("language")&&(this._buttonPrintSettings=mr("card.buttons.print_settings",this.language)),e.has("monitoredStats")&&(this.monitoredStats=(n=this.monitoredStats,r=fs,void 0===n?r:n)),e.has("selectedPrinterID")&&(this.printerEntities=ii(this.hass,this.selectedPrinterID),this.printerEntityIdPart=si(this.printerEntities)),e.has("hass")||e.has("alwaysShow")||e.has("hiddenOverride")||e.has("selectedPrinterID")){this.progressPercent=this._percentComplete(),this.hasColorbox="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"ace_spools","inactive").state,this.hasMaterialRack="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"material_rack_spools","inactive").state,this.hasSecondaryColorbox="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"secondary_multi_color_box_spools","inactive").state,this.cameraEntityId&&(this.cameraEntityState=$t(this.hass,{entity_id:this.cameraEntityId})),this.lightIsOn=ti(this.hass,{entity_id:null!==(t=this.lightEntityId)&&void 0!==t?t:""},!0,!1);const e=li(this.hass,this.printerEntities,this.printerEntityIdPart,"job_state","unknown").state.toLowerCase();this.isPrinting=Ei(e),this.isHidden=!this.alwaysShow&&!this.hiddenOverride&&!this.isPrinting,this.statusColor=function(e){return"preheating"===e?"#ffc107":Ei(e)?"#4caf50":"unknown"===e?"#f44336":"operational"===e||"finished"===e?"#00bcd4":"#f44336";}(e),this.lightIsOn=ti(this.hass,{entity_id:null!==(i=this.lightEntityId)&&void 0!==i?i:""},!0,!1);}}render(){var e,t,i;const n={"ac-hidden":!this._showVideo};return J`
+    `;}};r([Ee()],_s.prototype,"hass",void 0),r([Ee()],_s.prototype,"language",void 0),r([Ee({attribute:"selected-printer-device"})],_s.prototype,"selectedPrinterDevice",void 0),r([Ee({attribute:"printer-entities"})],_s.prototype,"printerEntities",void 0),r([Ee({attribute:"printer-entity-id-part"})],_s.prototype,"printerEntityIdPart",void 0),r([ge()],_s.prototype,"availableSpeedModes",void 0),r([ge()],_s.prototype,"isFDM",void 0),r([ge()],_s.prototype,"currentSpeedModeKey",void 0),r([ge()],_s.prototype,"currentSpeedModeDescr",void 0),r([ge()],_s.prototype,"_userEditSpeedMode",void 0),r([ge()],_s.prototype,"currentFanSpeed",void 0),r([ge()],_s.prototype,"_userEditFanSpeed",void 0),r([ge()],_s.prototype,"currentAuxFanSpeed",void 0),r([ge()],_s.prototype,"_userEditAuxFanSpeed",void 0),r([ge()],_s.prototype,"currentBoxFanSpeed",void 0),r([ge()],_s.prototype,"_userEditBoxFanSpeed",void 0),r([ge()],_s.prototype,"currentTargetTempNozzle",void 0),r([ge()],_s.prototype,"minTargetTempNozzle",void 0),r([ge()],_s.prototype,"maxTargetTempNozzle",void 0),r([ge()],_s.prototype,"_userEditTargetTempNozzle",void 0),r([ge()],_s.prototype,"currentTargetTempHotbed",void 0),r([ge()],_s.prototype,"minTargetTempHotbed",void 0),r([ge()],_s.prototype,"maxTargetTempHotbed",void 0),r([ge()],_s.prototype,"_userEditTargetTempHotbed",void 0),r([ge()],_s.prototype,"_confirmationType",void 0),r([ge()],_s.prototype,"_isOpen",void 0),r([ge()],_s.prototype,"_confirmMessage",void 0),r([ge()],_s.prototype,"_labelNozzleTemperature",void 0),r([ge()],_s.prototype,"_labelHotbedTemperature",void 0),r([ge()],_s.prototype,"_labelFanSpeed",void 0),r([ge()],_s.prototype,"_labelAuxFanSpeed",void 0),r([ge()],_s.prototype,"_labelBoxFanSpeed",void 0),r([ge()],_s.prototype,"_buttonYes",void 0),r([ge()],_s.prototype,"_buttonNo",void 0),r([ge()],_s.prototype,"_buttonPrintPause",void 0),r([ge()],_s.prototype,"_buttonPrintResume",void 0),r([ge()],_s.prototype,"_buttonPrintCancel",void 0),r([ge()],_s.prototype,"_buttonSaveSpeedMode",void 0),r([ge()],_s.prototype,"_buttonSaveTargetNozzle",void 0),r([ge()],_s.prototype,"_buttonSaveTargetHotbed",void 0),r([ge()],_s.prototype,"_buttonSaveFanSpeed",void 0),r([ge()],_s.prototype,"_buttonSaveAuxFanSpeed",void 0),r([ge()],_s.prototype,"_buttonSaveBoxFanSpeed",void 0),r([ge()],_s.prototype,"_changingSettings",void 0),_s=r([Ii("anycubic-printercard-printsettings_modal")],_s);const ms={keyframeOptions:{duration:250,direction:"normal",easing:"ease-in-out"},properties:["height","opacity","scale"]},fs=Ti();let Es=class extends pe{constructor(){super(...arguments),this.monitoredStats=fs,this.round=!0,this.temperatureUnit=Vt.C,this._showVideo=!1,this.cameraEntityState=void 0,this.isHidden=!1,this.isPrinting=!1,this.hiddenOverride=!1,this.hasColorbox=!1,this.hasSecondaryColorbox=!1,this.hasMaterialRack=!1,this.lightIsOn=!1,this.statusColor="#ffc107",this.progressPercent=0,this._togglingLight=!1,this._togglingPower=!1,this._toggleVideo=()=>{var e,t;const i=!(!(null===(e=this.selectedPrinterDevice)||void 0===e?void 0:e.serial_number)||!this.selectedPrinterDevice.primary_config_entry&&!(null===(t=this.selectedPrinterDevice.config_entries)||void 0===t?void 0:t[0]));this._showVideo=!(!this.cameraEntityState&&!i||this._showVideo);},this._openPrintSettingsModal=()=>{xt(this._printerCardContainer,"ac-printset-modal",{modalOpen:!0});},this._toggleLightEntity=()=>{this.lightEntityId&&(this._togglingLight=!0,this.hass.callService("homeassistant","toggle",{entity_id:this.lightEntityId}).then(()=>{this._togglingLight=!1;}).catch(e=>{this._togglingLight=!1;}));},this._togglePowerEntity=()=>{this.powerEntityId&&(this._togglingPower=!0,this.hass.callService("homeassistant","toggle",{entity_id:this.powerEntityId}).then(()=>{this._togglingPower=!1;}).catch(e=>{this._togglingPower=!1;}));},this._toggleHiddenOveride=()=>{this.hiddenOverride=!this.hiddenOverride;};}willUpdate(e){var t,i,n,r;if(super.willUpdate(e),e.has("language")&&(this._buttonPrintSettings=mr("card.buttons.print_settings",this.language)),e.has("monitoredStats")&&(this.monitoredStats=(n=this.monitoredStats,r=fs,void 0===n?r:n)),e.has("selectedPrinterID")&&(this.printerEntities=ii(this.hass,this.selectedPrinterID),this.printerEntityIdPart=si(this.printerEntities)),e.has("hass")||e.has("alwaysShow")||e.has("hiddenOverride")||e.has("selectedPrinterID")){this.progressPercent=this._percentComplete(),this.hasColorbox="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"ace_spools","inactive").state,this.hasMaterialRack="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"material_rack_spools","inactive").state,this.hasSecondaryColorbox="active"===li(this.hass,this.printerEntities,this.printerEntityIdPart,"secondary_multi_color_box_spools","inactive").state,this.cameraEntityId&&(this.cameraEntityState=$t(this.hass,{entity_id:this.cameraEntityId})),this.lightIsOn=ti(this.hass,{entity_id:null!==(t=this.lightEntityId)&&void 0!==t?t:""},!0,!1);const e=li(this.hass,this.printerEntities,this.printerEntityIdPart,"job_state","unknown").state.toLowerCase();this.isPrinting=Ei(e),this.isHidden=!this.alwaysShow&&!this.hiddenOverride&&!this.isPrinting,this.statusColor=function(e){return"preheating"===e?"#ffc107":Ei(e)?"#4caf50":"unknown"===e?"#f44336":"operational"===e||"finished"===e?"#00bcd4":"#f44336";}(e),this.lightIsOn=ti(this.hass,{entity_id:null!==(i=this.lightEntityId)&&void 0!==i?i:""},!0,!1);}}render(){var e,t,i,n;const r={"ac-hidden":!this._showVideo};return J`
       <div class="ac-printer-card">
         <div class="ac-printer-card-mainview">
           ${this._renderHeader()} ${this._renderPrinterContainer()}
         </div>
         <anycubic-printercard-camera_view
-          class=${br(n)}
+          class=${br(r)}
           .hass=${this.hass}
           .language=${this.language}
           .showVideo=${this._showVideo}
           .toggleVideo=${this._toggleVideo}
           .cameraEntity=${this.cameraEntityState}
-          .configEntryId=${(null===(e=this.selectedPrinterDevice)||void 0===e?void 0:e.primary_config_entry)||(null===(t=this.selectedPrinterDevice)||void 0===t?void 0:t.config_entries[0])}
-          .printerId=${null===(i=this.selectedPrinterDevice)||void 0===i?void 0:i.serial_number}
+          .configEntryId=${(null===(e=this.selectedPrinterDevice)||void 0===e?void 0:e.primary_config_entry)||(null===(i=null===(t=this.selectedPrinterDevice)||void 0===t?void 0:t.config_entries)||void 0===i?void 0:i[0])}
+          .printerId=${null===(n=this.selectedPrinterDevice)||void 0===n?void 0:n.serial_number}
         ></anycubic-printercard-camera_view>
         <anycubic-printercard-multicolorbox_modal_spool
           .hass=${this.hass}
@@ -2701,6 +2697,13 @@
     margin: 0;
   }
 
+  .file-toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
   .file-info {
     display: flex;
     min-height: 20px;
@@ -2714,16 +2717,36 @@
     margin: 6px;
     width: 100%;
     justify-content: space-between;
+    gap: 12px;
+    align-items: center;
   }
 
   .file-name {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     line-height: 20px;
-    text-align: center;
+    text-align: left;
     font-weight: 900;
     margin: 6px;
     word-wrap: break-word;
     max-width: calc(100% - 58px);
+    min-width: 0;
+  }
+
+  .file-name span {
+    overflow-wrap: anywhere;
+  }
+
+  .file-open-button {
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    width: 100%;
+    max-width: none;
+    padding: 0;
   }
 
   .file-info:hover {
@@ -2733,7 +2756,6 @@
 
   .file-refresh-button {
     padding: 10px;
-    margin-bottom: 20px;
   }
 
   .file-refresh-icon {
@@ -2765,41 +2787,62 @@
       margin: 6px 0px;
     }
   }
-`;class Rs extends pe{constructor(){super(...arguments),this._isRefreshing=!1,this._supportsMQTT=!1,this._httpResponse=!1,this.refreshList=()=>{this._listRefreshEntity&&(this._isRefreshing=!0,this.hass.callService("button","press",{entity_id:this._listRefreshEntity.entity_id}).then(()=>{this._isRefreshing=!1;}).catch(e=>{this._isRefreshing=!1;}));},this.deleteFile=e=>{};}willUpdate(e){super.willUpdate(e),e.has("language")&&(this._noMqttMessage=mr("common.messages.mqtt_unsupported",this.language)),(e.has("hass")||e.has("selectedPrinterID"))&&(this.printerEntities=ii(this.hass,this.selectedPrinterID),this.printerEntityIdPart=si(this.printerEntities),this._supportsMQTT=function(e,t,i){const n=$t(e,oi(t,i,"binary_sensor","mqtt_connection_active"));return!!n&&!!n.attributes.supports_mqtt_login;}(this.hass,this.printerEntities,this.printerEntityIdPart));}render(){return J`
+`;class Rs extends pe{constructor(){super(...arguments),this._isRefreshing=!1,this._supportsMQTT=!1,this._httpResponse=!1,this._currentPath="/",this.refreshList=()=>{this.requestFileList(this._currentPath);},this.requestFileList=e=>{this._listRefreshEntity&&(this._isRefreshing=!0,this.hass.callService("button","press",{entity_id:this._listRefreshEntity.entity_id}).then(()=>{this._isRefreshing=!1;}).catch(e=>{this._isRefreshing=!1;}));},this.requestFileListService=(e,t)=>{this.selectedPrinterDevice&&(this._isRefreshing=!0,this.hass.callService(ls,e,{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,path:t}).then(()=>{this._isRefreshing=!1;}).catch(e=>{this._isRefreshing=!1;}));},this.normalizePath=e=>{if(!e)return"/";let t=e.replace(/\\/g,"/").trim();return t?(t.startsWith("/")||(t=`/${t}`),t=t.replace(/\/+/g,"/"),t.length>1&&(t=t.replace(/\/$/g,"")),t||"/"):"/";},this.joinPath=(e,t)=>{const i=this.normalizePath(e);return this.normalizePath("/"===i?`/${t}`:`${i}/${t}`);},this.openFolder=e=>{const t=e.currentTarget.file_info;t.name&&this.requestFileList(this.joinPath(this._currentPath,t.name));},this.goUp=()=>{const e=this.normalizePath(this._currentPath);if("/"===e)return;const t=e.split("/").slice(0,-1).join("/")||"/";this.requestFileList(t);},this.deleteFile=e=>{};}willUpdate(e){super.willUpdate(e),e.has("language")&&(this._noMqttMessage=mr("common.messages.mqtt_unsupported",this.language)),(e.has("hass")||e.has("selectedPrinterID"))&&(this.printerEntities=ii(this.hass,this.selectedPrinterID),this.printerEntityIdPart=si(this.printerEntities),this._supportsMQTT=function(e,t,i){const n=$t(e,oi(t,i,"binary_sensor","mqtt_connection_active"));return!!n&&!!n.attributes.supports_mqtt_login;}(this.hass,this.printerEntities,this.printerEntityIdPart));}render(){return J`
       <div class="files-card" elevation="2">
-        <button
-          .disabled=${!this._httpResponse&&!this._supportsMQTT||this._isRefreshing}
-          class="file-refresh-button"
-          @click=${this.refreshList}
-        >
-          <ha-icon
-            class="file-refresh-icon"
-            icon="mdi:refresh"
+        <div class="file-toolbar">
+          <button
+            .disabled=${!this._httpResponse&&!this._supportsMQTT||this._isRefreshing||"/"===this._currentPath}
+            class="file-refresh-button"
+            @click=${this.goUp}
           >
-          </ha-icon>
-        </button>
+            <ha-icon class="file-refresh-icon" icon="mdi:arrow-up"> </ha-icon>
+          </button>
+          <button
+            .disabled=${!this._httpResponse&&!this._supportsMQTT||this._isRefreshing}
+            class="file-refresh-button"
+            @click=${this.refreshList}
+          >
+            <ha-icon class="file-refresh-icon" icon="mdi:refresh"> </ha-icon>
+          </button>
+        </div>
         ${this._httpResponse||this._supportsMQTT?q:J` <div class="no-mqtt-msg">${this._noMqttMessage}</div> `}
         <ul class="files-container">
-        ${this._fileArray?this._fileArray.map(e=>J`
+          ${this._fileArray?this._fileArray.map(e=>J`
                   <li class="file-info">
-                    <div class="file-name">${e.name}</div>
-                    <button
-                      class="file-delete-button"
-                      .disabled=${this._isDeleting}
-                      .file_info=${e}
-                      @click=${this.deleteFile}
-                    >
-                      <ha-icon
-                        class="file-delete-icon"
-                        icon="mdi:delete"
-                      ></ha-icon>
-                    </button>
+                    ${e.is_dir?J`
+                          <button
+                            class="file-open-button file-name"
+                            .disabled=${this._isRefreshing}
+                            .file_info=${e}
+                            @click=${this.openFolder}
+                          >
+                            <ha-icon icon="mdi:folder"></ha-icon>
+                            <span>${e.name}</span>
+                          </button>
+                        `:J`
+                          <div class="file-name">
+                            <ha-icon icon="mdi:file-outline"></ha-icon>
+                            <span>${e.name}</span>
+                          </div>
+                          <button
+                            class="file-delete-button"
+                            .disabled=${this._isDeleting}
+                            .file_info=${e}
+                            @click=${this.deleteFile}
+                          >
+                            <ha-icon
+                              class="file-delete-icon"
+                              icon="mdi:delete"
+                            ></ha-icon>
+                          </button>
+                        `}
                   </li>
                 `):null}
+        </ul>
       </div>
     `;}static get styles(){return h`
       ${As}
-    `;}}r([Ee()],Rs.prototype,"hass",void 0),r([Ee()],Rs.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Rs.prototype,"narrow",void 0),r([Ee()],Rs.prototype,"route",void 0),r([Ee()],Rs.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Rs.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Rs.prototype,"selectedPrinterDevice",void 0),r([ge()],Rs.prototype,"printerEntities",void 0),r([ge()],Rs.prototype,"printerEntityIdPart",void 0),r([ge()],Rs.prototype,"_fileArray",void 0),r([ge()],Rs.prototype,"_listRefreshEntity",void 0),r([ge()],Rs.prototype,"_isRefreshing",void 0),r([ge()],Rs.prototype,"_isDeleting",void 0),r([ge()],Rs.prototype,"_noMqttMessage",void 0),r([ge()],Rs.prototype,"_supportsMQTT",void 0),r([ge()],Rs.prototype,"_httpResponse",void 0);let Cs=class extends Rs{constructor(){super(...arguments),this._httpResponse=!0,this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.id&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_cloud",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,file_id:t.id}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_cloud"));this._fileArray=e?e.attributes.file_info:void 0,this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_cloud");}(this.printerEntities);}}};r([ge()],Cs.prototype,"_fileArray",void 0),r([ge()],Cs.prototype,"_httpResponse",void 0),Cs=r([Ii("anycubic-view-files_cloud")],Cs);let Is=class extends Rs{constructor(){super(...arguments),this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.name&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_local",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,filename:t.name}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_local"));this._fileArray=e?e.attributes.file_info:void 0,this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_local");}(this.printerEntities);}}};Is=r([Ii("anycubic-view-files_local")],Is);let ws=class extends Rs{constructor(){super(...arguments),this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.name&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_udisk",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,filename:t.name}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_udisk"));this._fileArray=e?e.attributes.file_info:void 0,this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_udisk");}(this.printerEntities);}}};ws=r([Ii("anycubic-view-files_udisk")],ws);const Os=h`
+    `;}}r([Ee()],Rs.prototype,"hass",void 0),r([Ee()],Rs.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Rs.prototype,"narrow",void 0),r([Ee()],Rs.prototype,"route",void 0),r([Ee()],Rs.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Rs.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Rs.prototype,"selectedPrinterDevice",void 0),r([ge()],Rs.prototype,"printerEntities",void 0),r([ge()],Rs.prototype,"printerEntityIdPart",void 0),r([ge()],Rs.prototype,"_fileArray",void 0),r([ge()],Rs.prototype,"_listRefreshEntity",void 0),r([ge()],Rs.prototype,"_isRefreshing",void 0),r([ge()],Rs.prototype,"_isDeleting",void 0),r([ge()],Rs.prototype,"_noMqttMessage",void 0),r([ge()],Rs.prototype,"_supportsMQTT",void 0),r([ge()],Rs.prototype,"_httpResponse",void 0),r([ge()],Rs.prototype,"_currentPath",void 0);let Cs=class extends Rs{constructor(){super(...arguments),this._httpResponse=!0,this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.id&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_cloud",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,file_id:t.id}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_cloud"));this._fileArray=e?e.attributes.file_info:void 0,this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_cloud");}(this.printerEntities);}}};r([ge()],Cs.prototype,"_fileArray",void 0),r([ge()],Cs.prototype,"_httpResponse",void 0),Cs=r([Ii("anycubic-view-files_cloud")],Cs);let Is=class extends Rs{constructor(){super(...arguments),this.requestFileList=e=>{this.requestFileListService("request_file_list_local",e);},this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.name&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_local",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,filename:t.name,path:this._currentPath}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_local"));this._fileArray=e?e.attributes.file_info:void 0,this._currentPath=this.normalizePath(null==e?void 0:e.attributes.path),this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_local");}(this.printerEntities);}}};Is=r([Ii("anycubic-view-files_local")],Is);let ws=class extends Rs{constructor(){super(...arguments),this.requestFileList=e=>{this.requestFileListService("request_file_list_udisk",e);},this.deleteFile=e=>{const t=e.currentTarget.file_info;this.selectedPrinterDevice&&t.name&&(this._isDeleting=!0,this.hass.callService(ls,"delete_file_udisk",{config_entry:this.selectedPrinterDevice.primary_config_entry,device_id:this.selectedPrinterDevice.id,filename:t.name,path:this._currentPath}).then(()=>{this._isDeleting=!1;}).catch(e=>{this._isDeleting=!1;}));};}willUpdate(e){if(super.willUpdate(e),e.has("hass")||e.has("selectedPrinterID")){const e=$t(this.hass,ni(this.printerEntities,"sensor","file_list_udisk"));this._fileArray=e?e.attributes.file_info:void 0,this._currentPath=this.normalizePath(null==e?void 0:e.attributes.path),this._listRefreshEntity=function(e){return ni(e,"button","request_file_list_udisk");}(this.printerEntities);}}};ws=r([Ii("anycubic-view-files_udisk")],ws);const Os=h`
   :host {
     padding: 16px;
     display: block;
@@ -2847,7 +2890,7 @@
       </ac-print-view>
     `;}static get styles(){return h`
       ${Os}
-    `;}}r([Ee({attribute:!1})],Ds.prototype,"hass",void 0),r([Ee()],Ds.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ds.prototype,"narrow",void 0),r([Ee()],Ds.prototype,"route",void 0),r([Ee()],Ds.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ds.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ds.prototype,"selectedPrinterDevice",void 0),r([ge()],Ds.prototype,"_scriptData",void 0),r([ge()],Ds.prototype,"_error",void 0),r([ge()],Ds.prototype,"_serviceName",void 0),r([ge()],Ds.prototype,"_buttonPrint",void 0),r([ge()],Ds.prototype,"_buttonProgress",void 0);let Ps=class extends Ds{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],Ps.prototype,"_serviceName",void 0),Ps=r([Ii("anycubic-view-print-no_cloud_save")],Ps);let Ls=class extends Ds{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ls.prototype,"_serviceName",void 0),Ls=r([Ii("anycubic-view-print-save_in_cloud")],Ls);var ks="0.1.1";window.console.info(`%c ANYCUBIC-PANEL %c v${ks} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),xt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==fi(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=mi(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),xt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=mr("panels.main.title",this.language),this._tabSide=mr("panels.side.title",this.language),this._tabFilesLocal=mr("panels.files_local.title",this.language),this._tabFilesUdisk=mr("panels.files_udisk.title",this.language),this._tabFilesCloud=mr("panels.files_cloud.title",this.language),this._tabPrintNoSave=mr("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=mr("panels.print_save_in_cloud.title",this.language),this._tabDebug=mr("panels.debug.title",this.language),this._mainTitle=mr("title",this.language),this._selectPrinter=mr("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={};for(const i in e.devices){const n=e.devices[i];"Anycubic"===n.manufacturer&&(t[n.id]=n);}return t;}(this.hass),this.selectedPage=fi(this.route),this.selectedPrinterID=mi(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){return J`
+    `;}}r([Ee({attribute:!1})],Ds.prototype,"hass",void 0),r([Ee()],Ds.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ds.prototype,"narrow",void 0),r([Ee()],Ds.prototype,"route",void 0),r([Ee()],Ds.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ds.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ds.prototype,"selectedPrinterDevice",void 0),r([ge()],Ds.prototype,"_scriptData",void 0),r([ge()],Ds.prototype,"_error",void 0),r([ge()],Ds.prototype,"_serviceName",void 0),r([ge()],Ds.prototype,"_buttonPrint",void 0),r([ge()],Ds.prototype,"_buttonProgress",void 0);let Ps=class extends Ds{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],Ps.prototype,"_serviceName",void 0),Ps=r([Ii("anycubic-view-print-no_cloud_save")],Ps);let Ls=class extends Ds{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ls.prototype,"_serviceName",void 0),Ls=r([Ii("anycubic-view-print-save_in_cloud")],Ls);var ks="0.1.9";window.console.info(`%c ANYCUBIC-PANEL %c v${ks} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),xt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==fi(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=mi(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),xt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=mr("panels.main.title",this.language),this._tabSide=mr("panels.side.title",this.language),this._tabFilesLocal=mr("panels.files_local.title",this.language),this._tabFilesUdisk=mr("panels.files_udisk.title",this.language),this._tabFilesCloud=mr("panels.files_cloud.title",this.language),this._tabPrintNoSave=mr("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=mr("panels.print_save_in_cloud.title",this.language),this._tabDebug=mr("panels.debug.title",this.language),this._mainTitle=mr("title",this.language),this._selectPrinter=mr("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={};for(const i in e.devices){const n=e.devices[i];"Anycubic"===n.manufacturer&&(t[n.id]=n);}return t;}(this.hass),this.selectedPage=fi(this.route),this.selectedPrinterID=mi(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){return J`
       <div class="header">
         ${this.renderToolbar()}
         <nav class="tabs" role="tablist">

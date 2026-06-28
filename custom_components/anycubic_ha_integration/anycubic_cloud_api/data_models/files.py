@@ -366,6 +366,7 @@ class AnycubicFile:
         "_timestamp",
         "_size",
         "_is_dir",
+        "_path",
     )
 
     def __init__(
@@ -374,14 +375,16 @@ class AnycubicFile:
         timestamp: int | None,
         size: int | None,
         is_dir: bool,
+        path: str = "/",
     ) -> None:
         self._filename: str = str(filename)
         self._timestamp: int = int(timestamp) if timestamp is not None else 0
         self._size: int = int(size) if size is not None else 0
         self._is_dir: bool = bool(is_dir)
+        self._path: str = path
 
     @classmethod
-    def from_json(cls, data: dict[str, Any] | None) -> AnycubicFile | None:
+    def from_json(cls, data: dict[str, Any] | None, path: str = "/") -> AnycubicFile | None:
         if data is None:
             return None
 
@@ -390,6 +393,7 @@ class AnycubicFile:
             timestamp=data.get('timestamp'),
             size=data.get('size'),
             is_dir=data['is_dir'],
+            path=path,
         )
 
     @property
@@ -413,10 +417,16 @@ class AnycubicFile:
         return self._is_dir
 
     @property
-    def data_object(self) -> dict[str, str | float]:
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def data_object(self) -> dict[str, str | float | bool]:
         return {
             'name': self._filename,
             'size_mb': self.size_mb,
+            'is_dir': self.is_dir,
+            'path': self.path,
         }
 
     def __repr__(self) -> str:
@@ -425,5 +435,6 @@ class AnycubicFile:
             f"filename={self._filename}, "
             f"timestamp={self._timestamp}, "
             f"size={self._size}, "
-            f"is_dir={self._is_dir})"
+            f"is_dir={self._is_dir}, "
+            f"path={self._path})"
         )

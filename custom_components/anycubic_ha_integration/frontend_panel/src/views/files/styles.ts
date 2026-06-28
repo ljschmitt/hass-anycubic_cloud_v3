@@ -24,6 +24,13 @@ export const commonFilesStyle: CSSResult = css`
     margin: 0;
   }
 
+  .file-toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
   .file-info {
     display: flex;
     min-height: 20px;
@@ -37,16 +44,36 @@ export const commonFilesStyle: CSSResult = css`
     margin: 6px;
     width: 100%;
     justify-content: space-between;
+    gap: 12px;
+    align-items: center;
   }
 
   .file-name {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     line-height: 20px;
-    text-align: center;
+    text-align: left;
     font-weight: 900;
     margin: 6px;
     word-wrap: break-word;
     max-width: calc(100% - 58px);
+    min-width: 0;
+  }
+
+  .file-name span {
+    overflow-wrap: anywhere;
+  }
+
+  .file-open-button {
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    width: 100%;
+    max-width: none;
+    padding: 0;
   }
 
   .file-info:hover {
@@ -56,7 +83,6 @@ export const commonFilesStyle: CSSResult = css`
 
   .file-refresh-button {
     padding: 10px;
-    margin-bottom: 20px;
   }
 
   .file-refresh-icon {

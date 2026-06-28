@@ -104,6 +104,10 @@ class AnycubicPrinter:
         "_print_speed_mode",
         "_local_file_list",
         "_udisk_file_list",
+        "_local_file_list_path",
+        "_udisk_file_list_path",
+        "_pending_local_file_list_path",
+        "_pending_udisk_file_list_path",
         "_has_peripheral_camera",
         "_has_peripheral_multi_color_box",
         "_has_peripheral_udisk",
@@ -210,6 +214,10 @@ class AnycubicPrinter:
         self._print_speed_mode: int = 0
         self._local_file_list: list[AnycubicFile] | None = None
         self._udisk_file_list: list[AnycubicFile] | None = None
+        self._local_file_list_path: str = "/"
+        self._udisk_file_list_path: str = "/"
+        self._pending_local_file_list_path: str | None = None
+        self._pending_udisk_file_list_path: str | None = None
         self._has_peripheral_camera: bool = False
         self._has_peripheral_multi_color_box: bool = False
         self._has_peripheral_udisk: bool = False
@@ -252,25 +260,49 @@ class AnycubicPrinter:
             except ValueError:
                 self._material_type = material_type
 
-    def _set_local_file_list(self, file_list: list[dict[str, Any]] | None) -> None:
+    @staticmethod
+    def _normalise_file_list_path(file_path: str | None) -> str:
+        if not file_path:
+            return "/"
+
+        normalised_path = str(file_path).replace("\\", "/").strip()
+        if not normalised_path:
+            return "/"
+
+        if not normalised_path.startswith("/"):
+            normalised_path = f"/{normalised_path}"
+
+        while "//" in normalised_path:
+            normalised_path = normalised_path.replace("//", "/")
+
+        if len(normalised_path) > 1:
+            normalised_path = normalised_path.rstrip("/")
+
+        return normalised_path
+
+    def _set_local_file_list(self, file_list: list[dict[str, Any]] | None, file_path: str | None = None) -> None:
         if file_list is None:
             return
 
+        file_path = self._normalise_file_list_path(file_path)
+        self._local_file_list_path = file_path
         self._local_file_list = list()
         for x in file_list:
-            file = AnycubicFile.from_json(x)
+            file = AnycubicFile.from_json(x, path=file_path)
             if file:
                 self._local_file_list.append(file)
             else:
                 raise AnycubicDataParsingError(ErrorsDataParsing.local_file_list.format(file_list))
 
-    def _set_udisk_file_list(self, file_list: list[dict[str, Any]] | None) -> None:
+    def _set_udisk_file_list(self, file_list: list[dict[str, Any]] | None, file_path: str | None = None) -> None:
         if file_list is None:
             return
 
+        file_path = self._normalise_file_list_path(file_path)
+        self._udisk_file_list_path = file_path
         self._udisk_file_list = list()
         for x in file_list:
-            file = AnycubicFile.from_json(x)
+            file = AnycubicFile.from_json(x, path=file_path)
             if file:
                 self._udisk_file_list.append(file)
             else:
@@ -1075,7 +1107,9 @@ class AnycubicPrinter:
             data = payload['data']
             records = data['records']
             data.get('list_mode')
-            self._set_local_file_list(records)
+            file_path = data.get('path', self._pending_local_file_list_path)
+            self._pending_local_file_list_path = None
+            self._set_local_file_list(records, file_path=file_path)
             return
         elif action == 'deleteLocal' and state == 'success':
             # Not Yet Needed
@@ -1084,7 +1118,9 @@ class AnycubicPrinter:
             data = payload['data']
             records = data['records']
             data.get('list_mode')
-            self._set_udisk_file_list(records)
+            file_path = data.get('path', self._pending_udisk_file_list_path)
+            self._pending_udisk_file_list_path = None
+            self._set_udisk_file_list(records, file_path=file_path)
             return
         elif action == 'deleteUdisk' and state == 'success':
             # Not Yet Needed
@@ -1625,7 +1661,7 @@ class AnycubicPrinter:
         return self._latest_project
 
     @property
-    def local_file_list_object(self) -> list[dict[str, str | float]] | None:
+    def local_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
         if not self._local_file_list or len(self._local_file_list) < 1:
             return None
 
@@ -1635,7 +1671,12 @@ class AnycubicPrinter:
         return file_list
 
     @property
-    def udisk_file_list_object(self) -> list[dict[str, str | float]] | None:
+    @property
+    def local_file_list_path(self) -> str:
+        return self._local_file_list_path
+
+    @property
+    def udisk_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
         if not self._udisk_file_list or len(self._udisk_file_list) < 1:
             return None
 
@@ -1643,6 +1684,10 @@ class AnycubicPrinter:
             file.data_object for file in self._udisk_file_list
         ])
         return file_list
+
+    @property
+    def udisk_file_list_path(self) -> str:
+        return self._udisk_file_list_path
 
     @property
     def primary_multi_color_box_fw_firmware_version(self) -> str | None:
@@ -2262,18 +2307,26 @@ class AnycubicPrinter:
 
     async def request_local_file_list(
         self,
+        file_path: str = "/",
     ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path)
+        self._pending_local_file_list_path = file_path
 
         return await self._api_parent._send_order_list_local_files(
             self,
+            file_path=file_path,
         )
 
     async def request_udisk_file_list(
         self,
+        file_path: str = "/",
     ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path)
+        self._pending_udisk_file_list_path = file_path
 
         return await self._api_parent._send_order_list_udisk_files(
             self,
+            file_path=file_path,
         )
 
     async def get_camera_session(
@@ -2287,21 +2340,27 @@ class AnycubicPrinter:
     async def delete_local_file(
         self,
         file_name: str,
+        file_path: str = "/",
     ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path)
 
         return await self._api_parent._send_order_delete_local_file(
             self,
             file_name=file_name,
+            file_path=file_path,
         )
 
     async def delete_udisk_file(
         self,
         file_name: str,
+        file_path: str = "/",
     ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path)
 
         return await self._api_parent._send_order_delete_udisk_file(
             self,
             file_name=file_name,
+            file_path=file_path,
         )
 
     async def multi_color_box_drying_start(

@@ -319,9 +319,11 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             },
             "file_list_local": {
                 "file_info": file_list_local,
+                "path": printer.local_file_list_path,
             },
             "file_list_udisk": {
                 "file_info": file_list_udisk,
+                "path": printer.udisk_file_list_path,
             },
             "file_list_cloud": {
                 "file_info": file_list_cloud,
