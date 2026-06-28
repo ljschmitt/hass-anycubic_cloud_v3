@@ -1072,15 +1072,19 @@ class AnycubicPrinter:
         payload: AnycubicConsumableData,
     ) -> None:
         if action == 'listLocal' and state == 'done':
-            data = payload['data']['records']
-            self._set_local_file_list(data)
+            data = payload['data']
+            records = data['records']
+            data.get('list_mode')
+            self._set_local_file_list(records)
             return
         elif action == 'deleteLocal' and state == 'success':
             # Not Yet Needed
             return
         elif action == 'listUdisk' and state == 'done':
-            data = payload['data']['records']
-            self._set_udisk_file_list(data)
+            data = payload['data']
+            records = data['records']
+            data.get('list_mode')
+            self._set_udisk_file_list(records)
             return
         elif action == 'deleteUdisk' and state == 'success':
             # Not Yet Needed
