@@ -282,6 +282,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "print_speed_pct": printer.latest_project_print_speed_pct,
             "job_z_thick": printer.latest_project_z_thick,
             "fan_speed_pct": printer.latest_project_fan_speed_pct,
+            "aux_fan_speed_pct": printer.aux_fan_speed_pct,
+            "box_fan_level": printer.box_fan_level,
             "job_model_height": printer.latest_project_print_model_height,
             "job_anti_alias_count": printer.latest_project_print_anti_alias_count,
             "job_on_time": printer.latest_project_print_on_time,
@@ -506,6 +508,10 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             supports_ace,
                             connected_ace_units,
                             self.entry.options,
+                        )
+                        or (
+                            description.create_when_available
+                            and printer_state_for_key(self, printer_id, description.key) is None
                         )
                     ):
                         remaining_unregistered_descriptors.append(description)

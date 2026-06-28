@@ -98,6 +98,8 @@ class AnycubicPrinter:
         "_multi_color_box",
         "_latest_project",
         "_fan_speed",
+        "_aux_fan_speed_pct",
+        "_box_fan_level",
         "_print_speed_pct",
         "_print_speed_mode",
         "_local_file_list",
@@ -202,6 +204,8 @@ class AnycubicPrinter:
 
         self._latest_project: AnycubicProject | None = None
         self._fan_speed: int = 0
+        self._aux_fan_speed_pct: int | None = None
+        self._box_fan_level: int | None = None
         self._print_speed_pct: int = 0
         self._print_speed_mode: int = 0
         self._local_file_list: list[AnycubicFile] | None = None
@@ -849,9 +853,9 @@ class AnycubicPrinter:
             if 'fan_speed_pct' in data:
                 self._fan_speed = int(data['fan_speed_pct'])
             if 'aux_fan_speed_pct' in data:
-                data['aux_fan_speed_pct']
+                self._aux_fan_speed_pct = int(data['aux_fan_speed_pct'])
             if 'box_fan_level' in data:
-                data['box_fan_level']
+                self._box_fan_level = int(data['box_fan_level'])
 
             return
         else:
@@ -2099,6 +2103,14 @@ class AnycubicPrinter:
             return self.latest_project.fan_speed_pct
 
         return None
+
+    @property
+    def aux_fan_speed_pct(self) -> int | None:
+        return self._aux_fan_speed_pct
+
+    @property
+    def box_fan_level(self) -> int | None:
+        return self._box_fan_level
 
     @property
     def latest_project_raw_print_status(self) -> int | None:

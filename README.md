@@ -2,13 +2,14 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.5**
+> 🗓️ **Aktuelles Release: 0.1.6**
 >
 > - Offline gemeldete Drucker werden nicht mehr parallel als verfuegbar/beschaeftigt angezeigt
 > - Nebenansicht startet Kamerastreams nur noch manuell per Play und beendet sie bei Stop, Druckerwechsel oder Verlassen der Ansicht
 > - Anycubic-Cloudstream per Agora/WebRTC ohne aggressives Session-Polling
 > - Optionale Home-Assistant-`camera.*`-Entities pro Drucker fuer lokale Kameraquellen
-> - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-Reports
+> - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-/S1-Reports
+> - Optionale S1-/neuere-Firmware-Sensoren fuer AUX-Fan und Box-Fan werden erst angelegt, wenn der Drucker diese MQTT-Werte meldet
 > - Verbesserte Kobra-X-Material-/ACE-Erkennung fuer bekannte 4-Farben-Setups
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.

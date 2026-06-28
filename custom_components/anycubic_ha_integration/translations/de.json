@@ -274,6 +274,12 @@
       "fan_speed_pct": {
         "name": "Lüftergeschwindigkeit (%)"
       },
+      "aux_fan_speed_pct": {
+        "name": "AUX-Lüftergeschwindigkeit (%)"
+      },
+      "box_fan_level": {
+        "name": "Gehäuselüfterstufe (%)"
+      },
       "file_list_local": {
         "name": "Dateiliste (Lokal)"
       },

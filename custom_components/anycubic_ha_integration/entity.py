@@ -21,6 +21,7 @@ class AnycubicCloudEntityDescription(EntityDescription):
     """Generic Anycubic Cloud entity description."""
 
     printer_entity_type: PrinterEntityType | None = None
+    create_when_available: bool = False
 
 
 class AnycubicCloudEntity(CoordinatorEntity[AnycubicCloudDataUpdateCoordinator], Entity):
