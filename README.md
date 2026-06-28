@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.6**
+> 🗓️ **Aktuelles Release: 0.1.7**
 >
+> - Behebt einen Sensor-Setup-Fehler aus 0.1.6, durch den Home Assistant die Anycubic-Sensorplattform nicht laden konnte
 > - Offline gemeldete Drucker werden nicht mehr parallel als verfuegbar/beschaeftigt angezeigt
 > - Nebenansicht startet Kamerastreams nur noch manuell per Play und beendet sie bei Stop, Druckerwechsel oder Verlassen der Ansicht
 > - Anycubic-Cloudstream per Agora/WebRTC ohne aggressives Session-Polling
