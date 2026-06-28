@@ -1302,11 +1302,11 @@ class AnycubicPrinter:
 
     @property
     def is_available(self) -> bool:
-        return self._is_printing == 1
+        return self.printer_online and self._is_printing == 1
 
     @property
     def is_busy(self) -> bool:
-        return self._is_printing == 2
+        return self.printer_online and self._is_printing == 2
 
     @property
     def reason(self) -> str | None:
