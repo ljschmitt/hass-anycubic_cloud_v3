@@ -2,10 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.0**
+> 🗓️ **Aktuelles Release: 0.1.1**
 >
-> - Neue **Nebenansicht** mit Kamerastream, manuellem Start per Play, digitalem Zoom und Vollbild
-> - Anycubic-Cloudstream per Agora/WebRTC
+> - Nebenansicht startet Kamerastreams nur noch manuell per Play und beendet sie bei Stop, Druckerwechsel oder Verlassen der Ansicht
+> - Anycubic-Cloudstream per Agora/WebRTC ohne aggressives Session-Polling
 > - Optionale Home-Assistant-`camera.*`-Entities pro Drucker fuer lokale Kameraquellen
 > - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-Reports
 > - Verbesserte Kobra-X-Material-/ACE-Erkennung fuer bekannte 4-Farben-Setups
