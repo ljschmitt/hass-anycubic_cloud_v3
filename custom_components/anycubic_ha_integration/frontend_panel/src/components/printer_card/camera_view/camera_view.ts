@@ -1,8 +1,8 @@
 import AgoraRTC, {
+  EncryptionMode,
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
   IRemoteVideoTrack,
-  EncryptionMode,
 } from "agora-rtc-sdk-ng";
 import {
   mdiFullscreen,
@@ -74,7 +74,6 @@ export class AnycubicPrintercardCameraview extends LitElement {
   private cloudCameraError: string | undefined;
 
   private _agoraClient: IAgoraRTCClient | undefined;
-  private _cameraKeepaliveTimer: number | undefined;
   private _remoteVideoTrack: IRemoteVideoTrack | undefined;
   private _startRequest = 0;
   private _zoom = 1;
@@ -239,11 +238,11 @@ export class AnycubicPrintercardCameraview extends LitElement {
       return;
     }
 
-    void this._cameraWrapper?.requestFullscreen();
+    void this._cameraWrapper.requestFullscreen();
   };
 
   private _hasCloudCameraConfig(): boolean {
-    return !!(this.hass && this.configEntryId && this.printerId);
+    return !!(this.configEntryId && this.printerId);
   }
 
   private _syncCloudCamera(): void {
@@ -303,7 +302,9 @@ export class AnycubicPrintercardCameraview extends LitElement {
         this._remoteVideoTrack?.stop();
         this._remoteVideoTrack = undefined;
         this.cloudCameraStatus = "error";
-        this.cloudCameraError = this._localize("camera.errors.stream_interrupted");
+        this.cloudCameraError = this._localize(
+          "camera.errors.stream_interrupted",
+        );
       });
 
       client.on("user-left", () => {
@@ -316,7 +317,9 @@ export class AnycubicPrintercardCameraview extends LitElement {
       client.on("connection-state-change", (currentState: string) => {
         if (["DISCONNECTED", "FAILED"].includes(currentState)) {
           this.cloudCameraStatus = "error";
-          this.cloudCameraError = this._localize("camera.errors.connection_lost");
+          this.cloudCameraError = this._localize(
+            "camera.errors.connection_lost",
+          );
         }
       });
 
@@ -329,7 +332,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
         this.cloudCameraError = this._localize("camera.errors.session_expired");
       });
 
-      if (!window.isSecureContext || !window.crypto?.subtle) {
+      if (!window.isSecureContext) {
         throw new Error("secure_context_required");
       }
 
@@ -346,7 +349,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
         session.client_uid || null,
       );
 
-      if (requestId !== this._startRequest || !this.showVideo) {
+      if (requestId !== this._startRequest) {
         await this._stopCloudCamera(false);
         return;
       }
@@ -358,7 +361,6 @@ export class AnycubicPrintercardCameraview extends LitElement {
       );
 
       if (requestId === this._startRequest) {
-        this._startCameraKeepalive();
         this.cloudCameraStatus = "connected";
       }
     } catch (err) {
@@ -374,7 +376,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
   private async _subscribeRemoteVideo(
     user: IAgoraRTCRemoteUser,
   ): Promise<void> {
-    if (!this._agoraClient || !this._videoElement) {
+    if (!this._agoraClient) {
       return;
     }
 
@@ -394,7 +396,6 @@ export class AnycubicPrintercardCameraview extends LitElement {
 
     this._remoteVideoTrack?.stop();
     this._remoteVideoTrack = undefined;
-    this._stopCameraKeepalive();
 
     const client = this._agoraClient;
     this._agoraClient = undefined;
@@ -440,24 +441,10 @@ export class AnycubicPrintercardCameraview extends LitElement {
       await this._agoraClient.renewToken(session.rtc_token);
     } catch (_err) {
       this.cloudCameraStatus = "error";
-      this.cloudCameraError = this._localize("camera.errors.session_renew_failed");
+      this.cloudCameraError = this._localize(
+        "camera.errors.session_renew_failed",
+      );
     }
-  }
-
-  private _startCameraKeepalive(): void {
-    this._stopCameraKeepalive();
-    this._cameraKeepaliveTimer = window.setInterval(() => {
-      void this._renewCloudCameraToken();
-    }, 10000);
-  }
-
-  private _stopCameraKeepalive(): void {
-    if (this._cameraKeepaliveTimer === undefined) {
-      return;
-    }
-
-    window.clearInterval(this._cameraKeepaliveTimer);
-    this._cameraKeepaliveTimer = undefined;
   }
 
   private _formatCloudCameraError(err: unknown): string {
@@ -474,7 +461,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
   }
 
   private _localize(key: string): string {
-    return localize(key, this.language || this.hass?.language || "en");
+    return localize(key, this.language || this.hass.language || "en");
   }
 
   static get styles(): CSSResult {
