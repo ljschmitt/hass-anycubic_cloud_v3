@@ -633,6 +633,8 @@ class AnycubicProject:
 
         if 'filename' in mqtt_data:
             self.set_filename(mqtt_data['filename'])
+        elif 'display_filename' in mqtt_data:
+            self.set_filename(mqtt_data['display_filename'])
 
         if 'print_time' in mqtt_data:
             self._print_time = int(mqtt_data['print_time'])
@@ -648,6 +650,24 @@ class AnycubicProject:
                 'supplies_usage',
                 int(mqtt_data['supplies_usage'])
             )
+
+        # Newer firmware can send 3MF/Slicer metadata with print status reports.
+        # These values are informational for now, but consuming them avoids
+        # repeated "unhandled MQTT data" warnings.
+        for metadata_key in (
+            'origin3mf',
+            'resume_needs_unpack',
+            'slicer',
+            'source_type',
+            'temp_dir',
+            'temp_gcode',
+        ):
+            if metadata_key in mqtt_data:
+                mqtt_data[metadata_key]
+
+        if 'source_info' in mqtt_data:
+            mqtt_data['source_info'].force_empty()
+            mqtt_data['source_info']
 
     def update_with_mqtt_download_status_data(
         self,

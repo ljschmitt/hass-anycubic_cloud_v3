@@ -846,7 +846,12 @@ class AnycubicPrinter:
         if action == 'auto' and state == 'done':
             data = payload['data']
 
-            self._fan_speed = int(data['fan_speed_pct'])
+            if 'fan_speed_pct' in data:
+                self._fan_speed = int(data['fan_speed_pct'])
+            if 'aux_fan_speed_pct' in data:
+                data['aux_fan_speed_pct']
+            if 'box_fan_level' in data:
+                data['box_fan_level']
 
             return
         else:
