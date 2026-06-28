@@ -251,7 +251,18 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 
 ➡️ [Letztes Release ansehen](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
 
-> 
+### Maintainer-Hinweis
+
+Die Projektversion wird zentral in `Version` gepflegt. Vor einem Release:
+
+```powershell
+python scripts/sync_version.py
+cd custom_components/anycubic_ha_integration/frontend_panel
+npm run build
+npm run build_card
+```
+
+Danach immer die echten Diffs pruefen, weil der Frontend-Build `eslint --fix` ausfuehrt und dadurch auch reine Formatierungs- oder Zeilenenden-Aenderungen entstehen koennen.
 
 ---
 

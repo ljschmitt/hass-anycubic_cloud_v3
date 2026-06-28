@@ -17,3 +17,10 @@
 
 - Remove temporary probes, test scripts, logs, screenshots, and generated files that are no longer needed before finishing a task.
 - Do not commit local Home Assistant credentials, Anycubic tokens, private IPs, user-specific IDs, or screenshots containing sensitive data.
+
+## Versioning and Builds
+
+- The root `Version` file is the canonical project version. Run `python scripts/sync_version.py` after changing it, or `python scripts/sync_version.py --check` to verify generated version files.
+- Keep `custom_components/anycubic_ha_integration/manifest.json`, `custom_components/anycubic_ha_integration/frontend_panel/package.json`, `custom_components/anycubic_ha_integration/frontend_panel/package-lock.json`, and the README release line synchronized through `scripts/sync_version.py`.
+- `npm run build` and `npm run build_card` run `eslint --fix`, which can touch unrelated source files, line endings, or formatting. After any frontend build, inspect the actual diff and restore unrelated formatter-only or line-ending changes before staging.
+- Prefer targeted quick builds when lint formatting is not part of the task, but still verify the final diff before committing.
