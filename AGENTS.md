@@ -22,5 +22,6 @@
 
 - The root `Version` file is the canonical project version. Run `python scripts/sync_version.py` after changing it, or `python scripts/sync_version.py --check` to verify generated version files.
 - Keep `custom_components/anycubic_ha_integration/manifest.json`, `custom_components/anycubic_ha_integration/frontend_panel/package.json`, `custom_components/anycubic_ha_integration/frontend_panel/package-lock.json`, and the README release line synchronized through `scripts/sync_version.py`.
+- Every committed version bump must be finished with a matching pushed GitHub tag and published release, for example `v0.1.2`.
 - `npm run build` and `npm run build_card` run `eslint --fix`, which can touch unrelated source files, line endings, or formatting. After any frontend build, inspect the actual diff and restore unrelated formatter-only or line-ending changes before staging.
 - Prefer targeted quick builds when lint formatting is not part of the task, but still verify the final diff before committing.
