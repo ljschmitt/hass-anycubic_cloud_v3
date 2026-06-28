@@ -793,6 +793,66 @@
         }
       }
     },
+    "print_file_local": {
+      "name": "Datei drucken (Lokal)",
+      "description": "Startet den Druck einer vorhandenen Datei aus dem lokalen Druckerspeicher.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "slot_number": {
+          "name": "Slotnummernliste",
+          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+        },
+        "filename": {
+          "name": "Dateiname",
+          "description": "Vollständiger Dateiname (mit Erweiterung)."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Ordnerpfad auf dem Druckerspeicher."
+        }
+      }
+    },
+    "print_file_udisk": {
+      "name": "Datei drucken (USB‑Datenträger)",
+      "description": "Startet den Druck einer vorhandenen Datei vom USB‑Datenträger des Druckers.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag für diesen Dienst."
+        },
+        "device_id": {
+          "name": "Druckergerät",
+          "description": "Druckergerät (falls keine Drucker‑ID verwendet wird)."
+        },
+        "printer_id": {
+          "name": "Drucker‑ID",
+          "description": "Drucker‑ID (falls kein Gerät verwendet wird)."
+        },
+        "slot_number": {
+          "name": "Slotnummernliste",
+          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+        },
+        "filename": {
+          "name": "Dateiname",
+          "description": "Vollständiger Dateiname (mit Erweiterung)."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Ordnerpfad auf dem Druckerspeicher."
+        }
+      }
+    },
     "delete_file_local": {
       "name": "Datei löschen (Lokal)",
       "description": "Löscht eine Datei aus dem lokalen Druckerspeicher.",
@@ -812,6 +872,10 @@
         "filename": {
           "name": "Dateiname",
           "description": "Vollständiger Dateiname (mit Erweiterung)."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Ordnerpfad auf dem Druckerspeicher."
         }
       }
     },
@@ -834,6 +898,10 @@
         "filename": {
           "name": "Dateiname",
           "description": "Vollständiger Dateiname (mit Erweiterung)."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Ordnerpfad auf dem Druckerspeicher."
         }
       }
     },

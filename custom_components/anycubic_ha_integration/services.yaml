@@ -107,6 +107,21 @@ print_and_upload_no_cloud_save:
     printer_id: *printer_id
     slot_number: *slot_number_list
     uploaded_gcode_file: *uploaded_gcode_file
+print_file_local: &print_file_printer
+  fields:
+    config_entry: *anycubic_config_entry
+    device_id: *device_id
+    printer_id: *printer_id
+    slot_number: *slot_number_list
+    filename:
+      required: true
+      selector:
+        text:
+    path: &file_path
+      required: false
+      selector:
+        text:
+print_file_udisk: *print_file_printer
 delete_file_local: &delete_file_printer
   fields:
     config_entry: *anycubic_config_entry
@@ -116,10 +131,7 @@ delete_file_local: &delete_file_printer
       required: true
       selector:
         text:
-    path: &file_path
-      required: false
-      selector:
-        text:
+    path: *file_path
 delete_file_udisk: *delete_file_printer
 request_file_list_local: &request_file_list_printer
   fields:

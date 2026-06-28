@@ -12,6 +12,7 @@ import {
 import {
   AnycubicCloudFileListEntity,
   AnycubicFileCloud,
+  AnycubicFileLocal,
   DomClickEvent,
   EvtTargFileInfo,
 } from "../../types";
@@ -44,6 +45,8 @@ export class AnycubicViewFilesCloud extends AnycubicViewFilesBase {
       );
     }
   }
+
+  protected canPrintFile = (_fileInfo: AnycubicFileLocal): boolean => false;
 
   deleteFile = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileCloud = ev.currentTarget

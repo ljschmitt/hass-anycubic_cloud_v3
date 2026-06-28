@@ -219,11 +219,16 @@ class AnycubicStartPrintRequestLocal(AnycubicBaseStartPrintRequest):
         self._filetype = 1
 
     @property
+    def filepath(self) -> str:
+        cleaned_path = str(self._filepath or "").replace("\\", "/").strip("/")
+        return f"/{cleaned_path}" if cleaned_path else "/"
+
+    @property
     def data(self) -> dict[str, Any]:
         return {
             **super().data,
             'filename': self._filename,
-            'filepath': f"/{self._filepath}",
+            'filepath': self.filepath,
         }
 
     def __repr__(self) -> str:

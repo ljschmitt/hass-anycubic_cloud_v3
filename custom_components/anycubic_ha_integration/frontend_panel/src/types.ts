@@ -458,6 +458,10 @@ export interface EvtTargFileInfo extends EventTarget {
   file_info: AnycubicFileCloud | AnycubicFileLocal;
 }
 
+export interface EvtTargInput extends EventTarget {
+  value: string;
+}
+
 export interface EvtTargItemKey extends EventTarget {
   item_key: string | number;
 }

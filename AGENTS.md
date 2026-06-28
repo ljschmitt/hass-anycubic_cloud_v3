@@ -17,6 +17,8 @@
 
 - Remove temporary probes, test scripts, logs, screenshots, and generated files that are no longer needed before finishing a task.
 - Do not commit local Home Assistant credentials, Anycubic tokens, private IPs, user-specific IDs, or screenshots containing sensitive data.
+- Before commits and releases, verify that no personal Home Assistant settings, tokens, URLs, printer IDs, serial numbers, private IPs, local camera mappings, user-specific entity IDs, or environment-specific assumptions are included.
+- Implement changes so they remain portable across other Home Assistant installations and Anycubic printers, including printers that are offline, in another network, or missing optional local/LAN capabilities.
 
 ## Versioning and Builds
 

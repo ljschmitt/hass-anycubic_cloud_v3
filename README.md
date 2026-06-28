@@ -2,8 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.1.91**
+> 🗓️ **Aktuelles Release: 0.2.3**
 >
+> - Lokale und USB-Dateien koennen im Panel vorsichtig zum Druck vorbereitet werden: Der Play-Button oeffnet zuerst eine Vorbereitungsansicht mit Abbrechen/Drucken und optionaler ACE-Slotnummernliste
+> - Neue Services `print_file_local` und `print_file_udisk` starten vorhandene Dateien vom Druckerspeicher bzw. USB-Speicher ohne vorherigen Datei-Upload
 > - Ersetzt das zurueckgezogene Release 0.1.9 und behebt dessen Dateilisten-Pfadfehler beim Coordinator-Update
 > - USB- und lokale Dateilisten behalten Ordnerinformationen, zeigen Ordner als klickbare Eintraege und fragen Unterordner mit passendem Pfad an
 > - Frontend-Panel-Bundle neu gebaut, damit die im Panel angezeigte Version zur Release-Version passt
@@ -98,6 +100,7 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 
 - Mehrere Drucker gleichzeitig
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
+- Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit optionaler ACE-Slotnummernliste
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
 - Dateimanager (MQTT benötigt)
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …

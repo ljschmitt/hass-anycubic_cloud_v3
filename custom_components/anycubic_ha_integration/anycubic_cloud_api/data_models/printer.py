@@ -2362,6 +2362,72 @@ class AnycubicPrinter:
             file_path=file_path,
         )
 
+    def _build_manual_ams_mapping(
+        self,
+        slot_index_list: list[int] | None,
+    ) -> list[AnycubicMaterialMapping] | None:
+        if not slot_index_list:
+            return None
+
+        if not self._multi_color_box:
+            raise AnycubicAPIError(ErrorsGeneral.no_ace_for_slot_list)
+
+        material_list = list()
+        for paint_index, slot_index in enumerate(slot_index_list):
+            box_index = slot_index // 4
+            local_slot_index = slot_index - (4 * box_index)
+            material_type = "UNKNOWN"
+
+            if box_index < len(self._multi_color_box):
+                box_slots = self._multi_color_box[box_index].slots
+                if 0 <= local_slot_index < len(box_slots):
+                    material_type = box_slots[local_slot_index].material_type
+
+            material_list.append(
+                {
+                    "filament_used": 0,
+                    "material_type": material_type,
+                    "paint_index": paint_index,
+                }
+            )
+
+        return self.build_mapping_for_material_list(
+            slot_index_list=slot_index_list,
+            material_list=material_list,
+        )
+
+    async def print_local_file(
+        self,
+        file_name: str,
+        file_path: str = "/",
+        slot_index_list: list[int] | None = None,
+    ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path).strip("/")
+        ams_box_mapping = self._build_manual_ams_mapping(slot_index_list)
+
+        return await self._api_parent._send_order_print_local_file(
+            self,
+            file_name=file_name,
+            file_path=file_path,
+            ams_box_mapping=ams_box_mapping,
+        )
+
+    async def print_udisk_file(
+        self,
+        file_name: str,
+        file_path: str = "/",
+        slot_index_list: list[int] | None = None,
+    ) -> str | None:
+        file_path = self._normalise_file_list_path(file_path).strip("/")
+        ams_box_mapping = self._build_manual_ams_mapping(slot_index_list)
+
+        return await self._api_parent._send_order_print_udisk_file(
+            self,
+            file_name=file_name,
+            file_path=file_path,
+            ams_box_mapping=ams_box_mapping,
+        )
+
     async def multi_color_box_drying_start(
         self,
         duration: int,

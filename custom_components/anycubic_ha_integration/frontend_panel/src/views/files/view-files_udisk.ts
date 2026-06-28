@@ -62,4 +62,21 @@ export class AnycubicViewFilesUdisk extends AnycubicViewFilesBase {
         });
     }
   };
+
+  printFile = (
+    fileInfo: AnycubicFileLocal,
+    slotNumbers: number[] | undefined,
+  ): Promise<void> => {
+    if (!this.selectedPrinterDevice || !fileInfo.name) {
+      return Promise.resolve();
+    }
+
+    return this.hass.callService(platform, "print_file_udisk", {
+      config_entry: this.selectedPrinterDevice.primary_config_entry,
+      device_id: this.selectedPrinterDevice.id,
+      filename: fileInfo.name,
+      path: fileInfo.path || this._currentPath,
+      ...(slotNumbers ? { slot_number: slotNumbers } : {}),
+    });
+  };
 }

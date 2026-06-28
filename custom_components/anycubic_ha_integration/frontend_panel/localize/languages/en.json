@@ -36,6 +36,21 @@
       "connecting": "Connecting camera..."
     }
   },
+  "files": {
+    "actions": {
+      "delete": "Delete file",
+      "prepare_print": "Prepare print"
+    },
+    "prepare": {
+      "file": "File",
+      "path": "Path",
+      "print_failed": "The print could not be started.",
+      "printer": "Printer",
+      "slot_numbers": "Slot number list",
+      "title": "Prepare print",
+      "unknown_printer": "Unknown printer"
+    }
+  },
   "card": {
     "buttons": {
       "print_settings": "Print Settings",

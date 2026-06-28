@@ -793,6 +793,66 @@
         }
       }
     },
+    "print_file_local": {
+      "name": "Print file (Local)",
+      "description": "Start printing an existing file from printer local storage.",
+      "fields": {
+        "config_entry": {
+          "name": "Config Entry",
+          "description": "The config entry to use for this service."
+        },
+        "device_id": {
+          "name": "Printer Device",
+          "description": "Printer Device (if not using ID)."
+        },
+        "printer_id": {
+          "name": "Printer ID",
+          "description": "Printer ID (if not using device)."
+        },
+        "slot_number": {
+          "name": "Slot Number List",
+          "description": "Slot Number List (1-4) to map to print colours. e.g. [1, 2]"
+        },
+        "filename": {
+          "name": "File Name",
+          "description": "Full file name (with extension)"
+        },
+        "path": {
+          "name": "Path",
+          "description": "Folder path on the printer storage."
+        }
+      }
+    },
+    "print_file_udisk": {
+      "name": "Print file (USB Disk)",
+      "description": "Start printing an existing file from printer USB disk.",
+      "fields": {
+        "config_entry": {
+          "name": "Config Entry",
+          "description": "The config entry to use for this service."
+        },
+        "device_id": {
+          "name": "Printer Device",
+          "description": "Printer Device (if not using ID)."
+        },
+        "printer_id": {
+          "name": "Printer ID",
+          "description": "Printer ID (if not using device)."
+        },
+        "slot_number": {
+          "name": "Slot Number List",
+          "description": "Slot Number List (1-4) to map to print colours. e.g. [1, 2]"
+        },
+        "filename": {
+          "name": "File Name",
+          "description": "Full file name (with extension)"
+        },
+        "path": {
+          "name": "Path",
+          "description": "Folder path on the printer storage."
+        }
+      }
+    },
     "delete_file_local": {
       "name": "Delete file (Local)",
       "description": "Delete a file from printer local storage.",
@@ -812,6 +872,10 @@
         "filename": {
           "name": "File Name",
           "description": "Full file name (with extension)"
+        },
+        "path": {
+          "name": "Path",
+          "description": "Folder path on the printer storage."
         }
       }
     },
@@ -834,6 +898,10 @@
         "filename": {
           "name": "File Name",
           "description": "Full file name (with extension)"
+        },
+        "path": {
+          "name": "Path",
+          "description": "Folder path on the printer storage."
         }
       }
     },

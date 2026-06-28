@@ -94,7 +94,103 @@ export const commonFilesStyle: CSSResult = css`
     margin-left: 10px;
   }
 
-  .file-delete-icon {
+  .file-action-button {
+    padding: 4px;
+    margin-left: 10px;
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .print-preparation {
+    max-width: 760px;
+    text-align: left;
+  }
+
+  .print-preparation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .print-preparation-header h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .print-preparation-details {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .print-preparation-details div {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .print-preparation-details dt {
+    font-weight: 700;
+    color: var(--secondary-text-color);
+  }
+
+  .print-preparation-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .slot-list-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .slot-list-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--divider-color);
+    border-radius: 6px;
+    background: var(--card-background-color);
+    color: var(--primary-text-color);
+    font: inherit;
+  }
+
+  .print-preparation-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 6px;
+    border: 1px solid var(--divider-color);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .primary-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: var(--text-primary-color);
+  }
+
+  .secondary-button {
+    background: transparent;
+    color: var(--primary-text-color);
   }
 
   .no-mqtt-msg {
@@ -112,6 +208,15 @@ export const commonFilesStyle: CSSResult = css`
     .file-info {
       padding: 6px 6px;
       margin: 6px 0px;
+    }
+
+    .print-preparation-details div {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .print-preparation-actions {
+      flex-direction: column-reverse;
     }
   }
 `;

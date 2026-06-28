@@ -13,6 +13,7 @@ import {
   AnycubicFileLocal,
   DomClickEvent,
   EvtTargFileInfo,
+  EvtTargInput,
   HassDevice,
   HassEntityInfo,
   HassEntityInfos,
@@ -74,6 +75,18 @@ export class AnycubicViewFilesBase extends LitElement {
   @state()
   protected _currentPath: string = "/";
 
+  @state()
+  protected _printPreparationFile: AnycubicFileLocal | undefined;
+
+  @state()
+  protected _printSlotNumbers: string = "";
+
+  @state()
+  protected _isPrinting: boolean = false;
+
+  @state()
+  protected _printError: string | undefined;
+
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
 
@@ -102,6 +115,10 @@ export class AnycubicViewFilesBase extends LitElement {
   }
 
   render(): LitTemplateResult {
+    if (this._printPreparationFile) {
+      return this.renderPrintPreparation();
+    }
+
     return html`
       <div class="files-card" elevation="2">
         <div class="file-toolbar">
@@ -148,14 +165,33 @@ export class AnycubicViewFilesBase extends LitElement {
                             <ha-icon icon="mdi:file-outline"></ha-icon>
                             <span>${fileInfo.name}</span>
                           </div>
+                          ${this.canPrintFile(fileInfo)
+                            ? html`
+                                <button
+                                  class="file-action-button"
+                                  .disabled=${this._isPrinting}
+                                  .file_info=${fileInfo}
+                                  title=${localize(
+                                    "files.actions.prepare_print",
+                                    this.language,
+                                  )}
+                                  @click=${this.openPrintPreparation}
+                                >
+                                  <ha-icon icon="mdi:play"></ha-icon>
+                                </button>
+                              `
+                            : nothing}
                           <button
-                            class="file-delete-button"
+                            class="file-action-button"
                             .disabled=${this._isDeleting}
                             .file_info=${fileInfo}
+                            title=${localize(
+                              "files.actions.delete",
+                              this.language,
+                            )}
                             @click=${this.deleteFile}
                           >
                             <ha-icon
-                              class="file-delete-icon"
                               icon="mdi:delete"
                             ></ha-icon>
                           </button>
@@ -165,6 +201,78 @@ export class AnycubicViewFilesBase extends LitElement {
               )
             : null}
         </ul>
+      </div>
+    `;
+  }
+
+  private renderPrintPreparation(): LitTemplateResult {
+    const fileInfo = this._printPreparationFile;
+    const printerName =
+      this.selectedPrinterDevice?.name ||
+      localize("files.prepare.unknown_printer", this.language);
+
+    return html`
+      <div class="files-card print-preparation" elevation="2">
+        <div class="print-preparation-header">
+          <h2>${localize("files.prepare.title", this.language)}</h2>
+          <button
+            class="file-action-button"
+            .disabled=${this._isPrinting}
+            title=${localize("common.actions.cancel", this.language)}
+            @click=${this.closePrintPreparation}
+          >
+            <ha-icon icon="mdi:close"></ha-icon>
+          </button>
+        </div>
+
+        <dl class="print-preparation-details">
+          <div>
+            <dt>${localize("files.prepare.printer", this.language)}</dt>
+            <dd>${printerName}</dd>
+          </div>
+          <div>
+            <dt>${localize("files.prepare.file", this.language)}</dt>
+            <dd>${fileInfo?.name}</dd>
+          </div>
+          <div>
+            <dt>${localize("files.prepare.path", this.language)}</dt>
+            <dd>${fileInfo?.path || this._currentPath}</dd>
+          </div>
+        </dl>
+
+        <label class="slot-list-label" for="slot-number-list">
+          ${localize("files.prepare.slot_numbers", this.language)}
+        </label>
+        <input
+          id="slot-number-list"
+          class="slot-list-input"
+          .value=${this._printSlotNumbers}
+          placeholder="1, 2"
+          .disabled=${this._isPrinting}
+          @input=${this.updatePrintSlotNumbers}
+        />
+
+        ${this._printError
+          ? html`<ha-alert alert-type="error">${this._printError}</ha-alert>`
+          : nothing}
+
+        <div class="print-preparation-actions">
+          <button
+            class="secondary-button"
+            .disabled=${this._isPrinting}
+            @click=${this.closePrintPreparation}
+          >
+            ${localize("common.actions.cancel", this.language)}
+          </button>
+          <button
+            class="primary-button"
+            .disabled=${this._isPrinting || !this.selectedPrinterDevice}
+            @click=${this.confirmPrintFile}
+          >
+            <ha-icon icon="mdi:play"></ha-icon>
+            ${localize("common.actions.print", this.language)}
+          </button>
+        </div>
       </div>
     `;
   }
@@ -238,6 +346,79 @@ export class AnycubicViewFilesBase extends LitElement {
     );
   };
 
+  protected canPrintFile = (fileInfo: AnycubicFileLocal): boolean => {
+    if (fileInfo.is_dir || !fileInfo.name) {
+      return false;
+    }
+
+    const lowerName = fileInfo.name.toLowerCase();
+    return (
+      lowerName.endsWith(".gcode") ||
+      lowerName.endsWith(".gcode.gz") ||
+      lowerName.endsWith(".3mf")
+    );
+  };
+
+  protected parseSlotNumbers = (): number[] | undefined => {
+    const slotText = this._printSlotNumbers.trim();
+    if (!slotText) {
+      return undefined;
+    }
+
+    const slotNumbers = slotText
+      .split(/[,\s]+/)
+      .map((value) => Number.parseInt(value, 10))
+      .filter((value) => Number.isInteger(value) && value > 0);
+
+    return slotNumbers.length > 0 ? slotNumbers : undefined;
+  };
+
+  openPrintPreparation = (ev: DomClickEvent<EvtTargFileInfo>): void => {
+    const fileInfo: AnycubicFileLocal = ev.currentTarget
+      .file_info as AnycubicFileLocal;
+    if (!this.canPrintFile(fileInfo)) {
+      return;
+    }
+
+    this._printPreparationFile = fileInfo;
+    this._printSlotNumbers = "";
+    this._printError = undefined;
+  };
+
+  closePrintPreparation = (): void => {
+    if (this._isPrinting) {
+      return;
+    }
+
+    this._printPreparationFile = undefined;
+    this._printSlotNumbers = "";
+    this._printError = undefined;
+  };
+
+  updatePrintSlotNumbers = (ev: Event): void => {
+    this._printSlotNumbers = (ev.currentTarget as EvtTargInput).value;
+  };
+
+  confirmPrintFile = (): void => {
+    if (!this._printPreparationFile || !this.selectedPrinterDevice) {
+      return;
+    }
+
+    this._isPrinting = true;
+    this._printError = undefined;
+    this.printFile(this._printPreparationFile, this.parseSlotNumbers())
+      .then(() => {
+        this._isPrinting = false;
+        this.closePrintPreparation();
+      })
+      .catch((e: unknown) => {
+        this._printError =
+          (e as { message?: string }).message ||
+          localize("files.prepare.print_failed", this.language);
+        this._isPrinting = false;
+      });
+  };
+
   openFolder = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileLocal = ev.currentTarget
       .file_info as AnycubicFileLocal;
@@ -258,6 +439,11 @@ export class AnycubicViewFilesBase extends LitElement {
 
   // eslint-disable-next-line no-empty-function
   deleteFile = (_ev: DomClickEvent<EvtTargFileInfo>): void => {};
+
+  printFile = (
+    _fileInfo: AnycubicFileLocal,
+    _slotNumbers: number[] | undefined,
+  ): Promise<void> => Promise.resolve();
 
   static get styles(): CSSResult {
     return css`

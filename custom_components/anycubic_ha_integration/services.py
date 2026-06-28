@@ -561,6 +561,60 @@ class BaseDeletePrinterFile(AnycubicCloudServiceCall):
     )
 
 
+class BasePrintPrinterFile(AnycubicCloudServiceCall):
+    """Base for printing existing printer files."""
+
+    schema = build_anycubic_service_schema(
+        input_service_schema={
+            vol.Required(CONF_FILENAME): cv.string,
+            vol.Optional(CONF_FILE_PATH, default="/"): cv.string,
+            vol.Optional(CONF_SLOT_NUMBER): vol.All(cv.ensure_list, [cv.positive_int]),
+        }
+    )
+
+
+class PrintFileLocal(BasePrintPrinterFile):
+    """Print a file from printer local storage."""
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        file_name = service.data[CONF_FILENAME]
+        file_path = service.data[CONF_FILE_PATH]
+        printer = self._get_printer(service)
+        slot_idx_list = self._get_slot_num_list(service)
+
+        try:
+            await printer.print_local_file(
+                file_name=file_name,
+                file_path=file_path,
+                slot_index_list=slot_idx_list,
+            )
+        except Exception as error:
+            raise HomeAssistantError(error) from error
+
+
+class PrintFileUdisk(BasePrintPrinterFile):
+    """Print a file from printer USB disk."""
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        file_name = service.data[CONF_FILENAME]
+        file_path = service.data[CONF_FILE_PATH]
+        printer = self._get_printer(service)
+        slot_idx_list = self._get_slot_num_list(service)
+
+        try:
+            await printer.print_udisk_file(
+                file_name=file_name,
+                file_path=file_path,
+                slot_index_list=slot_idx_list,
+            )
+        except Exception as error:
+            raise HomeAssistantError(error) from error
+
+
 class BaseRequestPrinterFileList(AnycubicCloudServiceCall):
     """Base for printer file list requests."""
 
@@ -927,6 +981,8 @@ SERVICES = (
     ("print_and_upload_no_cloud_save", PrintAndUploadNoCloudSave),
     ("request_file_list_local", RequestFileListLocal),
     ("request_file_list_udisk", RequestFileListUdisk),
+    ("print_file_local", PrintFileLocal),
+    ("print_file_udisk", PrintFileUdisk),
     ("delete_file_local", DeleteFileLocal),
     ("delete_file_udisk", DeleteFileUdisk),
     ("delete_file_cloud", DeleteFileCloud),

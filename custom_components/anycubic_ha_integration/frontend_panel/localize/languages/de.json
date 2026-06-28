@@ -36,6 +36,21 @@
       "connecting": "Verbinde Kamera..."
     }
   },
+  "files": {
+    "actions": {
+      "delete": "Datei löschen",
+      "prepare_print": "Druck vorbereiten"
+    },
+    "prepare": {
+      "file": "Datei",
+      "path": "Pfad",
+      "print_failed": "Der Druck konnte nicht gestartet werden.",
+      "printer": "Drucker",
+      "slot_numbers": "Slotnummernliste",
+      "title": "Druck vorbereiten",
+      "unknown_printer": "Unbekannter Drucker"
+    }
+  },
   "card": {
     "buttons": {
       "print_settings": "Druckeinstellungen",

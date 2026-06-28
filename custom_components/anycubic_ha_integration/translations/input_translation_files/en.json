@@ -48,6 +48,14 @@
         "name": "Print and upload (no cloud save).",
         "description": "Print and upload, but don't save in user cloud store."
       },
+      "print_file_local": {
+        "name": "Print file (Local)",
+        "description": "Start printing an existing file from printer local storage."
+      },
+      "print_file_udisk": {
+        "name": "Print file (USB Disk)",
+        "description": "Start printing an existing file from printer USB disk."
+      },
       "delete_file_local": {
         "name": "Delete file (Local)",
         "description": "Delete a file from printer local storage."
@@ -106,6 +114,10 @@
         "name": "File Name",
         "description": "Full file name (with extension)"
       },
+      "path": {
+        "name": "Path",
+        "description": "Folder path on the printer storage."
+      },
       "file_id": {
         "name": "File ID",
         "description": "Cloud file ID"
@@ -137,7 +149,16 @@
         "[%dictkey:common::service_fields::config_entry%]": {},
         "[%dictkey:common::service_fields::device_id%]": {},
         "[%dictkey:common::service_fields::printer_id%]": {},
-        "[%dictkey:common::service_fields::filename%]": {}
+        "[%dictkey:common::service_fields::filename%]": {},
+        "[%dictkey:common::service_fields::path%]": {}
+      },
+      "fields#print_printer_file": {
+        "[%dictkey:common::service_fields::config_entry%]": {},
+        "[%dictkey:common::service_fields::device_id%]": {},
+        "[%dictkey:common::service_fields::printer_id%]": {},
+        "[%dictkey:common::service_fields::slot_number#list%]": {},
+        "[%dictkey:common::service_fields::filename%]": {},
+        "[%dictkey:common::service_fields::path%]": {}
       }
     }
   },
@@ -565,6 +586,16 @@
       "name": "[%key:common::service_meta::print_no_cloud_save::name%]",
       "description": "[%key:common::service_meta::print_no_cloud_save::description%]",
       "[%dictkey:common::service_fieldsets::fields#print%]": {}
+    },
+    "print_file_local": {
+      "name": "[%key:common::service_meta::print_file_local::name%]",
+      "description": "[%key:common::service_meta::print_file_local::description%]",
+      "[%dictkey:common::service_fieldsets::fields#print_printer_file%]": {}
+    },
+    "print_file_udisk": {
+      "name": "[%key:common::service_meta::print_file_udisk::name%]",
+      "description": "[%key:common::service_meta::print_file_udisk::description%]",
+      "[%dictkey:common::service_fieldsets::fields#print_printer_file%]": {}
     },
     "delete_file_local": {
       "name": "[%key:common::service_meta::delete_file_local::name%]",
