@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.6**
+> 🗓️ **Aktuelles Release: 0.2.7**
 >
+> - README empfiehlt den passenden Anycubic-Card-Fork fuer diese Integration und erklaert den Unterschied zur urspruenglichen Dashboard-Card
 > - Haelt die Print-Button-Entity-IDs `pause_print`, `resume_print` und `cancel_print` beim vom Dashboard-Plugin erwarteten Format
 > - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
 > - Neuer manueller Service `migrate_entity_ids` mit sicherem Probelauf, um bestehende lokalisierte Entity-IDs optional auf card-kompatible englische IDs umzubenennen
@@ -84,7 +85,13 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 
 ## 🎨 Frontend-Card
 
-Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://github.com/WaresWichall/hass-anycubic_card).
+Empfohlen fuer diese Integration ist der passende Anycubic-Card-Fork:
+
+➡️ [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card)
+
+Die urspruengliche [Anycubic-Karte fuer Home Assistant](https://github.com/WaresWichall/hass-anycubic_card) ist eine separate Dashboard-/Lovelace-Card und wurde fuer die originale Anycubic-Integration gebaut. Dieser Fork bleibt naeher an den Entity-IDs und Zusatzfunktionen dieser Integration. Bitte fuer neue Setups bevorzugt den Fork verwenden, damit Dashboard-Card und Integration denselben Stand erwarten.
+
+Die Integration selbst bringt weiterhin ein eigenes Home-Assistant-Panel mit. Die externe Card ist optional und muss separat in HACS als Dashboard-/Frontend-Card installiert werden.
 
 ### Entity-IDs und externe Karten
 
