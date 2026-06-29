@@ -27,17 +27,87 @@ import {
 } from "./types";
 
 const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
+  ace_current_temperature: ["ace_aktuelle_temperatur"],
   ace_firmware: ["multi_color_box_fw_version"],
-  drying_active: ["dry_status_is_drying"],
-  drying_remaining_time: ["dry_status_remaining_time"],
-  drying_total_duration: ["dry_status_total_duration"],
-  fan_speed: ["fan_speed_pct"],
-  hotbed_temperature: ["curr_hotbed_temp"],
-  nozzle_temperature: ["curr_nozzle_temp"],
+  ace_run_out_refill: ["ace_nachfullung_bei_filamentende"],
+  ace_spools: ["ace_spulen"],
+  cancel_print: ["druck_abbrechen"],
+  current_status: ["aktueller_status"],
+  drying_active: ["dry_status_is_drying", "trocknung_aktiv"],
+  drying_remaining_time: [
+    "dry_status_remaining_time",
+    "trocknung_verbleibende_zeit",
+  ],
+  drying_stop: ["trocknung_stoppen"],
+  drying_target_temperature: [
+    "dry_status_target_temperature",
+    "trocknung_zieltemperatur",
+  ],
+  drying_total_duration: ["dry_status_total_duration", "trocknung_gesamtdauer"],
+  fan_speed: ["fan_speed_pct", "luftergeschwindigkeit"],
+  file_list_cloud: ["dateiliste_cloud"],
+  file_list_local: ["dateiliste_lokal"],
+  file_list_udisk: ["file_list_usb_disk", "dateiliste_usb_datentrager"],
+  hotbed_temperature: ["curr_hotbed_temp", "heizbett_temperatur"],
+  is_available: ["verfugbar"],
+  is_busy: ["beschaftigt"],
+  job_complete: ["druckauftrag_abgeschlossen"],
+  job_current_layer: ["aktuelle_schicht"],
+  job_eta: ["voraussichtliches_ende_eta"],
+  job_failed: ["druckauftrag_fehlgeschlagen"],
+  job_image_url: ["job_preview", "auftragsvorschau"],
+  job_in_progress: ["druckauftrag_lauft"],
+  job_name: ["auftragsname"],
+  job_is_paused: ["druckauftrag_pausiert"],
+  job_progress: ["auftragsfortschritt"],
+  job_speed_mode: ["geschwindigkeitsmodus"],
+  job_state: ["auftragsstatus"],
+  job_time_elapsed: ["verstrichene_zeit"],
+  job_time_remaining: ["verbleibende_zeit"],
+  job_total_layers: ["gesamtschichten"],
+  job_z_thickness: ["schichthohe_z"],
+  manual_mqtt_connection_enabled: ["manuelle_mqtt_verbindung_aktiviert"],
+  material_rack_spools: ["materialregal_spulen"],
+  mqtt_connection_active: ["mqtt_verbindung_aktiv"],
+  nozzle_temperature: ["curr_nozzle_temp", "dusentemperatur"],
+  pause_print: ["druck_pausieren"],
+  print_speed: ["print_speed_pct", "druckgeschwindigkeit"],
   printer_firmware: ["fw_version"],
-  secondary_multi_color_box_spools: ["secondary_ace_spools"],
-  target_hotbed_temperature: ["target_hotbed_temp"],
-  target_nozzle_temperature: ["target_nozzle_temp"],
+  printer_online: ["drucker_online"],
+  refresh_mqtt_connection: ["mqtt_verbindung_aktualisieren"],
+  request_file_list_cloud: ["dateiliste_anfordern_cloud"],
+  request_file_list_local: ["dateiliste_anfordern_lokal"],
+  request_file_list_udisk: [
+    "request_file_list_usb_disk",
+    "dateiliste_anfordern_usb_datentrager",
+  ],
+  resume_print: ["druck_fortsetzen"],
+  secondary_ace_current_temperature: ["ace_aktuelle_temperatur_sekundar"],
+  secondary_ace_run_out_refill: ["ace_nachfullung_bei_filamentende_sekundar"],
+  secondary_ace_spools: ["ace_spulen_sekundar"],
+  secondary_drying_active: [
+    "secondary_dry_status_is_drying",
+    "trocknung_sekundar_aktiv",
+  ],
+  secondary_drying_remaining_time: [
+    "secondary_dry_status_remaining_time",
+    "trocknung_verbleibende_zeit_sekundar",
+  ],
+  secondary_drying_stop: ["trocknung_sekundar_stoppen"],
+  secondary_drying_target_temperature: [
+    "secondary_dry_status_target_temperature",
+    "trocknung_zieltemperatur_sekundar",
+  ],
+  secondary_drying_total_duration: [
+    "secondary_dry_status_total_duration",
+    "trocknung_gesamtdauer_sekundar",
+  ],
+  secondary_multi_color_box_spools: [
+    "secondary_ace_spools",
+    "ace_spulen_sekundar",
+  ],
+  target_hotbed_temperature: ["target_hotbed_temp", "ziel_heizbett_temperatur"],
+  target_nozzle_temperature: ["target_nozzle_temp", "ziel_dusentemperatur"],
 };
 
 function getEntityTranslationKeys(matchSuffix: string): string[] {
@@ -195,7 +265,10 @@ export function getMatchingEntity(
       return ent;
     }
 
-    if (domain === match_domain && entity_id.endsWith(match_suffix)) {
+    if (
+      domain === match_domain &&
+      translationKeys.some((suffix) => entity_id.endsWith(suffix))
+    ) {
       return ent;
     }
   }
@@ -239,7 +312,7 @@ export function getStrictMatchingEntity(
     const domain: string = splitID[0];
     const entityIdPart: string = splitID[1].split(printerEntityIdPart)[1];
 
-    if (domain === match_domain && entityIdPart === match_suffix) {
+    if (domain === match_domain && translationKeys.includes(entityIdPart)) {
       return ent;
     }
   }
@@ -254,8 +327,12 @@ export function getPrinterEntityIdPart(
     const domain: string = splitID[0];
     const entity_id: string = splitID[1];
 
-    if (domain === "binary_sensor" && entity_id.endsWith("printer_online")) {
-      return entity_id.split("printer_online")[0];
+    const onlineSuffix = getEntityTranslationKeys("printer_online").find(
+      (suffix) => entity_id.endsWith(suffix),
+    );
+
+    if (domain === "binary_sensor" && onlineSuffix) {
+      return entity_id.split(onlineSuffix)[0];
     }
   }
   return undefined;

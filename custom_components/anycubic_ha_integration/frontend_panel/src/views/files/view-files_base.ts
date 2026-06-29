@@ -302,6 +302,9 @@ export class AnycubicViewFilesBase extends LitElement {
   protected requestFileListService = (service: string, path: string): void => {
     if (this.selectedPrinterDevice) {
       this._isRefreshing = true;
+      if (this.normalizePath(path) !== this._currentPath) {
+        this._fileArray = undefined;
+      }
       this.hass
         .callService(platform, service, {
           config_entry: this.selectedPrinterDevice.primary_config_entry,

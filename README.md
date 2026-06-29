@@ -2,8 +2,11 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.7**
+> 🗓️ **Aktuelles Release: 0.2.8**
 >
+> - Ergaenzt Frontend-Fallbacks fuer alte deutsch erzeugte Entity-IDs, waehrend neue technische Entity-IDs weiterhin stabil Englisch bleiben
+> - Repariert die Kobra-X-Anzeige fuer interne Materialregal-Spulen neben ACE-Spulen bei bestehenden deutschen Alt-Entity-IDs
+> - Lokale und USB-Dateiansichten erkennen alte deutsche Dateilisten-/MQTT-Entities wieder und leeren beim Ordnerwechsel sofort die alte Liste
 > - README empfiehlt den passenden Anycubic-Card-Fork fuer diese Integration und erklaert den Unterschied zur urspruenglichen Dashboard-Card
 > - Haelt die Print-Button-Entity-IDs `pause_print`, `resume_print` und `cancel_print` beim vom Dashboard-Plugin erwarteten Format
 > - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
