@@ -171,7 +171,10 @@ export class AnycubicPrintercardCard extends LitElement {
       ) as PrinterCardStatType[];
     }
 
-    if (changedProperties.has("selectedPrinterID")) {
+    if (
+      changedProperties.has("hass") ||
+      changedProperties.has("selectedPrinterID")
+    ) {
       this.printerEntities = getPrinterEntities(
         this.hass,
         this.selectedPrinterID,

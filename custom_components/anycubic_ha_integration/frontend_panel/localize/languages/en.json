@@ -57,6 +57,9 @@
       "dry": "Dry",
       "runout_refill": "Refill"
     },
+    "spools": {
+      "ace_feed": "ACE Feed"
+    },
     "configure": {
       "tabs": {
         "main": "Main",

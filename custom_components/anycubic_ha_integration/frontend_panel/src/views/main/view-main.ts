@@ -161,7 +161,10 @@ export class AnycubicViewMain extends LitElement {
       this.printerMAC = getPrinterMAC(this.selectedPrinterDevice);
     }
 
-    if (changedProperties.has("selectedPrinterID")) {
+    if (
+      changedProperties.has("hass") ||
+      changedProperties.has("selectedPrinterID")
+    ) {
       this.printerEntities = getPrinterEntities(
         this.hass,
         this.selectedPrinterID,

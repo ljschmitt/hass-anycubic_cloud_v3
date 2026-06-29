@@ -477,6 +477,7 @@ export interface EvtTargSpoolEdit extends EventTarget {
   box_id?: number;
   material_type: string;
   color: number[];
+  reserved_by_ace?: boolean;
 }
 
 export interface EvtTargColourPreset extends EventTarget {

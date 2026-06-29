@@ -57,6 +57,9 @@
       "dry": "Trocknen",
       "runout_refill": "Nachfüllen"
     },
+    "spools": {
+      "ace_feed": "ACE-Zuleitung"
+    },
     "configure": {
       "tabs": {
         "main": "Hauptansicht",

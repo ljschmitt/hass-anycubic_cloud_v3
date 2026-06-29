@@ -88,6 +88,9 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
   private _buttonDry: string;
 
   @state()
+  private _labelAceFeed: string;
+
+  @state()
   private _changingRunout: boolean = false;
 
   protected willUpdate(changedProperties: PropertyValues<this>): void {
@@ -99,6 +102,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         this.language,
       );
       this._buttonDry = localize("card.buttons.dry", this.language);
+      this._labelAceFeed = localize("card.spools.ace_feed", this.language);
     }
 
     if (changedProperties.has("box_id") || changedProperties.has("spoolsEntityId")) {
@@ -178,20 +182,29 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       this.spoolList,
       (spool: AnycubicSpoolInfo, index: number): LitTemplateResult => {
         const displaySlot = spool.display_slot ?? spool.slot ?? index + 1;
+        const reservedByAce = spool.reserved_by_ace === true;
         const ringStyle = {
-          "background-color": spool.spool_loaded
+          "background-color": reservedByAce
+            ? "#5f6b7a"
+            : spool.spool_loaded
             ? `rgb(${spool.color[0]}, ${spool.color[1]}, ${spool.color[2]})`
             : "#aaa",
         };
+        const spoolLabel = reservedByAce
+          ? this._labelAceFeed
+          : spool.spool_loaded
+          ? spool.material_type
+          : "---";
         return html`
           <div
-            class="ac-spool-info"
+            class="ac-spool-info ${reservedByAce ? "ac-spool-reserved" : ""}"
             .index=${index}
             .local_slot=${spool.local_slot ?? index + 1}
             .display_slot=${displaySlot}
             .box_id=${spool.box_id ?? this.box_id}
             .material_type=${spool.material_type}
             .color=${spool.color}
+            .reserved_by_ace=${reservedByAce}
             @click=${this._editSpool}
           >
             <div class="ac-spool-color-ring-cont">
@@ -203,7 +216,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
               </div>
             </div>
             <div class="ac-spool-material-type">
-              ${spool.spool_loaded ? spool.material_type : "---"}
+              ${spoolLabel}
             </div>
           </div>
         `;
@@ -242,6 +255,9 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
 
   private _editSpool = (ev: DomClickEvent<EvtTargSpoolEdit>): void => {
     if (!this.allowSpoolEdit) {
+      return;
+    }
+    if (ev.currentTarget.reserved_by_ace) {
       return;
     }
 
@@ -298,6 +314,11 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         cursor: pointer;
         width: 25%;
         padding: 5px;
+      }
+
+      .ac-spool-info.ac-spool-reserved {
+        cursor: default;
+        opacity: 0.82;
       }
 
       .ac-spool-color-ring-cont {
