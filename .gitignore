@@ -8,3 +8,4 @@ custom_components/anycubic_cloud/scripts/*.token
 custom_components/anycubic_cloud/scripts/anycubic_credentials.py
 debug_dump.json
 test_api
+AGENTS.md
