@@ -2,6 +2,7 @@
 
 ## Documentation
 
+- When the user says "merke dir das", "merk dir", or asks to remember a project rule, record the rule in the relevant `AGENTS.md` instead of only keeping it in conversation context.
 - Always read `README.md` before making user-facing, setup-related, release-related, or behavior-changing changes.
 - Treat `README.md` as the public source of truth for setup, supported printers, camera behavior, release notes, and user-facing guidance.
 - When code changes affect installation, configuration, UI behavior, supported devices, camera handling, security, or troubleshooting, update `README.md` in the same change.
@@ -25,6 +26,8 @@
 
 - The root `Version` file is the canonical project version. Run `python scripts/sync_version.py` after changing it, or `python scripts/sync_version.py --check` to verify generated version files.
 - Keep `custom_components/anycubic_ha_integration/manifest.json`, `custom_components/anycubic_ha_integration/frontend_panel/package.json`, `custom_components/anycubic_ha_integration/frontend_panel/package-lock.json`, and the README release line synchronized through `scripts/sync_version.py`.
+- The dashboard card fork `ljschmitt/hass-anycubic_card` must be versioned in lockstep with this integration. When this integration is released as `vX.Y.Z`, publish a matching dashboard-card release `vX.Y.Z` as well, even if the card change is documentation-only or a republished compatible asset.
+- Before publishing a release, verify both repositories: integration version/release and dashboard-card version/release must intentionally match, or the mismatch must be explicitly documented before stopping.
 - Use semantic versioning intentionally. Normal user-facing feature work should use the next appropriate normal version such as `0.2.0`.
 - If a published release causes a startup/crash bug, delete that faulty GitHub release and tag, then publish the crash fix by appending a bugfix digit to the faulty version, for example `0.1.9` -> `0.1.91`. Use this special appended bugfix version only for crash-release replacements; after that, continue normal versioning.
 - Before creating a release, perform a version collision check: verify the intended `v<version>` tag does not already exist on the remote, verify no GitHub release for that tag exists, and verify the local version files are synchronized. If the tag already exists, stop and choose a new version before publishing.
