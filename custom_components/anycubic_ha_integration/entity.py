@@ -9,7 +9,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import PrinterEntityType
 from .coordinator import AnycubicCloudDataUpdateCoordinator
-from .helpers import build_printer_device_info, printer_entity_unique_id
+from .helpers import (
+    build_printer_device_info,
+    printer_entity_suggested_object_id,
+    printer_entity_unique_id,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -45,3 +49,8 @@ class AnycubicCloudEntity(CoordinatorEntity[AnycubicCloudDataUpdateCoordinator],
         )
         self.entity_description = entity_description
         self._attr_unique_id = printer_entity_unique_id(coordinator, self._printer_id, entity_description.key)
+        self._attr_suggested_object_id = printer_entity_suggested_object_id(
+            coordinator,
+            self._printer_id,
+            entity_description.key,
+        )

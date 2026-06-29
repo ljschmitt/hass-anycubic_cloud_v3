@@ -16,6 +16,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv, selector
+from homeassistant.helpers import entity_registry as er
 
 from .anycubic_cloud_api.data_models.print_response import AnycubicPrintResponse
 from .anycubic_cloud_api.data_models.printer import AnycubicPrinter
@@ -25,6 +26,7 @@ from .const import (
     ATTR_ANYCUBIC_EVENT,
     ATTR_CONFIG_ENTRY,
     CONF_BOX_ID,
+    CONF_PRINTER_ID_LIST,
     CONF_FILE_ID,
     CONF_FILE_PATH,
     CONF_FINISHED,
@@ -45,9 +47,16 @@ from .const import (
     LOGGER,
     MAX_FILE_UPLOAD_RETRIES,
 )
+from .helpers import (
+    printer_entity_suggested_object_id,
+    printer_state_for_key,
+)
 
 if TYPE_CHECKING:
     from .coordinator import AnycubicCloudDataUpdateCoordinator
+
+
+CONF_DRY_RUN = "dry_run"
 
 
 def build_anycubic_service_schema(
@@ -738,6 +747,98 @@ class DeleteFileCloud(AnycubicCloudServiceCall):
             await coordinator.refresh_cloud_files()
 
 
+class MigrateEntityIDs(AnycubicCloudServiceCall):
+    """Optionally migrate localized entity IDs to stable compatible IDs."""
+
+    schema = vol.Schema(
+        {
+            vol.Required(ATTR_CONFIG_ENTRY): selector.ConfigEntrySelector(
+                {
+                    "integration": DOMAIN,
+                }
+            ),
+            vol.Optional(CONF_DRY_RUN, default=True): cv.boolean,
+        }
+    )
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        coordinator = self._get_coordinator(service)
+        dry_run = bool(service.data.get(CONF_DRY_RUN, True))
+        registry = er.async_get(self.hass)
+        entries = er.async_entries_for_config_entry(
+            registry,
+            coordinator.entry.entry_id,
+        )
+        printer_ids = [
+            int(printer_id)
+            for printer_id in coordinator.entry.data[CONF_PRINTER_ID_LIST]
+        ]
+        renamed = 0
+        skipped = 0
+        planned = 0
+
+        for entry in entries:
+            if not entry.unique_id:
+                continue
+
+            for printer_id in printer_ids:
+                machine_mac = printer_state_for_key(
+                    coordinator,
+                    printer_id,
+                    "machine_mac",
+                )
+                unique_id_prefix = f"{machine_mac}-"
+                if not entry.unique_id.startswith(unique_id_prefix):
+                    continue
+
+                entity_key = entry.unique_id.removeprefix(unique_id_prefix)
+                suggested_object_id = printer_entity_suggested_object_id(
+                    coordinator,
+                    printer_id,
+                    entity_key,
+                )
+                entity_domain = entry.entity_id.split(".", 1)[0]
+                desired_entity_id = f"{entity_domain}.{suggested_object_id}"
+
+                if entry.entity_id == desired_entity_id:
+                    continue
+
+                planned += 1
+                if registry.async_get(desired_entity_id) is not None:
+                    skipped += 1
+                    LOGGER.warning(
+                        "Skipping Anycubic entity ID migration for %s because %s already exists.",
+                        entry.entity_id,
+                        desired_entity_id,
+                    )
+                    break
+
+                if dry_run:
+                    LOGGER.info(
+                        "Anycubic entity ID migration dry-run: %s -> %s",
+                        entry.entity_id,
+                        desired_entity_id,
+                    )
+                    break
+
+                registry.async_update_entity(
+                    entry.entity_id,
+                    new_entity_id=desired_entity_id,
+                )
+                renamed += 1
+                break
+
+        LOGGER.info(
+            "Anycubic entity ID migration finished: dry_run=%s planned=%s renamed=%s skipped=%s.",
+            dry_run,
+            planned,
+            renamed,
+            skipped,
+        )
+
+
 class BaseChangePrintSetting(AnycubicCloudServiceCall):
     """ Base for change print setting service calls """
 
@@ -986,6 +1087,7 @@ SERVICES = (
     ("delete_file_local", DeleteFileLocal),
     ("delete_file_udisk", DeleteFileUdisk),
     ("delete_file_cloud", DeleteFileCloud),
+    ("migrate_entity_ids", MigrateEntityIDs),
     ("change_print_speed_mode", ChangePrintSpeedMode),
     ("change_print_target_nozzle_temperature", ChangePrintTargetNozzleTemperature),
     ("change_print_target_hotbed_temperature", ChangePrintTargetHotbedTemperature),

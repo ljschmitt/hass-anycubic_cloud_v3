@@ -2,8 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.4**
+> 🗓️ **Aktuelles Release: 0.2.5**
 >
+> - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
+> - Neuer manueller Service `migrate_entity_ids` mit sicherem Probelauf, um bestehende lokalisierte Entity-IDs optional auf card-kompatible englische IDs umzubenennen
 > - Ordnet die Datei-Aktionsbuttons im lokalen/USB-Dateimanager sauber rechts an: Play steht direkt vor Loeschen
 > - Lokale und USB-Dateien koennen im Panel vorsichtig zum Druck vorbereitet werden: Der Play-Button oeffnet zuerst eine Vorbereitungsansicht mit Abbrechen/Drucken und optionaler ACE-Slotnummernliste
 > - Neue Services `print_file_local` und `print_file_udisk` starten vorhandene Dateien vom Druckerspeicher bzw. USB-Speicher ohne vorherigen Datei-Upload
@@ -82,6 +84,22 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 ## 🎨 Frontend-Card
 
 Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://github.com/WaresWichall/hass-anycubic_card).
+
+### Entity-IDs und externe Karten
+
+Home Assistant kann Entity-IDs aus lokalisierten Anzeigenamen erzeugen. Dadurch konnten auf deutsch eingestellten Systemen z. B. Entity-IDs mit deutschen Begriffen entstehen, waehrend externe Dashboard-Karten haeufig englische Standardnamen erwarten.
+
+Ab Version **0.2.5** schlagen neue Anycubic-Entities stabile englische Entity-IDs vor. Die sichtbaren Namen bleiben weiterhin uebersetzbar, aber die technischen Entity-IDs bleiben besser mit Karten, Dashboards und Beispielen kompatibel.
+
+Bestehende Entity-IDs werden bewusst **nicht automatisch** umbenannt, weil das vorhandene Dashboards, Automationen oder Skripte brechen koennte. Wer bestehende lokalisierte Entity-IDs auf die stabilen englischen Namen umstellen moechte, kann den Dienst `anycubic_ha_integration.migrate_entity_ids` verwenden:
+
+1. In Home Assistant **Entwicklerwerkzeuge -> Dienste** oeffnen
+2. Dienst `anycubic_ha_integration.migrate_entity_ids` auswaehlen
+3. Zuerst mit `dry_run: true` ausfuehren und die geplanten Umbenennungen im Home-Assistant-Log pruefen
+4. Nur wenn die geplanten Aenderungen passen, erneut mit `dry_run: false` ausfuehren
+5. Danach eigene Dashboards, Karten, Automationen und Skripte pruefen
+
+Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt keine Kameras an, loescht keine Entities und veraendert keine persoenlichen Home-Assistant-Einstellungen ausser den bewusst migrierten Entity-IDs.
 
 ---
 

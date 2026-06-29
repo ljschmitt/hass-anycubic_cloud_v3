@@ -148,6 +148,14 @@ delete_file_cloud:
     file_id:
       required: true
       selector: *bignum_selector
+migrate_entity_ids:
+  fields:
+    config_entry: *anycubic_config_entry
+    dry_run:
+      required: false
+      default: true
+      selector:
+        boolean:
 change_print_speed_mode:
   fields:
     config_entry: *anycubic_config_entry

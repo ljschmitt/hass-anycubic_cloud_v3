@@ -67,6 +67,10 @@
       "delete_file_cloud": {
         "name": "Delete file (Cloud)",
         "description": "Delete a file from user cloud store."
+      },
+      "migrate_entity_ids": {
+        "name": "Migrate entity IDs",
+        "description": "Rename existing Anycubic entity IDs to stable English IDs for dashboard-card compatibility. Existing dashboards and automations may need to be updated."
       }
     },
     "service_fields": {
@@ -121,6 +125,10 @@
       "file_id": {
         "name": "File ID",
         "description": "Cloud file ID"
+      },
+      "dry_run": {
+        "name": "Dry run",
+        "description": "Preview the planned renames in the Home Assistant log without changing entity IDs."
       },
       "finished#extrude": {
         "name": "Extrude Finished",
@@ -615,6 +623,14 @@
         "[%dictkey:common::service_fields::device_id%]": {},
         "[%dictkey:common::service_fields::printer_id%]": {},
         "[%dictkey:common::service_fields::file_id%]": {}
+      }
+    },
+    "migrate_entity_ids": {
+      "name": "[%key:common::service_meta::migrate_entity_ids::name%]",
+      "description": "[%key:common::service_meta::migrate_entity_ids::description%]",
+      "fields": {
+        "[%dictkey:common::service_fields::config_entry%]": {},
+        "[%dictkey:common::service_fields::dry_run%]": {}
       }
     },
     "change_print_speed_mode": {

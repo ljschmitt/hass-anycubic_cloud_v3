@@ -12,6 +12,7 @@
 - Default UI text belongs in English source/localization files.
 - German text belongs in the German translation files.
 - Avoid hardcoded German strings in TypeScript or Python unless the file is explicitly German-only documentation.
+- Localized display names must not change technical Home Assistant entity IDs. Keep entity IDs stable, English/key-based, and compatible with existing dashboard cards wherever possible.
 
 ## Local Testing Artifacts
 

@@ -927,6 +927,20 @@
         }
       }
     },
+    "migrate_entity_ids": {
+      "name": "Migrate entity IDs",
+      "description": "Rename existing Anycubic entity IDs to stable English IDs for dashboard-card compatibility. Existing dashboards and automations may need to be updated.",
+      "fields": {
+        "config_entry": {
+          "name": "Config Entry",
+          "description": "The config entry to use for this service."
+        },
+        "dry_run": {
+          "name": "Dry run",
+          "description": "Preview the planned renames in the Home Assistant log without changing entity IDs."
+        }
+      }
+    },
     "change_print_speed_mode": {
       "name": "Change Print Speed Mode",
       "description": "Change Print Speed Mode",

@@ -7,6 +7,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
+from homeassistant.util import slugify
 
 from .anycubic_cloud_api.const.enums import AnycubicPrinterMaterialType
 from .const import (
@@ -20,6 +21,27 @@ from .const import (
 if TYPE_CHECKING:
     from .coordinator import AnycubicCloudDataUpdateCoordinator
     from .entity import AnycubicCloudEntityDescription
+
+
+ENTITY_ID_COMPAT_SUFFIXES: dict[str, str] = {
+    "aux_fan_speed_pct": "print_aux_fan_speed",
+    "box_fan_level": "print_box_fan_speed",
+    "cancel_print": "print_cancel",
+    "curr_hotbed_temp": "hotbed_temperature",
+    "curr_nozzle_temp": "nozzle_temperature",
+    "dry_status_is_drying": "drying_active",
+    "dry_status_remaining_time": "drying_remaining_time",
+    "dry_status_total_duration": "drying_total_duration",
+    "fan_speed_pct": "fan_speed",
+    "fw_version": "printer_firmware",
+    "job_image_url": "job_preview",
+    "multi_color_box_fw_version": "ace_firmware",
+    "pause_print": "print_pause",
+    "resume_print": "print_resume",
+    "secondary_ace_spools": "secondary_multi_color_box_spools",
+    "target_hotbed_temp": "target_hotbed_temperature",
+    "target_nozzle_temp": "target_nozzle_temperature",
+}
 
 
 class AnycubicMQTTConnectMode(IntEnum):
@@ -220,6 +242,19 @@ def printer_entity_unique_id(
     entity_suffix: str,
 ) -> str:
     return f"{printer_state_for_key(coordinator, printer_id, 'machine_mac')}-{entity_suffix}"
+
+
+def printer_entity_compat_suffix(entity_suffix: str) -> str:
+    return ENTITY_ID_COMPAT_SUFFIXES.get(entity_suffix, entity_suffix)
+
+
+def printer_entity_suggested_object_id(
+    coordinator: AnycubicCloudDataUpdateCoordinator,
+    printer_id: int,
+    entity_suffix: str,
+) -> str:
+    printer_name = printer_state_for_key(coordinator, printer_id, "name")
+    return slugify(f"{printer_name}_{printer_entity_compat_suffix(entity_suffix)}")
 
 
 def state_string_active(state: Any) -> str:

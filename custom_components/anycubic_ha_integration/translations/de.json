@@ -927,6 +927,20 @@
         }
       }
     },
+    "migrate_entity_ids": {
+      "name": "Entity-IDs migrieren",
+      "description": "Benennt vorhandene Anycubic-Entity-IDs auf stabile englische IDs fuer Dashboard-Card-Kompatibilitaet um. Bestehende Dashboards und Automationen muessen ggf. angepasst werden.",
+      "fields": {
+        "config_entry": {
+          "name": "Konfigurationseintrag",
+          "description": "Zu verwendender Konfigurationseintrag fuer diesen Dienst."
+        },
+        "dry_run": {
+          "name": "Probelauf",
+          "description": "Geplante Umbenennungen nur im Home-Assistant-Log anzeigen, ohne Entity-IDs zu aendern."
+        }
+      }
+    },
     "change_print_speed_mode": {
       "name": "Geschwindigkeitsmodus ändern",
       "description": "Ändert den Geschwindigkeitsmodus des Drucks.",
