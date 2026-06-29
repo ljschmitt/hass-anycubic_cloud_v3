@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.5**
+> 🗓️ **Aktuelles Release: 0.2.6**
 >
+> - Haelt die Print-Button-Entity-IDs `pause_print`, `resume_print` und `cancel_print` beim vom Dashboard-Plugin erwarteten Format
 > - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
 > - Neuer manueller Service `migrate_entity_ids` mit sicherem Probelauf, um bestehende lokalisierte Entity-IDs optional auf card-kompatible englische IDs umzubenennen
 > - Ordnet die Datei-Aktionsbuttons im lokalen/USB-Dateimanager sauber rechts an: Play steht direkt vor Loeschen
@@ -90,6 +91,8 @@ Diese Integration ergänzt die [Anycubic-Karte für Home Assistant](https://gith
 Home Assistant kann Entity-IDs aus lokalisierten Anzeigenamen erzeugen. Dadurch konnten auf deutsch eingestellten Systemen z. B. Entity-IDs mit deutschen Begriffen entstehen, waehrend externe Dashboard-Karten haeufig englische Standardnamen erwarten.
 
 Ab Version **0.2.5** schlagen neue Anycubic-Entities stabile englische Entity-IDs vor. Die sichtbaren Namen bleiben weiterhin uebersetzbar, aber die technischen Entity-IDs bleiben besser mit Karten, Dashboards und Beispielen kompatibel.
+
+Ab Version **0.2.6** bleiben die Print-Button-Entity-IDs bewusst beim vom Dashboard-Plugin erwarteten Format `pause_print`, `resume_print` und `cancel_print`. Die Sensor-Kompatibilitaet bleibt davon unberuehrt.
 
 Bestehende Entity-IDs werden bewusst **nicht automatisch** umbenannt, weil das vorhandene Dashboards, Automationen oder Skripte brechen koennte. Wer bestehende lokalisierte Entity-IDs auf die stabilen englischen Namen umstellen moechte, kann den Dienst `anycubic_ha_integration.migrate_entity_ids` verwenden:
 

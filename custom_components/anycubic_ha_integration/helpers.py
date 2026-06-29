@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 ENTITY_ID_COMPAT_SUFFIXES: dict[str, str] = {
     "aux_fan_speed_pct": "print_aux_fan_speed",
     "box_fan_level": "print_box_fan_speed",
-    "cancel_print": "print_cancel",
     "curr_hotbed_temp": "hotbed_temperature",
     "curr_nozzle_temp": "nozzle_temperature",
     "dry_status_is_drying": "drying_active",
@@ -36,8 +35,6 @@ ENTITY_ID_COMPAT_SUFFIXES: dict[str, str] = {
     "fw_version": "printer_firmware",
     "job_image_url": "job_preview",
     "multi_color_box_fw_version": "ace_firmware",
-    "pause_print": "print_pause",
-    "resume_print": "print_resume",
     "secondary_ace_spools": "secondary_multi_color_box_spools",
     "target_hotbed_temp": "target_hotbed_temperature",
     "target_nozzle_temp": "target_nozzle_temperature",
