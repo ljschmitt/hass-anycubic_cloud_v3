@@ -244,7 +244,7 @@
      * @license
      * Copyright 2021 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
-     */function*no(e,t){if(void 0!==e){let i=0;for(const n of e)yield t(n,i++);}}r([Se(".ac-camera-video")],io.prototype,"_videoElement",void 0),r([Se(".ac-camera-wrapper")],io.prototype,"_cameraWrapper",void 0),r([Ee()],io.prototype,"hass",void 0),r([Ee()],io.prototype,"language",void 0),r([Ee({attribute:"show-video"})],io.prototype,"showVideo",void 0),r([Ee({attribute:"toggle-video"})],io.prototype,"toggleVideo",void 0),r([Ee({attribute:"camera-entity"})],io.prototype,"cameraEntity",void 0),r([Ee({attribute:"config-entry-id"})],io.prototype,"configEntryId",void 0),r([Ee({attribute:"printer-id"})],io.prototype,"printerId",void 0),r([Ee({attribute:"show-controls",type:Boolean})],io.prototype,"showControls",void 0),r([ge()],io.prototype,"camImgString",void 0),r([ge()],io.prototype,"cloudCameraStatus",void 0),r([ge()],io.prototype,"cloudCameraError",void 0),io=r([Ii("anycubic-printercard-camera_view")],io);const ro="secondary_",oo="ace_run_out_refill",so=ro+oo,ao="ace_spools",co=ro+ao;let lo=class extends pe{constructor(){super(...arguments),this.box_id=0,this.showControls=!0,this.allowSpoolEdit=!0,this._runoutRefillId=oo,this._spoolsEntityId=ao,this.spoolList=[],this.selectedIndex=-1,this.selectedMaterialType="",this.selectedColor=[0,0,0],this._changingRunout=!1,this._openDryingModal=()=>{xt(this,"ac-mcbdry-modal",{modalOpen:!0,box_id:this.box_id});},this._handleRunoutRefillChanged=e=>{this._changingRunout||(this._changingRunout=!0,this.hass.callService("switch","toggle",{entity_id:ri(this.printerEntityIdPart,"switch",this._runoutRefillId)}).then(()=>{this._changingRunout=!1;}).catch(e=>{this._changingRunout=!1;}));},this._editSpool=e=>{var t,i,n;if(!this.allowSpoolEdit)return;if(e.currentTarget.reserved_by_ace)return;const r=e.currentTarget.index,o=null!==(t=e.currentTarget.local_slot)&&void 0!==t?t:r+1,s=null!==(i=e.currentTarget.display_slot)&&void 0!==i?i:o,a=null!==(n=e.currentTarget.box_id)&&void 0!==n?n:this.box_id,c=e.currentTarget.material_type,d=e.currentTarget.color;xt(this,"ac-mcb-modal",{modalOpen:!0,box_id:a,spool_index:o-1,display_slot:s,material_type:c,color:d});};}willUpdate(e){var t,i,n,r;super.willUpdate(e),e.has("language")&&(this._buttonRefill=Er("card.buttons.runout_refill",this.language),this._buttonDry=Er("card.buttons.dry",this.language),this._labelAceFeed=Er("card.spools.ace_feed",this.language)),(e.has("box_id")||e.has("spoolsEntityId"))&&(this.spoolsEntityId?this._spoolsEntityId=this.spoolsEntityId:1===this.box_id?(this._runoutRefillId=so,this._spoolsEntityId=co):(this._runoutRefillId=oo,this._spoolsEntityId=ao)),(e.has("hass")||e.has("printerEntities")||e.has("printerEntityIdPart")||e.has("spoolsEntityId"))&&(this.spoolList=li(this.hass,this.printerEntities,this.printerEntityIdPart,this._spoolsEntityId,"not loaded",{spool_info:[]}).attributes.spool_info,this._runoutRefillState=(t=this.hass,i=this.printerEntities,n=this.printerEntityIdPart,r=this._runoutRefillId,$t(t,oi(i,n,"switch",r))));}render(){return J`
+     */function*no(e,t){if(void 0!==e){let i=0;for(const n of e)yield t(n,i++);}}r([Se(".ac-camera-video")],io.prototype,"_videoElement",void 0),r([Se(".ac-camera-wrapper")],io.prototype,"_cameraWrapper",void 0),r([Ee()],io.prototype,"hass",void 0),r([Ee()],io.prototype,"language",void 0),r([Ee({attribute:"show-video"})],io.prototype,"showVideo",void 0),r([Ee({attribute:"toggle-video"})],io.prototype,"toggleVideo",void 0),r([Ee({attribute:"camera-entity"})],io.prototype,"cameraEntity",void 0),r([Ee({attribute:"config-entry-id"})],io.prototype,"configEntryId",void 0),r([Ee({attribute:"printer-id"})],io.prototype,"printerId",void 0),r([Ee({attribute:"show-controls",type:Boolean})],io.prototype,"showControls",void 0),r([ge()],io.prototype,"camImgString",void 0),r([ge()],io.prototype,"cloudCameraStatus",void 0),r([ge()],io.prototype,"cloudCameraError",void 0),io=r([Ii("anycubic-printercard-camera_view")],io);const ro="secondary_",oo="ace_run_out_refill",so=ro+oo,ao="ace_spools",co=ro+ao;let lo=class extends pe{constructor(){super(...arguments),this.box_id=0,this.showControls=!0,this.allowSpoolEdit=!0,this._runoutRefillId=oo,this._spoolsEntityId=ao,this.spoolList=[],this.selectedIndex=-1,this.selectedMaterialType="",this.selectedColor=[0,0,0],this._changingRunout=!1,this._openDryingModal=()=>{xt(this,"ac-mcbdry-modal",{modalOpen:!0,box_id:this.box_id});},this._handleRunoutRefillChanged=e=>{this._changingRunout||(this._changingRunout=!0,this.hass.callService("switch","toggle",{entity_id:ri(this.printerEntityIdPart,"switch",this._runoutRefillId)}).then(()=>{this._changingRunout=!1;}).catch(e=>{this._changingRunout=!1;}));},this._editSpool=e=>{var t,i,n;if(!this.allowSpoolEdit)return;if(e.currentTarget.reserved_by_ace)return;const r=e.currentTarget.index,o=null!==(t=e.currentTarget.local_slot)&&void 0!==t?t:r+1,s=null!==(i=e.currentTarget.display_slot)&&void 0!==i?i:o,a=null!==(n=e.currentTarget.box_id)&&void 0!==n?n:this.box_id,c=e.currentTarget.material_type,d=e.currentTarget.color;xt(this,"ac-mcb-modal",{modalOpen:!0,box_id:a,spool_index:o-1,display_slot:s,material_type:c,color:d});};}willUpdate(e){var t,i,n,r;super.willUpdate(e),e.has("language")&&(this._buttonRefill=Er("card.buttons.runout_refill",this.language),this._buttonDry=Er("card.buttons.dry",this.language),this._labelAceFeed=Er("card.spools.ace_feed",this.language)),(e.has("box_id")||e.has("spoolsEntityId"))&&(this.spoolsEntityId?this._spoolsEntityId=this.spoolsEntityId:1===this.box_id?(this._runoutRefillId=so,this._spoolsEntityId=co):(this._runoutRefillId=oo,this._spoolsEntityId=ao)),(e.has("hass")||e.has("printerEntities")||e.has("printerEntityIdPart")||e.has("spoolsEntityId"))&&(this.spoolList=li(this.hass,this.printerEntities,this.printerEntityIdPart,this._spoolsEntityId,"not loaded",{spool_info:[]}).attributes.spool_info,this._runoutRefillState=(t=this.hass,i=this.printerEntities,n=this.printerEntityIdPart,r=this._runoutRefillId,$t(t,oi(i,n,"switch",r))));}render(){const e={"grid-template-columns":`repeat(${Math.min(Math.max(this.spoolList.length,1),4)}, minmax(0, 1fr))`};return J`
       <div class="ac-printercard-mcbview">
         ${this.showControls?J`
               <div class="ac-printercard-mcbmenu ac-printercard-menuleft">
@@ -257,7 +257,12 @@
                 </div>
               </div>
             `:J`<div class="ac-printercard-mcbmenu"></div>`}
-        <div class="ac-printercard-spoolcont">${this._renderSpools()}</div>
+        <div
+          class="ac-printercard-spoolcont"
+          style=${Cr(e)}
+        >
+          ${this._renderSpools()}
+        </div>
         ${this.showControls?J`
               <div class="ac-printercard-mcbmenu ac-printercard-menuright">
                 <ha-control-button @click=${this._openDryingModal}>
@@ -314,19 +319,27 @@
 
       .ac-printercard-spoolcont {
         height: 100%;
-        display: flex;
+        display: grid;
+        align-content: center;
         justify-content: center;
-        align-items: center;
+        align-items: start;
         box-sizing: border-box;
-        width: 62.5%;
+        gap: 8px 6px;
+        width: 72%;
       }
 
       .ac-spool-info {
         box-sizing: border-box;
-        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-self: center;
+        height: 100%;
         cursor: pointer;
-        width: 25%;
-        padding: 5px;
+        width: 100%;
+        max-width: 76px;
+        min-width: 0;
+        padding: 3px;
       }
 
       .ac-spool-info.ac-spool-reserved {
@@ -336,8 +349,9 @@
 
       .ac-spool-color-ring-cont {
         position: relative;
-        width: 100%;
+        width: min(100%, 60px);
         box-sizing: border-box;
+        flex: 0 0 auto;
       }
 
       .ac-spool-color-ring-cont:before {
@@ -379,9 +393,13 @@
       }
 
       .ac-spool-material-type {
-        height: auto;
+        min-height: 34px;
         text-align: center;
         font-weight: 900;
+        font-size: 14px;
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+        word-break: normal;
       }
 
       .ac-printercard-mcbmenu ha-control-button {
@@ -3081,7 +3099,7 @@
       </ac-print-view>
     `;}static get styles(){return h`
       ${Ds}
-    `;}}r([Ee({attribute:!1})],Ls.prototype,"hass",void 0),r([Ee()],Ls.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ls.prototype,"narrow",void 0),r([Ee()],Ls.prototype,"route",void 0),r([Ee()],Ls.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ls.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ls.prototype,"selectedPrinterDevice",void 0),r([ge()],Ls.prototype,"_scriptData",void 0),r([ge()],Ls.prototype,"_error",void 0),r([ge()],Ls.prototype,"_serviceName",void 0),r([ge()],Ls.prototype,"_buttonPrint",void 0),r([ge()],Ls.prototype,"_buttonProgress",void 0);let ks=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],ks.prototype,"_serviceName",void 0),ks=r([Ii("anycubic-view-print-no_cloud_save")],ks);let Ms=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ms.prototype,"_serviceName",void 0),Ms=r([Ii("anycubic-view-print-save_in_cloud")],Ms);var Us="0.2.9";window.console.info(`%c ANYCUBIC-PANEL %c v${Us} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),xt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==fi(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=mi(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),xt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=Er("panels.main.title",this.language),this._tabSide=Er("panels.side.title",this.language),this._tabFilesLocal=Er("panels.files_local.title",this.language),this._tabFilesUdisk=Er("panels.files_udisk.title",this.language),this._tabFilesCloud=Er("panels.files_cloud.title",this.language),this._tabPrintNoSave=Er("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=Er("panels.print_save_in_cloud.title",this.language),this._tabDebug=Er("panels.debug.title",this.language),this._mainTitle=Er("title",this.language),this._selectPrinter=Er("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={};for(const i in e.devices){const n=e.devices[i];"Anycubic"===n.manufacturer&&(t[n.id]=n);}return t;}(this.hass),this.selectedPage=fi(this.route),this.selectedPrinterID=mi(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){return J`
+    `;}}r([Ee({attribute:!1})],Ls.prototype,"hass",void 0),r([Ee()],Ls.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ls.prototype,"narrow",void 0),r([Ee()],Ls.prototype,"route",void 0),r([Ee()],Ls.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ls.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ls.prototype,"selectedPrinterDevice",void 0),r([ge()],Ls.prototype,"_scriptData",void 0),r([ge()],Ls.prototype,"_error",void 0),r([ge()],Ls.prototype,"_serviceName",void 0),r([ge()],Ls.prototype,"_buttonPrint",void 0),r([ge()],Ls.prototype,"_buttonProgress",void 0);let ks=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],ks.prototype,"_serviceName",void 0),ks=r([Ii("anycubic-view-print-no_cloud_save")],ks);let Ms=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ms.prototype,"_serviceName",void 0),Ms=r([Ii("anycubic-view-print-save_in_cloud")],Ms);var Us="0.2.10";window.console.info(`%c ANYCUBIC-PANEL %c v${Us} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),xt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==fi(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=mi(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),xt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=Er("panels.main.title",this.language),this._tabSide=Er("panels.side.title",this.language),this._tabFilesLocal=Er("panels.files_local.title",this.language),this._tabFilesUdisk=Er("panels.files_udisk.title",this.language),this._tabFilesCloud=Er("panels.files_cloud.title",this.language),this._tabPrintNoSave=Er("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=Er("panels.print_save_in_cloud.title",this.language),this._tabDebug=Er("panels.debug.title",this.language),this._mainTitle=Er("title",this.language),this._selectPrinter=Er("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={};for(const i in e.devices){const n=e.devices[i];"Anycubic"===n.manufacturer&&(t[n.id]=n);}return t;}(this.hass),this.selectedPage=fi(this.route),this.selectedPrinterID=mi(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){return J`
       <div class="header">
         ${this.renderToolbar()}
         <nav class="tabs" role="tablist">

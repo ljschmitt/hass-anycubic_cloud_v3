@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.9**
+> 🗓️ **Aktuelles Release: 0.2.10**
 >
+> - Stabilisiert das ACE-/Materialregal-Spulenlayout: vorhandene Spulen bleiben dynamisch, werden aber mit maximal vier gleichmaessigen Spalten pro Reihe angezeigt
 > - Aktualisiert die Entity-Zuordnung im Frontend bei Home-Assistant-Updates erneut, damit ACE-, Materialregal- und Dateiansichten nicht erst nach einem spaeteren Refresh erscheinen
 > - Zeigt beim Kobra-X-Materialregal vom ACE reservierte interne Slots als ACE-Zuleitung statt als normales Filament an
 > - Ergaenzt Frontend-Fallbacks fuer alte deutsch erzeugte Entity-IDs, waehrend neue technische Entity-IDs weiterhin stabil Englisch bleiben

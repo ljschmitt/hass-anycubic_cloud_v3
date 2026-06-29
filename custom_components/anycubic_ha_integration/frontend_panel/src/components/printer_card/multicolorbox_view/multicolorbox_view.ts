@@ -143,6 +143,11 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
   }
 
   render(): LitTemplateResult {
+    const spoolColumnCount = Math.min(Math.max(this.spoolList.length, 1), 4);
+    const spoolContainerStyle = {
+      "grid-template-columns": `repeat(${spoolColumnCount}, minmax(0, 1fr))`,
+    };
+
     return html`
       <div class="ac-printercard-mcbview">
         ${this.showControls
@@ -158,7 +163,12 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
               </div>
             `
           : html`<div class="ac-printercard-mcbmenu"></div>`}
-        <div class="ac-printercard-spoolcont">${this._renderSpools()}</div>
+        <div
+          class="ac-printercard-spoolcont"
+          style=${styleMap(spoolContainerStyle)}
+        >
+          ${this._renderSpools()}
+        </div>
         ${this.showControls
           ? html`
               <div class="ac-printercard-mcbmenu ac-printercard-menuright">
@@ -301,19 +311,27 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
 
       .ac-printercard-spoolcont {
         height: 100%;
-        display: flex;
+        display: grid;
+        align-content: center;
         justify-content: center;
-        align-items: center;
+        align-items: start;
         box-sizing: border-box;
-        width: 62.5%;
+        gap: 8px 6px;
+        width: 72%;
       }
 
       .ac-spool-info {
         box-sizing: border-box;
-        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-self: center;
+        height: 100%;
         cursor: pointer;
-        width: 25%;
-        padding: 5px;
+        width: 100%;
+        max-width: 76px;
+        min-width: 0;
+        padding: 3px;
       }
 
       .ac-spool-info.ac-spool-reserved {
@@ -323,8 +341,9 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
 
       .ac-spool-color-ring-cont {
         position: relative;
-        width: 100%;
+        width: min(100%, 60px);
         box-sizing: border-box;
+        flex: 0 0 auto;
       }
 
       .ac-spool-color-ring-cont:before {
@@ -366,9 +385,13 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       }
 
       .ac-spool-material-type {
-        height: auto;
+        min-height: 34px;
         text-align: center;
         font-weight: 900;
+        font-size: 14px;
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+        word-break: normal;
       }
 
       .ac-printercard-mcbmenu ha-control-button {
