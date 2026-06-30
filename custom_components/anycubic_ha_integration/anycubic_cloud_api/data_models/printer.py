@@ -2380,10 +2380,12 @@ class AnycubicPrinter:
     async def get_camera_session(
         self,
     ) -> AnycubicCameraSession | None:
-
-        return await self._api_parent.get_camera_session(
+        session = await self._api_parent.get_camera_session(
             self,
         )
+        if isinstance(session, dict):
+            return None
+        return session
 
     async def delete_local_file(
         self,
