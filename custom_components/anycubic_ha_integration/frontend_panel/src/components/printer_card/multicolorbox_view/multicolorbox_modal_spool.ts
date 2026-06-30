@@ -171,7 +171,10 @@ export class AnycubicPrintercardMulticolorboxModalSpool extends LitElement {
       ? html`
           <div>
             <div class="ac-slot-title">
-              ${this._heading}: ${this.display_slot > 0 ? this.display_slot : this.spool_index + 1}
+              ${this._heading}:
+              ${this.display_slot > 0
+                ? this.display_slot
+                : this.spool_index + 1}
             </div>
             <div>
               <div>
