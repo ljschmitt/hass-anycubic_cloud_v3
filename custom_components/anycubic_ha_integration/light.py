@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.components.light import LightEntity, LightEntityDescription
+from homeassistant.components.light import ColorMode, LightEntity, LightEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -58,6 +58,7 @@ class AnycubicLight(AnycubicCloudEntity, LightEntity):
     """Representation of an Anycubic light."""
 
     entity_description: AnycubicLightEntityDescription
+    _attr_supported_color_modes = {ColorMode.ONOFF}
 
     def __init__(
         self,
