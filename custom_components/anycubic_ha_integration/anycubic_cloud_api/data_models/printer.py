@@ -1015,7 +1015,12 @@ class AnycubicPrinter:
             return
         elif action in ['start', 'update'] and state == 'updated':
             data = payload['data']
-            if self.parameter:
+            self._update_latest_project_with_mqtt_print_status_data(
+                project_id,
+                AnycubicPrintStatus.Printing,
+                data,
+            )
+            if self.parameter and 'curr_hotbed_temp' in data and 'curr_nozzle_temp' in data:
                 self.parameter.update_current_temps(
                     data['curr_hotbed_temp'],
                     data['curr_nozzle_temp'],
@@ -1023,15 +1028,23 @@ class AnycubicPrinter:
             settings = data.get('settings', {})
             if 'fan_speed_pct' in settings:
                 self._fan_speed = int(settings['fan_speed_pct'])
+            if 'aux_fan_speed_pct' in settings:
+                self._aux_fan_speed_pct = int(settings['aux_fan_speed_pct'])
+            if 'box_fan_level' in settings:
+                self._box_fan_level = int(settings['box_fan_level'])
             if 'print_speed_pct' in settings:
                 self._print_speed_pct = int(settings['print_speed_pct'])
             if 'print_speed_mode' in settings:
                 self._print_speed_mode = int(settings['print_speed_mode'])
-            self._update_latest_project_target_temps(
-                project_id,
-                settings['target_hotbed_temp'],
-                settings['target_nozzle_temp'],
-            )
+            settings.get('z_comp')
+            if 'target_hotbed_temp' in settings and 'target_nozzle_temp' in settings:
+                self._update_latest_project_target_temps(
+                    project_id,
+                    settings['target_hotbed_temp'],
+                    settings['target_nozzle_temp'],
+                )
+            if isinstance(settings, AnycubicConsumableData) and settings.is_empty:
+                data.get('settings')
             return
         elif action in ['start', 'stop'] and state in ['failed']:
             err_msg = payload.get('msg')
@@ -1233,11 +1246,23 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action == 'startCapture' and state in ('joinSuccess', 'pushStarted', 'pushStoped', 'done'):
+        if action == 'startCapture' and state in ('initSuccess', 'joinSuccess', 'pushStarted', 'pushStoped', 'done'):
             payload.force_empty()
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('video'))
+
+    def _process_mqtt_update_buried(
+        self,
+        action: str,
+        state: str,
+        payload: AnycubicConsumableData,
+    ) -> None:
+        if state == 'done':
+            payload.force_empty()
+            return
+        else:
+            raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('buried'))
 
     def process_mqtt_update(
         self,
@@ -1292,6 +1317,9 @@ class AnycubicPrinter:
 
         elif msg_type == 'video':
             self._process_mqtt_update_video(action, state, payload)
+
+        elif msg_type == 'buried':
+            self._process_mqtt_update_buried(action, state, payload)
 
         elif msg_type in ('info', 'hardwareProfile', 'aiSettings'):
             # Informational startup reports from newer firmware. They do not
