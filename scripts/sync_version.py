@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "Version"
 MANIFEST_FILE = ROOT / "custom_components" / "anycubic_ha_integration" / "manifest.json"
