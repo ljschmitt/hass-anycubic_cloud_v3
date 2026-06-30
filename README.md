@@ -2,16 +2,16 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.0-beta.8**
+> 🗓️ **Aktuelles Release: 0.3.0-beta.9**
 >
 > - Ergaenzt eine native Home-Assistant-`light.*`-Entity fuer das Anycubic-Kameralicht bei Druckern mit Kamera-/Video- oder offizieller Lichtfunktion. Die Entity ist getrennt von der optionalen Dashboard-Card-`lightEntityId` und nutzt die Anycubic-Cloud-/MQTT-Lichtbefehle.
 > - Ergaenzt GitHub-Release-Gates fuer Version-Sync, private lokale Daten und Tag-/Release-Kollisionen, damit Beta- und stabile Releases vor dem Veroeffentlichen gezielter geprueft werden koennen.
 > - Stabilisiert das ACE-/Materialregal-Spulenlayout: vorhandene Spulen bleiben dynamisch, werden aber mit maximal vier gleichmaessigen Spalten pro Reihe angezeigt
 > - Aktualisiert die Entity-Zuordnung im Frontend bei Home-Assistant-Updates erneut, damit ACE-, Materialregal- und Dateiansichten nicht erst nach einem spaeteren Refresh erscheinen
 > - Zeigt beim Kobra-X-Materialregal vom ACE reservierte interne Slots als ACE-Zuleitung statt als normales Filament an
-> - Ergaenzt Frontend-Fallbacks fuer alte deutsch erzeugte Entity-IDs, waehrend neue technische Entity-IDs weiterhin stabil Englisch bleiben
-> - Repariert die Kobra-X-Anzeige fuer interne Materialregal-Spulen neben ACE-Spulen bei bestehenden deutschen Alt-Entity-IDs
-> - Lokale und USB-Dateiansichten erkennen alte deutsche Dateilisten-/MQTT-Entities wieder und leeren beim Ordnerwechsel sofort die alte Liste
+> - Entfernt Frontend-Fallbacks fuer alte deutsch erzeugte Entity-IDs, damit Integration, Panel und Card konsequent englische technische Entity-IDs verwenden
+> - Kobra-X-Anzeige fuer internes Materialregal und ACE-Spulen erwartet die stabilen englischen Entity-IDs; bestehende deutsche Alt-Entity-IDs koennen ueber den Migrationsdienst umbenannt werden
+> - Lokale und USB-Dateiansichten verwenden die stabilen englischen Dateilisten-/MQTT-Entities und leeren beim Ordnerwechsel sofort die alte Liste
 > - README empfiehlt den passenden Anycubic-Card-Fork fuer diese Integration und erklaert den Unterschied zur urspruenglichen Dashboard-Card
 > - Haelt die Print-Button-Entity-IDs `pause_print`, `resume_print` und `cancel_print` beim vom Dashboard-Plugin erwarteten Format
 > - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
@@ -105,7 +105,7 @@ Die Integration selbst bringt weiterhin ein eigenes Home-Assistant-Panel mit. Di
 
 Home Assistant kann Entity-IDs aus lokalisierten Anzeigenamen erzeugen. Dadurch konnten auf deutsch eingestellten Systemen z. B. Entity-IDs mit deutschen Begriffen entstehen, waehrend externe Dashboard-Karten haeufig englische Standardnamen erwarten.
 
-Ab Version **0.2.5** schlagen neue Anycubic-Entities stabile englische Entity-IDs vor. Die sichtbaren Namen bleiben weiterhin uebersetzbar, aber die technischen Entity-IDs bleiben besser mit Karten, Dashboards und Beispielen kompatibel.
+Ab Version **0.2.5** schlagen neue Anycubic-Entities stabile englische Entity-IDs vor. Entity-Anzeigenamen bleiben ebenfalls Englisch und orientieren sich an den vom Anycubic-/Dashboard-Card-Umfeld erwarteten Namen. Deutsche Uebersetzungen werden fuer Konfiguration, Services, Panel-/Card-UI und Dokumentation verwendet, aber nicht fuer Entity-Namen.
 
 Ab Version **0.2.6** bleiben die Print-Button-Entity-IDs bewusst beim vom Dashboard-Plugin erwarteten Format `pause_print`, `resume_print` und `cancel_print`. Die Sensor-Kompatibilitaet bleibt davon unberuehrt.
 

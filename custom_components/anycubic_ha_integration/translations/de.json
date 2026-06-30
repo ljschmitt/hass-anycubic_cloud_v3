@@ -107,247 +107,247 @@
   "entity": {
     "binary_sensor": {
       "job_in_progress": {
-        "name": "Druckauftrag läuft"
+        "name": "Job In Progress"
       },
       "job_complete": {
-        "name": "Druckauftrag abgeschlossen"
+        "name": "Job Complete"
       },
       "job_failed": {
-        "name": "Druckauftrag fehlgeschlagen"
+        "name": "Job Failed"
       },
       "job_is_paused": {
-        "name": "Druckauftrag pausiert"
+        "name": "Job Paused"
       },
       "printer_online": {
-        "name": "Drucker online"
+        "name": "Printer Online"
       },
       "mqtt_connection_active": {
-        "name": "MQTT‑Verbindung aktiv"
+        "name": "MQTT Connection Active"
       },
       "is_busy": {
-        "name": "Beschäftigt"
+        "name": "Is Busy"
       },
       "is_available": {
-        "name": "Verfügbar"
+        "name": "Is Available"
       },
       "dry_status_is_drying": {
-        "name": "Trocknung aktiv"
+        "name": "Drying Active"
       },
       "secondary_dry_status_is_drying": {
-        "name": "Trocknung (Sekundär) aktiv"
+        "name": "Secondary Drying Active"
       }
     },
     "button": {
       "drying_start_preset_1": {
-        "name": "Trocknungsvorgabe 1 starten"
+        "name": "Drying Preset 1"
       },
       "drying_start_preset_2": {
-        "name": "Trocknungsvorgabe 2 starten"
+        "name": "Drying Preset 2"
       },
       "drying_start_preset_3": {
-        "name": "Trocknungsvorgabe 3 starten"
+        "name": "Drying Preset 3"
       },
       "drying_start_preset_4": {
-        "name": "Trocknungsvorgabe 4 starten"
+        "name": "Drying Preset 4"
       },
       "drying_stop": {
-        "name": "Trocknung stoppen"
+        "name": "Drying Stop"
       },
       "secondary_drying_start_preset_1": {
-        "name": "Trocknungsvorgabe 1 (Sekundär) starten"
+        "name": "Secondary Drying Preset 1"
       },
       "secondary_drying_start_preset_2": {
-        "name": "Trocknungsvorgabe 2 (Sekundär) starten"
+        "name": "Secondary Drying Preset 2"
       },
       "secondary_drying_start_preset_3": {
-        "name": "Trocknungsvorgabe 3 (Sekundär) starten"
+        "name": "Secondary Drying Preset 3"
       },
       "secondary_drying_start_preset_4": {
-        "name": "Trocknungsvorgabe 4 (Sekundär) starten"
+        "name": "Secondary Drying Preset 4"
       },
       "secondary_drying_stop": {
-        "name": "Trocknung (Sekundär) stoppen"
+        "name": "Secondary Drying Stop"
       },
       "pause_print": {
-        "name": "Druck pausieren"
+        "name": "Pause Print"
       },
       "resume_print": {
-        "name": "Druck fortsetzen"
+        "name": "Resume Print"
       },
       "cancel_print": {
-        "name": "Druck abbrechen"
+        "name": "Cancel Print"
       },
       "request_file_list_local": {
-        "name": "Dateiliste anfordern (Lokal)"
+        "name": "Request File List (Local)"
       },
       "request_file_list_udisk": {
-        "name": "Dateiliste anfordern (USB‑Datenträger)"
+        "name": "Request File List (USB Disk)"
       },
       "request_file_list_cloud": {
-        "name": "Dateiliste anfordern (Cloud)"
+        "name": "Request File List (Cloud)"
       },
       "refresh_mqtt_connection": {
-        "name": "MQTT‑Verbindung aktualisieren"
+        "name": "Refresh MQTT Connection"
       }
     },
     "image": {
       "job_image_url": {
-        "name": "Auftragsvorschau"
+        "name": "Job Preview"
       }
     },
     "light": {
       "camera_light": {
-        "name": "Kameralicht"
+        "name": "Camera Light"
       }
     },
     "sensor": {
       "current_status": {
-        "name": "Aktueller Status"
+        "name": "Current Status"
       },
       "curr_nozzle_temp": {
-        "name": "Düsentemperatur"
+        "name": "Nozzle Temperature"
       },
       "curr_hotbed_temp": {
-        "name": "Heizbett‑Temperatur"
+        "name": "Hotbed Temperature"
       },
       "job_name": {
-        "name": "Auftragsname"
+        "name": "Job Name"
       },
       "job_progress": {
-        "name": "Auftragsfortschritt (%)"
+        "name": "Job Progress %"
       },
       "job_time_elapsed": {
-        "name": "Verstrichene Zeit"
+        "name": "Job Time Elapsed"
       },
       "job_time_remaining": {
-        "name": "Verbleibende Zeit"
+        "name": "Job Time Remaining"
       },
       "job_eta": {
-        "name": "Voraussichtliches Ende (ETA)"
+        "name": "Job ETA"
       },
       "job_state": {
-        "name": "Auftragsstatus"
+        "name": "Job State"
       },
       "job_current_layer": {
-        "name": "Aktuelle Schicht"
+        "name": "Job Current Layer"
       },
       "job_total_layers": {
-        "name": "Gesamtschichten"
+        "name": "Job Total Layers"
       },
       "job_speed_mode": {
-        "name": "Geschwindigkeitsmodus"
+        "name": "Job Speed Mode"
       },
       "job_z_thick": {
-        "name": "Schichthöhe (Z)"
+        "name": "Job Z Thickness"
       },
       "job_model_height": {
-        "name": "Modellhöhe"
+        "name": "Job Model Height"
       },
       "job_anti_alias_count": {
-        "name": "Anti‑Aliasing‑Stufen"
+        "name": "Job Anti Alias"
       },
       "job_on_time": {
-        "name": "Belichtungszeit (An)"
+        "name": "Job On Time"
       },
       "job_off_time": {
-        "name": "Belichtungszeit (Aus)"
+        "name": "Job Off Time"
       },
       "job_bottom_time": {
-        "name": "Boden‑Belichtungszeit"
+        "name": "Job Bottom Time"
       },
       "job_bottom_layers": {
-        "name": "Bodenschichten"
+        "name": "Job Bottom Layers"
       },
       "job_z_up_height": {
-        "name": "Z‑Hubhöhe"
+        "name": "Job Z Up Height"
       },
       "job_z_up_speed": {
-        "name": "Z‑Hubgeschwindigkeit"
+        "name": "Job Z Up Speed"
       },
       "job_z_down_speed": {
-        "name": "Z‑Absenkgeschwindigkeit"
+        "name": "Job Z Down Speed"
       },
       "target_nozzle_temp": {
-        "name": "Ziel‑Düsentemperatur"
+        "name": "Target Nozzle Temperature"
       },
       "target_hotbed_temp": {
-        "name": "Ziel‑Heizbett‑Temperatur"
+        "name": "Target Hotbed Temperature"
       },
       "print_speed_pct": {
-        "name": "Druckgeschwindigkeit (%)"
+        "name": "Print Speed %"
       },
       "fan_speed_pct": {
-        "name": "Lüftergeschwindigkeit (%)"
+        "name": "Fan Speed %"
       },
       "aux_fan_speed_pct": {
-        "name": "AUX-Lüftergeschwindigkeit (%)"
+        "name": "Aux Fan Speed %"
       },
       "box_fan_level": {
-        "name": "Gehäuselüfterstufe (%)"
+        "name": "Box Fan Level %"
       },
       "file_list_local": {
-        "name": "Dateiliste (Lokal)"
+        "name": "File List (Local)"
       },
       "file_list_udisk": {
-        "name": "Dateiliste (USB‑Datenträger)"
+        "name": "File List (USB Disk)"
       },
       "file_list_cloud": {
-        "name": "Dateiliste (Cloud)"
+        "name": "File List (Cloud)"
       },
       "ace_spools": {
-        "name": "ACE‑Spulen"
+        "name": "ACE Spools"
       },
       "material_rack_spools": {
-        "name": "Materialregal‑Spulen"
+        "name": "Material Rack Spools"
       },
       "ace_current_temperature": {
-        "name": "ACE – Aktuelle Temperatur"
+        "name": "ACE Current Temperature"
       },
       "dry_status_target_temperature": {
-        "name": "Trocknung – Zieltemperatur"
+        "name": "Drying Target Temperature"
       },
       "dry_status_total_duration": {
-        "name": "Trocknung – Gesamtdauer"
+        "name": "Drying Total Duration"
       },
       "dry_status_remaining_time": {
-        "name": "Trocknung – Verbleibende Zeit"
+        "name": "Drying Remaining Time"
       },
       "secondary_ace_spools": {
-        "name": "ACE‑Spulen (Sekundär)"
+        "name": "Secondary ACE Spools"
       },
       "secondary_ace_current_temperature": {
-        "name": "ACE – Aktuelle Temperatur (Sekundär)"
+        "name": "Secondary ACE Current Temperature"
       },
       "secondary_dry_status_target_temperature": {
-        "name": "Trocknung – Zieltemperatur (Sekundär)"
+        "name": "Secondary Drying Target Temperature"
       },
       "secondary_dry_status_total_duration": {
-        "name": "Trocknung – Gesamtdauer (Sekundär)"
+        "name": "Secondary Drying Total Duration"
       },
       "secondary_dry_status_remaining_time": {
-        "name": "Trocknung – Verbleibende Zeit (Sekundär)"
+        "name": "Secondary Drying Remaining Time"
       }
     },
     "switch": {
       "multi_color_box_runout_refill": {
-        "name": "ACE – Nachfüllung bei Filamentende"
+        "name": "ACE Run-out Refill"
       },
       "secondary_multi_color_box_runout_refill": {
-        "name": "ACE – Nachfüllung bei Filamentende (Sekundär)"
+        "name": "Secondary ACE Run-out Refill"
       },
       "manual_mqtt_connection_enabled": {
-        "name": "Manuelle MQTT‑Verbindung aktiviert"
+        "name": "Manual MQTT Connection Enabled"
       }
     },
     "update": {
       "fw_version": {
-        "name": "Drucker‑Firmware"
+        "name": "Printer Firmware"
       },
       "multi_color_box_fw_version": {
-        "name": "ACE‑Firmware"
+        "name": "ACE Firmware"
       },
       "secondary_multi_color_box_fw_version": {
-        "name": "ACE‑Firmware (Sekundär)"
+        "name": "Secondary ACE Firmware"
       }
     }
   },
