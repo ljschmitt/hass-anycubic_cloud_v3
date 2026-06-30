@@ -226,7 +226,7 @@ class AnycubicPrinter:
         self._has_peripheral_udisk: bool = False
         self._camera_light_on: bool | None = None
         self._camera_light_brightness: int | None = None
-        self._camera_light_type: int = 1
+        self._camera_light_type: int = 2
         self._is_bound_to_user: bool = True
         self._job_download_progress: int = 0
 
@@ -1205,6 +1205,12 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
+        if action == 'control' and state == 'failed':
+            payload.get('code')
+            payload.get('msg')
+            payload.get('data')
+            payload.force_empty()
+            return
         if action in ('query', 'control') and state == 'done':
             data = payload.get('data')
             if isinstance(data, AnycubicConsumableData):
