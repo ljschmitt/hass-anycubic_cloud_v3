@@ -62,6 +62,7 @@ class AnycubicLight(AnycubicCloudEntity, LightEntity):
     """Representation of an Anycubic light."""
 
     entity_description: AnycubicLightEntityDescription
+    _attr_color_mode = ColorMode.ONOFF
     _attr_supported_color_modes = {ColorMode.ONOFF}
 
     def __init__(
