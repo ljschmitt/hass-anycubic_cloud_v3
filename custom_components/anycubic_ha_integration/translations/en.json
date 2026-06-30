@@ -195,6 +195,11 @@
         "name": "Job Preview"
       }
     },
+    "light": {
+      "camera_light": {
+        "name": "Camera Light"
+      }
+    },
     "sensor": {
       "current_status": {
         "name": "Current Status"

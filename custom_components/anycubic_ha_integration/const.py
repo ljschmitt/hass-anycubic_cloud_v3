@@ -84,6 +84,7 @@ class PrinterEntityType(IntEnum):
     ACE_SECONDARY = 6
     DRY_PRESET_PRIMARY = 7
     DRY_PRESET_SECONDARY = 8
+    CAMERA_LIGHT = 9
 
 
 LOGGER = logging.getLogger(__package__)
@@ -92,6 +93,7 @@ PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.BUTTON,
     Platform.IMAGE,
+    Platform.LIGHT,
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.UPDATE,

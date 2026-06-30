@@ -1,0 +1,37 @@
+name: "Release Gate"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  pre-release-checks:
+    runs-on: ubuntu-latest
+    name: "Pre-release checks"
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check synchronized version files
+        run: python scripts/sync_version.py --check
+      - name: Check for private local data
+        run: python scripts/check_private_data.py
+      - name: Check release version and tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            python scripts/check_release_version.py --allow-existing-tag --allow-existing-release
+          else
+            python scripts/check_release_version.py
+          fi

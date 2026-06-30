@@ -50,6 +50,7 @@ from .const import (
     MQTT_IDLE_DISCONNECT_SECONDS,
     MQTT_REFRESH_INTERVAL,
     MQTT_SCAN_INTERVAL,
+    PrinterEntityType,
     PRINT_JOB_STARTED_UPDATE_DELAY,
     STORAGE_KEY,
     STORAGE_VERSION,
@@ -296,6 +297,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "job_z_down_speed": printer.latest_project_print_z_down_speed,
             "manual_mqtt_connection_enabled": self._mqtt_manually_connected,
             "mqtt_connection_active": self.anycubic_api.mqtt_is_started,
+            "camera_light": printer.camera_light_on,
         }
 
         attributes = {
@@ -472,6 +474,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 material_type = status_attr['material_type']
                 connected_ace_units = printer_state_connected_ace_units(self, printer_id)
                 supports_ace = printer_state_supports_ace(self, printer_id)
+                supported_functions = status_attr.get('supported_functions', [])
+                peripherals = status_attr.get('peripherals', {})
 
                 remaining_unregistered_descriptors = list()
 
@@ -490,6 +494,16 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         check_descriptor_state_ace_not_supported(
                             description,
                             supports_ace,
+                        )
+                        or (
+                            description.printer_entity_type == PrinterEntityType.CAMERA_LIGHT
+                            and not (
+                                (peripherals or {}).get("camera")
+                                or "FDM_PEER_VIDEO" in supported_functions
+                                or "LCD_PEER_VIDEO" in supported_functions
+                                or "VIDEO_LIGHT" in supported_functions
+                                or "BOX_LIGHT" in supported_functions
+                            )
                         )
                     ):
                         continue
@@ -1096,6 +1110,36 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             await self._connect_mqtt_for_action_response()
             await printer.multi_color_box_switch_on_auto_feed(box_id=1)
 
+        else:
+            return
+
+        await self.force_state_update()
+
+    async def light_turn_on_event(
+        self,
+        printer_id: int,
+        event_key: str,
+    ) -> None:
+        printer = self.get_printer_for_id(printer_id)
+
+        if printer and event_key == 'camera_light':
+            await self._connect_mqtt_for_action_response()
+            await printer.set_camera_light(True)
+        else:
+            return
+
+        await self.force_state_update()
+
+    async def light_turn_off_event(
+        self,
+        printer_id: int,
+        event_key: str,
+    ) -> None:
+        printer = self.get_printer_for_id(printer_id)
+
+        if printer and event_key == 'camera_light':
+            await self._connect_mqtt_for_action_response()
+            await printer.set_camera_light(False)
         else:
             return
 

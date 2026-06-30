@@ -2,8 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.2.10**
+> 🗓️ **Aktuelles Release: 0.3.0-beta.1**
 >
+> - Ergaenzt eine native Home-Assistant-`light.*`-Entity fuer das Anycubic-Kameralicht bei Druckern mit Kamera-/Video- oder offizieller Lichtfunktion. Die Entity ist getrennt von der optionalen Dashboard-Card-`lightEntityId` und nutzt die Anycubic-Cloud-/MQTT-Lichtbefehle.
+> - Ergaenzt GitHub-Release-Gates fuer Version-Sync, private lokale Daten und Tag-/Release-Kollisionen, damit Beta- und stabile Releases vor dem Veroeffentlichen gezielter geprueft werden koennen.
 > - Stabilisiert das ACE-/Materialregal-Spulenlayout: vorhandene Spulen bleiben dynamisch, werden aber mit maximal vier gleichmaessigen Spalten pro Reihe angezeigt
 > - Aktualisiert die Entity-Zuordnung im Frontend bei Home-Assistant-Updates erneut, damit ACE-, Materialregal- und Dateiansichten nicht erst nach einem spaeteren Refresh erscheinen
 > - Zeigt beim Kobra-X-Materialregal vom ACE reservierte interne Slots als ACE-Zuleitung statt als normales Filament an
@@ -67,7 +69,7 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 ### Getestet / rueckgemeldet
 
 - ✅ Kobra 3 Combo
-- ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert)
+- ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert; Kameralicht-Entity in Erprobung)
 - ✅ Kobra S1 (Basisfunktionen rueckgemeldet; Kamera und Chamber-Light noch offen)
 - ✅ Kobra 2, 2 Max, 2 Pro
 - ✅ Photon Mono M5s (Basis)
@@ -142,6 +144,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 - Firmware-Update-Entitäten
 - MQTT-Aktivität automatisch während Druck (oder dauerhaft)
 - Frontend-Panel mit Status, Nebenansicht + Dateimanager
+- Native Kameralicht-Entity fuer Drucker, die das Anycubic-Kamera-/Lichtkommando unterstuetzen
 - Spulen-Trocknung & Materialmanagement (ACE)
 - Konfigurierbarer MQTT-Modus („nur beim Drucken“, dauerhaft, deaktiviert)
 
@@ -156,6 +159,14 @@ Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Er
 Bei Druckern mit alternativer Firmware oder lokaler Kamera-Bruecke, z. B. Rinkhals/Moonraker, kann optional pro Drucker eine Home-Assistant-`camera.*`-Entity verwendet werden. Das ueberschreibt nicht die Standardkamera fuer alle Drucker, sondern nur den jeweils gemappten Drucker.
 
 Hinweis zum Anycubic-Cloudstream: Der verschluesselte WebRTC-Stream benoetigt im Browser einen sicheren Kontext, also z. B. HTTPS, Home Assistant Cloud oder localhost. Wenn Home Assistant nur ueber unverschluesseltes HTTP aufgerufen wird, kann der Browser die Kamera blockieren. Eine lokale Home-Assistant-`camera.*`-Entity wird dagegen ueber den Home-Assistant-Kameraproxy geladen und ist deshalb der sauberste Weg fuer lokale Streams.
+
+### Kameralicht
+
+Drucker, die das Anycubic-Kamera-/Lichtkommando unterstuetzen, erhalten eine native Home-Assistant-`light.*`-Entity, z. B. `light.anycubic_printer_camera_light`. Diese Entity schaltet das Kameralicht des Druckers ueber die Anycubic-Cloud-/MQTT-Befehle, so wie es auch im Slicer-Print-Setting angezeigt wird.
+
+Diese native Entity ist nicht dasselbe wie die optionale `lightEntityId` in der externen Dashboard-Card. `lightEntityId` verweist auf eine beliebige vorhandene Home-Assistant-Lichtquelle, z. B. eine Raumlampe. Die native Kameralicht-Entity gehoert dagegen zum Anycubic-Drucker selbst.
+
+Da Anycubic die Lichtfunktion nicht bei jedem Modell gleich in der Funktionsliste deklariert, wird die Entity bei Druckern mit Kamera-/Video-Funktion oder offizieller `VIDEO_LIGHT`-/`BOX_LIGHT`-Funktion angelegt. Wenn ein Drucker den Befehl nicht unterstuetzt oder offline ist, kann das Schalten fehlschlagen oder unverfuegbar bleiben.
 
 ### Integrierte Rinkhals/Moonraker-Webcam als HA-Kamera anlegen
 
@@ -297,18 +308,43 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 
 ➡️ [Letztes Release ansehen](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
 
+### Beta-/Test-Releases
+
+Groessere oder riskantere Aenderungen koennen zuerst als GitHub **Pre-release** veroeffentlicht werden, z. B. `v0.3.1-beta.1`. Diese Versionen sind fuer Tester gedacht und sollten in HACS bewusst ueber die Versionsauswahl installiert werden. Stabile Nutzer sollten beim neuesten normalen Release bleiben.
+
+Branch-Strategie:
+
+- `master` ist der stabile Branch fuer normale Releases, z. B. `v0.3.0`
+- `beta` ist der Test-Branch fuer riskantere Aenderungen und Beta-Pre-releases, z. B. `v0.3.1-beta.1`
+- Nach erfolgreichem Beta-Test werden die Aenderungen nach `master` uebernommen und als normales Release veroeffentlicht
+
+Beta-Releases sind besonders sinnvoll fuer:
+
+- neue Druckerfunktionen wie Kameralicht, ACE-/Materiallogik oder Dateidruck
+- Aenderungen an MQTT-Handling oder Cloud-Kommandos
+- neue Frontend-/Dashboard-Funktionen
+
+Bitte bei Beta-Feedback keine Tokens, privaten IPs, Seriennummern, Drucker-IDs oder Screenshots mit persoenlichen Daten in Issues hochladen.
+
 ### Maintainer-Hinweis
 
 Die Projektversion wird zentral in `Version` gepflegt. Vor einem Release:
 
 ```powershell
 python scripts/sync_version.py
+python scripts/sync_version.py --check
+python scripts/check_private_data.py
+python scripts/check_release_version.py
 cd custom_components/anycubic_ha_integration/frontend_panel
 npm run build
 npm run build_card
 ```
 
 Danach immer die echten Diffs pruefen, weil der Frontend-Build `eslint --fix` ausfuehrt und dadurch auch reine Formatierungs- oder Zeilenenden-Aenderungen entstehen koennen.
+
+Vor dem Veroeffentlichen eines stabilen Releases oder Beta-Pre-releases sollte zusaetzlich der GitHub-Workflow **Release Gate** manuell gestartet werden. Er prueft Version-Sync, private lokale Daten und ob der geplante `v<Version>`-Tag bzw. das passende GitHub-Release bereits existiert. Bei einem Tag-Push prueft derselbe Workflow, ob der Tag zur Version im Repository passt.
+
+Der Release-Check erwartet stabile Versionen auf `master` bzw. `main` und Pre-release-Versionen auf `beta`.
 
 ---
 

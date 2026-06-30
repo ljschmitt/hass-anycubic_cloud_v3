@@ -814,7 +814,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
     async def _send_order_get_light_status(
         self,
         printer: AnycubicPrinter,
-        project: AnycubicProject,
+        project: AnycubicProject | None = None,
     ) -> str | None:
         """
         Response is sent over MQTT.
@@ -822,14 +822,11 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if not printer:
             return None
 
-        if not project:
-            return None
-
         return await self._send_anycubic_order(
             order_request=AnycubicBaseProjectOrderRequest(
                 order_id=AnycubicOrderID.GET_LIGHT_STATUS,
                 printer_id=printer.id,
-                project_id=project.id,
+                project_id=project.id if project else 0,
             ),
         )
 
@@ -931,14 +928,11 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
     async def _send_order_set_light_status(
         self,
         printer: AnycubicPrinter,
-        project: AnycubicProject,
         light_on: bool,
+        project: AnycubicProject | None = None,
         light_type: int = 1,
     ) -> str | None:
         if not printer:
-            return None
-
-        if not project:
             return None
 
         order_data = {
@@ -951,7 +945,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             order_request=AnycubicProjectOrderRequest(
                 order_id=AnycubicOrderID.SET_LIGHT_STATUS,
                 printer_id=printer.id,
-                project_id=project.id,
+                project_id=project.id if project else 0,
                 order_data=order_data,
             ),
         )
@@ -2084,13 +2078,8 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             printer=printer,
         )
 
-        if not project and not printer.latest_project:
-            return None
-
         if not project:
             project = printer.latest_project
-
-        assert project
 
         await self._send_order_get_light_status(
             printer=printer,

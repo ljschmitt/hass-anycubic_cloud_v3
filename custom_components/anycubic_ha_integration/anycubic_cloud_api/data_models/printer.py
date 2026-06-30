@@ -111,6 +111,9 @@ class AnycubicPrinter:
         "_has_peripheral_camera",
         "_has_peripheral_multi_color_box",
         "_has_peripheral_udisk",
+        "_camera_light_on",
+        "_camera_light_brightness",
+        "_camera_light_type",
         "_is_bound_to_user",
         "_job_download_progress",
     )
@@ -221,6 +224,9 @@ class AnycubicPrinter:
         self._has_peripheral_camera: bool = False
         self._has_peripheral_multi_color_box: bool = False
         self._has_peripheral_udisk: bool = False
+        self._camera_light_on: bool | None = None
+        self._camera_light_brightness: int | None = None
+        self._camera_light_type: int = 1
         self._is_bound_to_user: bool = True
         self._job_download_progress: int = 0
 
@@ -243,6 +249,36 @@ class AnycubicPrinter:
 
     def set_has_peripheral_udisk(self, has_peripheral: bool) -> None:
         self._has_peripheral_udisk = bool(has_peripheral)
+
+    @staticmethod
+    def _coerce_light_status(light_on: bool | int | str | None) -> bool | None:
+        if light_on is None:
+            return None
+        if isinstance(light_on, bool):
+            return light_on
+        if isinstance(light_on, int):
+            return bool(light_on)
+        if isinstance(light_on, str):
+            normalized = light_on.strip().lower()
+            if normalized in ("1", "on", "true", "enabled"):
+                return True
+            if normalized in ("0", "off", "false", "disabled"):
+                return False
+        return None
+
+    def update_camera_light(
+        self,
+        light_on: bool | int | str | None,
+        brightness: int | None = None,
+        light_type: int | None = None,
+    ) -> None:
+        light_status = self._coerce_light_status(light_on)
+        if light_status is not None:
+            self._camera_light_on = light_status
+        if brightness is not None:
+            self._camera_light_brightness = int(brightness)
+        if light_type is not None:
+            self._camera_light_type = int(light_type)
 
     def _set_type_function_ids(self, type_function_ids: list[int] | None) -> None:
         if isinstance(type_function_ids, list):
@@ -1170,7 +1206,16 @@ class AnycubicPrinter:
         payload: AnycubicConsumableData,
     ) -> None:
         if action in ('query', 'control') and state == 'done':
-            payload.get('data')
+            data = payload.get('data')
+            if isinstance(data, AnycubicConsumableData):
+                status = data.get('status')
+                if status is None:
+                    status = data.get('light')
+                brightness = data.get('brightness')
+                light_type = data.get('type')
+                data.get('ret_code')
+                data.force_empty()
+                self.update_camera_light(status, brightness, light_type)
             payload.force_empty()
             return
         else:
@@ -1554,6 +1599,10 @@ class AnycubicPrinter:
     @property
     def has_peripheral_udisk(self) -> bool:
         return self._has_peripheral_udisk
+
+    @property
+    def camera_light_on(self) -> bool | None:
+        return self._camera_light_on
 
     @property
     def connected_peripherals(self) -> dict[str, bool]:
@@ -2911,6 +2960,21 @@ class AnycubicPrinter:
             printer=self,
             project=project,
         )
+
+    async def set_camera_light(
+        self,
+        light_on: bool,
+    ) -> str | None:
+        response = await self._api_parent._send_order_set_light_status(
+            printer=self,
+            project=self.latest_project,
+            light_on=light_on,
+            light_type=self._camera_light_type,
+        )
+        if response is not None:
+            self._camera_light_on = bool(light_on)
+            self._camera_light_brightness = 100 if light_on else 0
+        return response
 
     def __repr__(self) -> str:
         if self._id is None:

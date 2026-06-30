@@ -195,6 +195,11 @@
         "name": "Auftragsvorschau"
       }
     },
+    "light": {
+      "camera_light": {
+        "name": "Kameralicht"
+      }
+    },
     "sensor": {
       "current_status": {
         "name": "Aktueller Status"
