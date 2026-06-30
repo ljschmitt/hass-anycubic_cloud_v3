@@ -1124,6 +1124,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         if printer and event_key == 'camera_light':
             await self._connect_mqtt_for_action_response()
+            await printer.query_camera_light_status()
+            await asyncio.sleep(2)
             await printer.set_camera_light(True)
         else:
             return
@@ -1139,6 +1141,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         if printer and event_key == 'camera_light':
             await self._connect_mqtt_for_action_response()
+            await printer.query_camera_light_status()
+            await asyncio.sleep(2)
             await printer.set_camera_light(False)
         else:
             return

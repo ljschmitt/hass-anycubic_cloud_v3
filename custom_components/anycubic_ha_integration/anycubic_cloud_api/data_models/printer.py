@@ -226,7 +226,7 @@ class AnycubicPrinter:
         self._has_peripheral_udisk: bool = False
         self._camera_light_on: bool | None = None
         self._camera_light_brightness: int | None = None
-        self._camera_light_type: int = 2
+        self._camera_light_type: int | None = None
         self._is_bound_to_user: bool = True
         self._job_download_progress: int = 0
 
@@ -1611,6 +1611,14 @@ class AnycubicPrinter:
         return self._camera_light_on
 
     @property
+    def camera_light_type(self) -> int:
+        if self._camera_light_type is not None:
+            return self._camera_light_type
+        if self.supports_function_box_light:
+            return 2
+        return 1
+
+    @property
     def connected_peripherals(self) -> dict[str, bool]:
         return {
             "camera": self.has_peripheral_camera,
@@ -2969,15 +2977,19 @@ class AnycubicPrinter:
             project=project,
         )
 
+    async def query_camera_light_status(self) -> str | None:
+        return await self._api_parent._send_order_get_light_status(
+            printer=self,
+        )
+
     async def set_camera_light(
         self,
         light_on: bool,
     ) -> str | None:
         response = await self._api_parent._send_order_set_light_status(
             printer=self,
-            project=self.latest_project,
             light_on=light_on,
-            light_type=self._camera_light_type,
+            light_type=self.camera_light_type,
         )
         if response is not None:
             self._camera_light_on = bool(light_on)
