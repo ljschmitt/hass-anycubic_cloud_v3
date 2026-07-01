@@ -2,39 +2,11 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.0**
+> 🗓️ **Aktuelles Release: 0.3.1-beta.1**
 >
-> - Setzt den initialen Kameralicht-Typ fuer Kobra X auf den per Slicer/MQTT beobachteten Anycubic-Wert, damit das HA-Kameralicht nach Neustart nicht erst durch einen Slicer-Schaltvorgang angelernt werden muss.
-> - Baut das Frontend-Panel-Bundle neu, damit die im Anycubic-Cloud-Panel angezeigte Version wieder zur installierten Release-Version passt.
-> - Bereinigt Kobra-X-MQTT-Protokolle: Fortschrittsupdates ohne Temperaturfelder werden verarbeitet, `aux_fan_speed_pct`/`z_comp` erzeugen keine Warnungen mehr, bekannte `video/initSuccess`- und `buried`-Reports werden ohne Fehlerrauschen konsumiert.
-> - Ergaenzt eine native Home-Assistant-`light.*`-Entity fuer das Anycubic-Kameralicht und nutzt fuer Kobra X den bestaetigten Kameralicht-Befehlstyp.
-> - Laedt lokale, USB- und Cloud-Dateilisten beim ersten Oeffnen des jeweiligen Dateitabs vorsichtig automatisch, wenn fuer den ausgewaehlten Drucker noch keine Liste geladen ist. Manuelles Aktualisieren bleibt fuer bewusstes Neuladen erhalten.
-> - Ergaenzt GitHub-Release-Gates fuer Version-Sync, private lokale Daten und Tag-/Release-Kollisionen, damit Beta- und stabile Releases vor dem Veroeffentlichen gezielter geprueft werden koennen.
-> - Stabilisiert das ACE-/Materialregal-Spulenlayout: vorhandene Spulen bleiben dynamisch, werden aber mit maximal vier gleichmaessigen Spalten pro Reihe angezeigt
-> - Aktualisiert die Entity-Zuordnung im Frontend bei Home-Assistant-Updates erneut, damit ACE-, Materialregal- und Dateiansichten nicht erst nach einem spaeteren Refresh erscheinen
-> - Zeigt beim Kobra-X-Materialregal vom ACE reservierte interne Slots als ACE-Zuleitung statt als normales Filament an
-> - Entfernt Frontend-Fallbacks fuer alte deutsch erzeugte Entity-IDs, damit Integration, Panel und Card konsequent englische technische Entity-IDs verwenden
-> - Kobra-X-Anzeige fuer internes Materialregal und ACE-Spulen erwartet die stabilen englischen Entity-IDs; bestehende deutsche Alt-Entity-IDs koennen ueber den Migrationsdienst umbenannt werden
-> - Lokale und USB-Dateiansichten verwenden die stabilen englischen Dateilisten-/MQTT-Entities und leeren beim Ordnerwechsel sofort die alte Liste
-> - README empfiehlt den passenden Anycubic-Card-Fork fuer diese Integration und erklaert den Unterschied zur urspruenglichen Dashboard-Card
-> - Haelt die Print-Button-Entity-IDs `pause_print`, `resume_print` und `cancel_print` beim vom Dashboard-Plugin erwarteten Format
-> - Neue Entitaeten erhalten stabile englische Entity-ID-Vorschlaege, damit lokalisierte Anzeigenamen keine technischen Entity-IDs mehr eindeutschen
-> - Neuer manueller Service `migrate_entity_ids` mit sicherem Probelauf, um bestehende lokalisierte Entity-IDs optional auf card-kompatible englische IDs umzubenennen
-> - Ordnet die Datei-Aktionsbuttons im lokalen/USB-Dateimanager sauber rechts an: Play steht direkt vor Loeschen
-> - Lokale und USB-Dateien koennen im Panel vorsichtig zum Druck vorbereitet werden: Der Play-Button oeffnet zuerst eine Vorbereitungsansicht mit Abbrechen/Drucken und optionaler ACE-Slotnummernliste
-> - Neue Services `print_file_local` und `print_file_udisk` starten vorhandene Dateien vom Druckerspeicher bzw. USB-Speicher ohne vorherigen Datei-Upload
-> - Ersetzt das zurueckgezogene Release 0.1.9 und behebt dessen Dateilisten-Pfadfehler beim Coordinator-Update
-> - USB- und lokale Dateilisten behalten Ordnerinformationen, zeigen Ordner als klickbare Eintraege und fragen Unterordner mit passendem Pfad an
-> - Frontend-Panel-Bundle neu gebaut, damit die im Panel angezeigte Version zur Release-Version passt
-> - Bereinigt bekannte MQTT-Dateilisten-Reports mit `list_mode`, damit `listLocal`/`listUdisk` keine unhandled-data-Fehler mehr protokollieren
-> - Behebt einen Sensor-Setup-Fehler aus 0.1.6, durch den Home Assistant die Anycubic-Sensorplattform nicht laden konnte
-> - Offline gemeldete Drucker werden nicht mehr parallel als verfuegbar/beschaeftigt angezeigt
-> - Nebenansicht startet Kamerastreams nur noch manuell per Play und beendet sie bei Stop, Druckerwechsel oder Verlassen der Ansicht
-> - Anycubic-Cloudstream per Agora/WebRTC ohne aggressives Session-Polling
-> - Optionale Home-Assistant-`camera.*`-Entities pro Drucker fuer lokale Kameraquellen
-> - Robustere Slicer-Next-Tokenverarbeitung und bereinigte MQTT-Startup-/S1-Reports
-> - Optionale S1-/neuere-Firmware-Sensoren fuer AUX-Fan und Box-Fan werden erst angelegt, wenn der Drucker diese MQTT-Werte meldet
-> - Verbesserte Kobra-X-Material-/ACE-Erkennung fuer bekannte 4-Farben-Setups
+> - Schlaegt fuer den bestehenden Schichthoehen-Sensor den kompatiblen Entity-ID-Suffix `job_z_thickness` statt `job_z_thick` vor.
+> - Ergaenzt das lokale Brand-Logo neben dem vorhandenen Brand-Icon fuer Home Assistant 2026.3 und neuer.
+> - Erklaert HACS-Updates, manuelle Updates und die Migration bestehender Entity-IDs klarer.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -251,6 +223,8 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
 > ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows)**  
 > und füge den **Access-Token** ein (siehe unten).
 
+Updates werden von HACS nur dann automatisch angeboten, wenn diese Integration als HACS-Custom-Repository installiert wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
+
 ---
 
 ## 🖐️ Manuelle Installation
@@ -260,6 +234,8 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
    /config/custom_components/anycubic_ha_integration/
 3. Home Assistant neu starten
 4. Integration hinzufügen wie oben
+
+Manuell installierte Versionen erhalten keine automatische Update-Anzeige in HACS. Fuer automatische Update-Hinweise bitte die Installation ueber HACS als Custom Repository verwenden.
 
 ---
 
@@ -315,6 +291,8 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 ### Beta-/Test-Releases
 
 Groessere oder riskantere Aenderungen koennen zuerst als GitHub **Pre-release** veroeffentlicht werden, z. B. `v0.3.1-beta.1`. Diese Versionen sind fuer Tester gedacht und sollten in HACS bewusst ueber die Versionsauswahl installiert werden. Stabile Nutzer sollten beim neuesten normalen Release bleiben.
+
+Wenn HACS eine neue Beta- oder Stable-Version nicht sofort anbietet, in HACS das Repository neu laden bzw. die verfuegbaren Versionen aktualisieren. Das Integration-Panel in Home Assistant zeigt die Version des installierten Frontend-Bundles; nach einem Update kann ein Home-Assistant-Neustart und Browser-Cache-Refresh noetig sein, bis die Anzeige aktualisiert ist.
 
 Branch-Strategie:
 

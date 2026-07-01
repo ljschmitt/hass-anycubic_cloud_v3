@@ -34,6 +34,7 @@ ENTITY_ID_COMPAT_SUFFIXES: dict[str, str] = {
     "fan_speed_pct": "fan_speed",
     "fw_version": "printer_firmware",
     "job_image_url": "job_preview",
+    "job_z_thick": "job_z_thickness",
     "multi_color_box_fw_version": "ace_firmware",
     "secondary_ace_spools": "secondary_multi_color_box_spools",
     "target_hotbed_temp": "target_hotbed_temperature",
