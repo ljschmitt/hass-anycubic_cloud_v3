@@ -1,16 +1,18 @@
 # Changelog
 
-## 0.3.1-beta.1
+## 0.3.1
 
 ### Fixed
 
 - Suggested the compatibility entity ID suffix `job_z_thickness` for the existing internal `job_z_thick` layer-height sensor key.
 - Added the missing local brand logo file next to the existing local brand icon for Home Assistant 2026.3 and newer.
+- Rebuilt the bundled dashboard card so its visible console version matches the integration release.
 
 ### Notes
 
 - Existing installations can use the `anycubic_ha_integration.migrate_entity_ids` service to rename an existing `job_z_thick` entity to the compatible `job_z_thickness` entity ID after testing with `dry_run: true`.
 - HACS can only offer updates automatically when the integration was installed as a HACS custom repository. Manual installations still need manual replacement.
+- HACS may still show a generic placeholder icon in its downloads list until HACS itself switches that view to Home Assistant's local brands proxy for custom integrations.
 
 ## 0.3.0
 

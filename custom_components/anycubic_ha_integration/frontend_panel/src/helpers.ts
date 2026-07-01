@@ -45,9 +45,7 @@ const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
   secondary_drying_target_temperature: [
     "secondary_dry_status_target_temperature",
   ],
-  secondary_drying_total_duration: [
-    "secondary_dry_status_total_duration",
-  ],
+  secondary_drying_total_duration: ["secondary_dry_status_total_duration"],
   secondary_multi_color_box_spools: ["secondary_ace_spools"],
   target_hotbed_temperature: ["target_hotbed_temp"],
   target_nozzle_temperature: ["target_nozzle_temp"],

@@ -2,11 +2,12 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.1-beta.1**
+> 🗓️ **Aktuelles Release: 0.3.1**
 >
 > - Schlaegt fuer den bestehenden Schichthoehen-Sensor den kompatiblen Entity-ID-Suffix `job_z_thickness` statt `job_z_thick` vor.
 > - Ergaenzt das lokale Brand-Logo neben dem vorhandenen Brand-Icon fuer Home Assistant 2026.3 und neuer.
 > - Erklaert HACS-Updates, manuelle Updates und die Migration bestehender Entity-IDs klarer.
+> - Hinweis: Wenn HACS in der Download-Liste noch ein Platzhalter-Icon zeigt, ist das ein bekannter HACS-Brands-Proxy-Fehler; Home Assistant selbst kann die lokalen Brand-Assets korrekt laden.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
