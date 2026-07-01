@@ -15,8 +15,11 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
-from homeassistant.helpers import config_validation as cv, selector
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import (
+    config_validation as cv,
+    entity_registry as er,
+    selector,
+)
 
 from .anycubic_cloud_api.data_models.print_response import AnycubicPrintResponse
 from .anycubic_cloud_api.data_models.printer import AnycubicPrinter
@@ -26,12 +29,12 @@ from .const import (
     ATTR_ANYCUBIC_EVENT,
     ATTR_CONFIG_ENTRY,
     CONF_BOX_ID,
-    CONF_PRINTER_ID_LIST,
     CONF_FILE_ID,
     CONF_FILE_PATH,
     CONF_FINISHED,
     CONF_LAYERS,
     CONF_PRINTER_ID,
+    CONF_PRINTER_ID_LIST,
     CONF_PRINTER_NAME,
     CONF_SLOT_COLOR_BLUE,
     CONF_SLOT_COLOR_GREEN,
@@ -47,10 +50,7 @@ from .const import (
     LOGGER,
     MAX_FILE_UPLOAD_RETRIES,
 )
-from .helpers import (
-    printer_entity_suggested_object_id,
-    printer_state_for_key,
-)
+from .helpers import printer_entity_suggested_object_id, printer_state_for_key
 
 if TYPE_CHECKING:
     from .coordinator import AnycubicCloudDataUpdateCoordinator

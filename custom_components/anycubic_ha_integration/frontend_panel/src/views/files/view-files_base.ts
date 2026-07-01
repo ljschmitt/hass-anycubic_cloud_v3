@@ -24,6 +24,8 @@ import {
 } from "../../types";
 
 export class AnycubicViewFilesBase extends LitElement {
+  private static autoLoadRequested = new Set<string>();
+
   @property()
   public hass!: HomeAssistant;
 
@@ -111,6 +113,18 @@ export class AnycubicViewFilesBase extends LitElement {
         this.printerEntities,
         this.printerEntityIdPart,
       );
+    }
+  }
+
+  protected updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+
+    if (
+      changedProperties.has("hass") ||
+      changedProperties.has("selectedPrinterID") ||
+      changedProperties.has("selectedPrinterDevice")
+    ) {
+      this.autoLoadInitialFileList();
     }
   }
 
@@ -318,6 +332,31 @@ export class AnycubicViewFilesBase extends LitElement {
           this._isRefreshing = false;
         });
     }
+  };
+
+  private autoLoadInitialFileList = (): void => {
+    if (
+      !this.selectedPrinterDevice ||
+      !this._listRefreshEntity ||
+      this._isRefreshing ||
+      this._fileArray !== undefined ||
+      (!this._httpResponse && !this._supportsMQTT)
+    ) {
+      return;
+    }
+
+    const autoLoadKey = [
+      this.tagName.toLowerCase(),
+      this.selectedPrinterID,
+      this._listRefreshEntity.entity_id,
+    ].join(":");
+
+    if (AnycubicViewFilesBase.autoLoadRequested.has(autoLoadKey)) {
+      return;
+    }
+
+    AnycubicViewFilesBase.autoLoadRequested.add(autoLoadKey);
+    this.requestFileList("/");
   };
 
   protected normalizePath = (path: string | undefined): string => {

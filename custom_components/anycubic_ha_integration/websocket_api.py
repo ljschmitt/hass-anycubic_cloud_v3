@@ -7,10 +7,7 @@ import voluptuous as vol
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    COORDINATOR,
-    DOMAIN,
-)
+from .const import COORDINATOR, DOMAIN
 from .coordinator import AnycubicCloudDataUpdateCoordinator
 
 WS_TYPE_CAMERA_SESSION = f"{DOMAIN}/camera_session"

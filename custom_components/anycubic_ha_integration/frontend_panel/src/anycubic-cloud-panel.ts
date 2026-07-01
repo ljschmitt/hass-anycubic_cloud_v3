@@ -30,12 +30,9 @@ import {
   HomeAssistant,
   LitTemplateResult,
 } from "./types";
+import { PRINTER_IMAGE_KOBRA_3, PRINTER_IMAGE_KOBRA_X } from "./printer_images";
 import * as pkgjson from "../package.json";
 import { localize } from "../localize/localize";
-import {
-  PRINTER_IMAGE_KOBRA_3,
-  PRINTER_IMAGE_KOBRA_X,
-} from "./printer_images";
 
 window.console.info(
   `%c ANYCUBIC-PANEL %c v${pkgjson.version} `,
@@ -209,7 +206,8 @@ export class AnycubicCloudPanel extends LitElement {
   }
 
   private _getPrinterImage(device: HassDevice | undefined): string | undefined {
-    const deviceText = `${device?.name ?? ""} ${device?.model ?? ""}`.toLowerCase();
+    const deviceText =
+      `${device?.name ?? ""} ${device?.model ?? ""}`.toLowerCase();
 
     if (deviceText.includes("kobra x")) {
       return PRINTER_IMAGE_KOBRA_X;

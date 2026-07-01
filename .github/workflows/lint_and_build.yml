@@ -16,6 +16,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
+      - name: Check synchronized version files
+        run: python scripts/sync_version.py --check
+      - name: Check for private local data
+        run: python scripts/check_private_data.py
       - name: flake8 Lint
         uses: py-actions/flake8@v2
         with:

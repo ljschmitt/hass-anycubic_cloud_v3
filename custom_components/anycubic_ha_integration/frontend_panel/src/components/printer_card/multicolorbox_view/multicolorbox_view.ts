@@ -105,7 +105,10 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       this._labelAceFeed = localize("card.spools.ace_feed", this.language);
     }
 
-    if (changedProperties.has("box_id") || changedProperties.has("spoolsEntityId")) {
+    if (
+      changedProperties.has("box_id") ||
+      changedProperties.has("spoolsEntityId")
+    ) {
       if (this.spoolsEntityId) {
         this._spoolsEntityId = this.spoolsEntityId;
       } else if (this.box_id === 1) {
@@ -153,7 +156,10 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         ${this.showControls
           ? html`
               <div class="ac-printercard-mcbmenu ac-printercard-menuleft">
-                <div class="ac-switch" @click=${this._handleRunoutRefillChanged}>
+                <div
+                  class="ac-switch"
+                  @click=${this._handleRunoutRefillChanged}
+                >
                   <div class="ac-switch-label">${this._buttonRefill}</div>
                   <ha-entity-toggle
                     .hass=${this.hass}
@@ -197,14 +203,14 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
           "background-color": reservedByAce
             ? "#5f6b7a"
             : spool.spool_loaded
-            ? `rgb(${spool.color[0]}, ${spool.color[1]}, ${spool.color[2]})`
-            : "#aaa",
+              ? `rgb(${spool.color[0]}, ${spool.color[1]}, ${spool.color[2]})`
+              : "#aaa",
         };
         const spoolLabel = reservedByAce
           ? this._labelAceFeed
           : spool.spool_loaded
-          ? spool.material_type
-          : "---";
+            ? spool.material_type
+            : "---";
         return html`
           <div
             class="ac-spool-info ${reservedByAce ? "ac-spool-reserved" : ""}"
@@ -225,9 +231,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
                 <div class="ac-spool-color-num">${displaySlot}</div>
               </div>
             </div>
-            <div class="ac-spool-material-type">
-              ${spoolLabel}
-            </div>
+            <div class="ac-spool-material-type">${spoolLabel}</div>
           </div>
         `;
       },

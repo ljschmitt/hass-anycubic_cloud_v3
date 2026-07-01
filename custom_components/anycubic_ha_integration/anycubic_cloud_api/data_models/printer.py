@@ -111,6 +111,9 @@ class AnycubicPrinter:
         "_has_peripheral_camera",
         "_has_peripheral_multi_color_box",
         "_has_peripheral_udisk",
+        "_camera_light_on",
+        "_camera_light_brightness",
+        "_camera_light_type",
         "_is_bound_to_user",
         "_job_download_progress",
     )
@@ -221,6 +224,9 @@ class AnycubicPrinter:
         self._has_peripheral_camera: bool = False
         self._has_peripheral_multi_color_box: bool = False
         self._has_peripheral_udisk: bool = False
+        self._camera_light_on: bool | None = None
+        self._camera_light_brightness: int | None = None
+        self._camera_light_type: int | None = None
         self._is_bound_to_user: bool = True
         self._job_download_progress: int = 0
 
@@ -243,6 +249,42 @@ class AnycubicPrinter:
 
     def set_has_peripheral_udisk(self, has_peripheral: bool) -> None:
         self._has_peripheral_udisk = bool(has_peripheral)
+
+    @staticmethod
+    def _coerce_light_status(light_on: bool | int | str | None) -> bool | None:
+        if light_on is None:
+            return None
+        if isinstance(light_on, bool):
+            return light_on
+        if isinstance(light_on, int):
+            return bool(light_on)
+        if isinstance(light_on, str):
+            normalized = light_on.strip().lower()
+            if normalized in ("1", "on", "true", "enabled"):
+                return True
+            if normalized in ("0", "off", "false", "disabled"):
+                return False
+        return None
+
+    def update_camera_light(
+        self,
+        light_on: bool | int | str | None,
+        brightness: int | None = None,
+        light_type: int | None = None,
+    ) -> None:
+        light_status = self._coerce_light_status(light_on)
+        if light_status is not None:
+            self._camera_light_on = light_status
+        if brightness is not None:
+            self._camera_light_brightness = int(brightness)
+        if light_type is not None:
+            self._camera_light_type = int(light_type)
+        self._api_parent._log_to_debug(
+            "Anycubic camera light debug: updated stored light state "
+            f"for {self.machine_name} (machine_type={self.machine_type}, "
+            f"status={self._camera_light_on}, brightness={self._camera_light_brightness}, "
+            f"type={self._camera_light_type})"
+        )
 
     def _set_type_function_ids(self, type_function_ids: list[int] | None) -> None:
         if isinstance(type_function_ids, list):
@@ -979,7 +1021,12 @@ class AnycubicPrinter:
             return
         elif action in ['start', 'update'] and state == 'updated':
             data = payload['data']
-            if self.parameter:
+            self._update_latest_project_with_mqtt_print_status_data(
+                project_id,
+                AnycubicPrintStatus.Printing,
+                data,
+            )
+            if self.parameter and 'curr_hotbed_temp' in data and 'curr_nozzle_temp' in data:
                 self.parameter.update_current_temps(
                     data['curr_hotbed_temp'],
                     data['curr_nozzle_temp'],
@@ -987,15 +1034,23 @@ class AnycubicPrinter:
             settings = data.get('settings', {})
             if 'fan_speed_pct' in settings:
                 self._fan_speed = int(settings['fan_speed_pct'])
+            if 'aux_fan_speed_pct' in settings:
+                self._aux_fan_speed_pct = int(settings['aux_fan_speed_pct'])
+            if 'box_fan_level' in settings:
+                self._box_fan_level = int(settings['box_fan_level'])
             if 'print_speed_pct' in settings:
                 self._print_speed_pct = int(settings['print_speed_pct'])
             if 'print_speed_mode' in settings:
                 self._print_speed_mode = int(settings['print_speed_mode'])
-            self._update_latest_project_target_temps(
-                project_id,
-                settings['target_hotbed_temp'],
-                settings['target_nozzle_temp'],
-            )
+            settings.get('z_comp')
+            if 'target_hotbed_temp' in settings and 'target_nozzle_temp' in settings:
+                self._update_latest_project_target_temps(
+                    project_id,
+                    settings['target_hotbed_temp'],
+                    settings['target_nozzle_temp'],
+                )
+            if isinstance(settings, AnycubicConsumableData) and settings.is_empty:
+                data.get('settings')
             return
         elif action in ['start', 'stop'] and state in ['failed']:
             err_msg = payload.get('msg')
@@ -1169,8 +1224,34 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action in ('query', 'control') and state == 'done':
+        if action == 'control' and state == 'failed':
+            code = payload.get('code')
+            message = payload.get('msg')
             payload.get('data')
+            self._api_parent._log_to_debug(
+                "Anycubic camera light debug: received MQTT light control failure "
+                f"for {self.machine_name} (machine_type={self.machine_type}, "
+                f"code={code}, message={message})"
+            )
+            payload.force_empty()
+            return
+        if action in ('query', 'control') and state == 'done':
+            data = payload.get('data')
+            if isinstance(data, AnycubicConsumableData):
+                status = data.get('status')
+                if status is None:
+                    status = data.get('light')
+                brightness = data.get('brightness')
+                light_type = data.get('type')
+                self._api_parent._log_to_debug(
+                    "Anycubic camera light debug: received MQTT light response "
+                    f"for {self.machine_name} (machine_type={self.machine_type}, "
+                    f"action={action}, state={state}, status={status}, "
+                    f"brightness={brightness}, type={light_type})"
+                )
+                data.get('ret_code')
+                data.force_empty()
+                self.update_camera_light(status, brightness, light_type)
             payload.force_empty()
             return
         else:
@@ -1182,11 +1263,23 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action == 'startCapture' and state in ('joinSuccess', 'pushStarted', 'pushStoped', 'done'):
+        if action == 'startCapture' and state in ('initSuccess', 'joinSuccess', 'pushStarted', 'pushStoped', 'done'):
             payload.force_empty()
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('video'))
+
+    def _process_mqtt_update_buried(
+        self,
+        action: str,
+        state: str,
+        payload: AnycubicConsumableData,
+    ) -> None:
+        if state == 'done':
+            payload.force_empty()
+            return
+        else:
+            raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('buried'))
 
     def process_mqtt_update(
         self,
@@ -1241,6 +1334,9 @@ class AnycubicPrinter:
 
         elif msg_type == 'video':
             self._process_mqtt_update_video(action, state, payload)
+
+        elif msg_type == 'buried':
+            self._process_mqtt_update_buried(action, state, payload)
 
         elif msg_type in ('info', 'hardwareProfile', 'aiSettings'):
             # Informational startup reports from newer firmware. They do not
@@ -1554,6 +1650,20 @@ class AnycubicPrinter:
     @property
     def has_peripheral_udisk(self) -> bool:
         return self._has_peripheral_udisk
+
+    @property
+    def camera_light_on(self) -> bool | None:
+        return self._camera_light_on
+
+    @property
+    def camera_light_type(self) -> int:
+        if self._camera_light_type is not None:
+            return self._camera_light_type
+        if self.is_kobra_x:
+            return 3
+        if self.supports_function_box_light:
+            return 2
+        return 1
 
     @property
     def connected_peripherals(self) -> dict[str, bool]:
@@ -2331,10 +2441,12 @@ class AnycubicPrinter:
     async def get_camera_session(
         self,
     ) -> AnycubicCameraSession | None:
-
-        return await self._api_parent.get_camera_session(
+        session = await self._api_parent.get_camera_session(
             self,
         )
+        if isinstance(session, dict):
+            return None
+        return session
 
     async def delete_local_file(
         self,
@@ -2911,6 +3023,25 @@ class AnycubicPrinter:
             printer=self,
             project=project,
         )
+
+    async def query_camera_light_status(self) -> str | None:
+        return await self._api_parent._send_order_get_light_status(
+            printer=self,
+        )
+
+    async def set_camera_light(
+        self,
+        light_on: bool,
+    ) -> str | None:
+        response = await self._api_parent._send_order_set_light_status(
+            printer=self,
+            light_on=light_on,
+            light_type=self.camera_light_type,
+        )
+        if response is not None:
+            self._camera_light_on = bool(light_on)
+            self._camera_light_brightness = 100 if light_on else 0
+        return response
 
     def __repr__(self) -> str:
         if self._id is None:
