@@ -279,12 +279,6 @@ class AnycubicPrinter:
             self._camera_light_brightness = int(brightness)
         if light_type is not None:
             self._camera_light_type = int(light_type)
-        self._api_parent._log_to_debug(
-            "Anycubic camera light debug: updated stored light state "
-            f"for {self.machine_name} (machine_type={self.machine_type}, "
-            f"status={self._camera_light_on}, brightness={self._camera_light_brightness}, "
-            f"type={self._camera_light_type})"
-        )
 
     def _set_type_function_ids(self, type_function_ids: list[int] | None) -> None:
         if isinstance(type_function_ids, list):
@@ -1225,14 +1219,7 @@ class AnycubicPrinter:
         payload: AnycubicConsumableData,
     ) -> None:
         if action == 'control' and state == 'failed':
-            code = payload.get('code')
-            message = payload.get('msg')
             payload.get('data')
-            self._api_parent._log_to_debug(
-                "Anycubic camera light debug: received MQTT light control failure "
-                f"for {self.machine_name} (machine_type={self.machine_type}, "
-                f"code={code}, message={message})"
-            )
             payload.force_empty()
             return
         if action in ('query', 'control') and state == 'done':
@@ -1243,12 +1230,6 @@ class AnycubicPrinter:
                     status = data.get('light')
                 brightness = data.get('brightness')
                 light_type = data.get('type')
-                self._api_parent._log_to_debug(
-                    "Anycubic camera light debug: received MQTT light response "
-                    f"for {self.machine_name} (machine_type={self.machine_type}, "
-                    f"action={action}, state={state}, status={status}, "
-                    f"brightness={brightness}, type={light_type})"
-                )
                 data.get('ret_code')
                 data.force_empty()
                 self.update_camera_light(status, brightness, light_type)

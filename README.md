@@ -2,15 +2,13 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.0-beta.15**
+> 🗓️ **Aktuelles Release: 0.3.0**
 >
 > - Setzt den initialen Kameralicht-Typ fuer Kobra X auf den per Slicer/MQTT beobachteten Anycubic-Wert, damit das HA-Kameralicht nach Neustart nicht erst durch einen Slicer-Schaltvorgang angelernt werden muss.
-> - Ergaenzt gezielte Debug-Logs fuer das Anycubic-Kameralicht, um HA-Schalten und Slicer-Schalten faktenbasiert vergleichen zu koennen (`GET_LIGHT_STATUS`, `SET_LIGHT_STATUS`, MQTT-Light-Antworten und Fehler).
 > - Baut das Frontend-Panel-Bundle neu, damit die im Anycubic-Cloud-Panel angezeigte Version wieder zur installierten Release-Version passt.
 > - Bereinigt Kobra-X-MQTT-Protokolle: Fortschrittsupdates ohne Temperaturfelder werden verarbeitet, `aux_fan_speed_pct`/`z_comp` erzeugen keine Warnungen mehr, bekannte `video/initSuccess`- und `buried`-Reports werden ohne Fehlerrauschen konsumiert.
-> - Testet das Anycubic-Kameralicht ohne Druckprojekt-Kontext (`project_id=0`) und initialisiert den Lichttyp vor dem Schalten per Statusabfrage, damit HA nicht erst durch einen vorherigen Slicer-Schaltvorgang angelernt werden muss.
+> - Ergaenzt eine native Home-Assistant-`light.*`-Entity fuer das Anycubic-Kameralicht und nutzt fuer Kobra X den bestaetigten Kameralicht-Befehlstyp.
 > - Laedt lokale, USB- und Cloud-Dateilisten beim ersten Oeffnen des jeweiligen Dateitabs vorsichtig automatisch, wenn fuer den ausgewaehlten Drucker noch keine Liste geladen ist. Manuelles Aktualisieren bleibt fuer bewusstes Neuladen erhalten.
-> - Ergaenzt eine native Home-Assistant-`light.*`-Entity fuer das Anycubic-Kameralicht bei Druckern mit Kamera-/Video- oder offizieller Lichtfunktion. Die Entity ist getrennt von der optionalen Dashboard-Card-`lightEntityId` und nutzt die Anycubic-Cloud-/MQTT-Lichtbefehle.
 > - Ergaenzt GitHub-Release-Gates fuer Version-Sync, private lokale Daten und Tag-/Release-Kollisionen, damit Beta- und stabile Releases vor dem Veroeffentlichen gezielter geprueft werden koennen.
 > - Stabilisiert das ACE-/Materialregal-Spulenlayout: vorhandene Spulen bleiben dynamisch, werden aber mit maximal vier gleichmaessigen Spalten pro Reihe angezeigt
 > - Aktualisiert die Entity-Zuordnung im Frontend bei Home-Assistant-Updates erneut, damit ACE-, Materialregal- und Dateiansichten nicht erst nach einem spaeteren Refresh erscheinen
@@ -75,7 +73,7 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 ### Getestet / rueckgemeldet
 
 - ✅ Kobra 3 Combo
-- ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert; Kameralicht-Entity in Erprobung)
+- ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert; Kameralicht-Entity getestet)
 - ✅ Kobra S1 (Basisfunktionen rueckgemeldet; Kamera und Chamber-Light noch offen)
 - ✅ Kobra 2, 2 Max, 2 Pro
 - ✅ Photon Mono M5s (Basis)
