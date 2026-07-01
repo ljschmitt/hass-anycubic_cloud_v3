@@ -822,13 +822,24 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if not printer:
             return None
 
-        return await self._send_anycubic_order(
+        project_id = project.id if project else 0
+        self._log_to_debug(
+            "Anycubic camera light debug: sending GET_LIGHT_STATUS "
+            f"for {printer.machine_name} (machine_type={printer.machine_type}, "
+            f"project_id={project_id})"
+        )
+        response = await self._send_anycubic_order(
             order_request=AnycubicBaseProjectOrderRequest(
                 order_id=AnycubicOrderID.GET_LIGHT_STATUS,
                 printer_id=printer.id,
-                project_id=project.id if project else 0,
+                project_id=project_id,
             ),
         )
+        self._log_to_debug(
+            "Anycubic camera light debug: GET_LIGHT_STATUS accepted "
+            f"for {printer.machine_name} (message_id_present={response is not None})"
+        )
+        return response
 
     #
     #
@@ -941,14 +952,26 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             'brightness': 100 if light_on else 0,
         }
 
-        return await self._send_anycubic_order(
+        project_id = project.id if project else 0
+        self._log_to_debug(
+            "Anycubic camera light debug: sending SET_LIGHT_STATUS "
+            f"for {printer.machine_name} (machine_type={printer.machine_type}, "
+            f"project_id={project_id}, type={order_data['type']}, "
+            f"status={order_data['status']}, brightness={order_data['brightness']})"
+        )
+        response = await self._send_anycubic_order(
             order_request=AnycubicProjectOrderRequest(
                 order_id=AnycubicOrderID.SET_LIGHT_STATUS,
                 printer_id=printer.id,
-                project_id=project.id if project else 0,
+                project_id=project_id,
                 order_data=order_data,
             ),
         )
+        self._log_to_debug(
+            "Anycubic camera light debug: SET_LIGHT_STATUS accepted "
+            f"for {printer.machine_name} (message_id_present={response is not None})"
+        )
+        return response
 
     async def _send_order_print_local_file(
         self,
