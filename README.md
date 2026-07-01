@@ -2,8 +2,9 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.0-beta.14**
+> 🗓️ **Aktuelles Release: 0.3.0-beta.15**
 >
+> - Setzt den initialen Kameralicht-Typ fuer Kobra X auf den per Slicer/MQTT beobachteten Anycubic-Wert, damit das HA-Kameralicht nach Neustart nicht erst durch einen Slicer-Schaltvorgang angelernt werden muss.
 > - Ergaenzt gezielte Debug-Logs fuer das Anycubic-Kameralicht, um HA-Schalten und Slicer-Schalten faktenbasiert vergleichen zu koennen (`GET_LIGHT_STATUS`, `SET_LIGHT_STATUS`, MQTT-Light-Antworten und Fehler).
 > - Baut das Frontend-Panel-Bundle neu, damit die im Anycubic-Cloud-Panel angezeigte Version wieder zur installierten Release-Version passt.
 > - Bereinigt Kobra-X-MQTT-Protokolle: Fortschrittsupdates ohne Temperaturfelder werden verarbeitet, `aux_fan_speed_pct`/`z_comp` erzeugen keine Warnungen mehr, bekannte `video/initSuccess`- und `buried`-Reports werden ohne Fehlerrauschen konsumiert.

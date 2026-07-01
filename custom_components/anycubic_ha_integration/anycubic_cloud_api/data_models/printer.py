@@ -1659,6 +1659,8 @@ class AnycubicPrinter:
     def camera_light_type(self) -> int:
         if self._camera_light_type is not None:
             return self._camera_light_type
+        if self.is_kobra_x:
+            return 3
         if self.supports_function_box_light:
             return 2
         return 1
