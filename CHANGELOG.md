@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.2
+
+### Fixed
+
+- Added explicit `dark_icon.png` and `dark_logo.png` brand assets so Home Assistant 2026.3+ can resolve both light and dark brand image variants from the local custom integration package.
+
+### Notes
+
+- Older Home Assistant versions and current HACS download lists may still use the public brands CDN and can show a generic placeholder there. The local brand assets are only available through Home Assistant's local brands proxy.
+
 ## 0.3.1
 
 ### Fixed

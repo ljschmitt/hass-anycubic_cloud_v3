@@ -2,12 +2,11 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.1**
+> 🗓️ **Aktuelles Release: 0.3.2**
 >
-> - Schlaegt fuer den bestehenden Schichthoehen-Sensor den kompatiblen Entity-ID-Suffix `job_z_thickness` statt `job_z_thick` vor.
-> - Ergaenzt das lokale Brand-Logo neben dem vorhandenen Brand-Icon fuer Home Assistant 2026.3 und neuer.
-> - Erklaert HACS-Updates, manuelle Updates und die Migration bestehender Entity-IDs klarer.
-> - Hinweis: Wenn HACS in der Download-Liste noch ein Platzhalter-Icon zeigt, ist das ein bekannter HACS-Brands-Proxy-Fehler; Home Assistant selbst kann die lokalen Brand-Assets korrekt laden.
+> - Ergaenzt `dark_icon.png` und `dark_logo.png` fuer Home Assistant 2026.3 und neuer.
+> - Dokumentiert den Unterschied zwischen lokalen Home-Assistant-Brand-Assets und der HACS-/Brands-CDN-Anzeige.
+> - Hinweis: Wenn HACS in der Download-Liste noch ein Platzhalter-Icon zeigt, kann das weiterhin an der HACS-Brands-CDN-Anzeige liegen; Home Assistant selbst kann die lokalen Brand-Assets korrekt laden.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -225,6 +224,12 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
 > und füge den **Access-Token** ein (siehe unten).
 
 Updates werden von HACS nur dann automatisch angeboten, wenn diese Integration als HACS-Custom-Repository installiert wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
+
+### Brand-/Icon-Hinweis
+
+Home Assistant 2026.3 und neuer kann Brand-Bilder direkt aus `custom_components/anycubic_ha_integration/brand/` laden. Diese Integration liefert dafuer `icon.png`, `logo.png`, `dark_icon.png` und `dark_logo.png` mit.
+
+Wenn Home Assistant selbst das Icon korrekt zeigt, HACS in der Download-Liste aber weiterhin ein Platzhalter-Icon anzeigt, liegt das an der HACS-/Brands-CDN-Anzeige und nicht an den lokalen Brand-Dateien der Integration. Direkte Aufrufe von `/api/brands/integration/anycubic_ha_integration/icon.png` benoetigen ausserdem eine gueltige Home-Assistant-Authentifizierung; ohne Token ist ein `403 Forbidden` normal.
 
 ---
 
