@@ -2,11 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.2**
+> 🗓️ **Aktuelles Release: 0.3.3**
 >
-> - Ergaenzt `dark_icon.png` und `dark_logo.png` fuer Home Assistant 2026.3 und neuer.
-> - Dokumentiert den Unterschied zwischen lokalen Home-Assistant-Brand-Assets und der HACS-/Brands-CDN-Anzeige.
-> - Hinweis: Wenn HACS in der Download-Liste noch ein Platzhalter-Icon zeigt, kann das weiterhin an der HACS-Brands-CDN-Anzeige liegen; Home Assistant selbst kann die lokalen Brand-Assets korrekt laden.
+> - Behebt die Anzeige der Drucker-Nivellierung: Anycubic-Statuscode `9` wird jetzt als `leveling` erkannt.
+> - Behebt die ETA-Anzeige der Dashboard-Card: Die Uhrzeit wird wieder in lokaler Home-Assistant-/Browser-Zeit statt UTC angezeigt.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.

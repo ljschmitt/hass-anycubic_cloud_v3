@@ -15,6 +15,7 @@ class AnycubicPrintStatus(IntEnum):
     Checking = 5
     Preheating = 6
     Slicing = 7
+    Leveling = 9
 
 
 class AnycubicOrderID(IntEnum):

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+### Fixed
+
+- Mapped Anycubic print status code `9` to `leveling` so bed leveling no longer appears as `unknown` while the printer is busy.
+- Fixed dashboard-card ETA formatting to use the browser/Home Assistant local time instead of UTC.
+
 ## 0.3.2
 
 ### Fixed

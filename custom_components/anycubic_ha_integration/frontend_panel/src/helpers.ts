@@ -1,4 +1,3 @@
-import { utc as dfnsUtc } from "@date-fns/utc";
 import {
   Duration as dfnsDuration,
   format as dfnsFormat,
@@ -710,7 +709,7 @@ export const formatFutureTime = (
   const fmtString = use_24hr ? `HH:mm${fmtSeconds}` : `h:mm${fmtSeconds} a`;
   const newDate = new Date();
   newDate.setSeconds(newDate.getSeconds() + Number(futureSeconds));
-  return dfnsFormat(newDate, fmtString, { in: dfnsUtc });
+  return dfnsFormat(newDate, fmtString);
 };
 
 export const calculateTimeStat = (

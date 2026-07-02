@@ -965,6 +965,8 @@ class AnycubicProject:
             return "preheating"
         elif self._print_status == AnycubicPrintStatus.Slicing:
             return "slicing"
+        elif self._print_status == AnycubicPrintStatus.Leveling:
+            return "leveling"
         else:
             return "unknown"
 
