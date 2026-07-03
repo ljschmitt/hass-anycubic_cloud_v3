@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4
+
+### Fixed
+
+- Preserved already known ACE boxes when Anycubic sends a single-box `multi_color_box` MQTT update, preventing the secondary ACE Pro from sporadically disappearing in two-ACE setups.
+
 ## 0.3.3
 
 ### Fixed

@@ -354,12 +354,13 @@ class AnycubicPrinter:
             existing_multi_color_box = getattr(self, "_multi_color_box", None)
 
             if (
-                self.is_kobra_x and
                 existing_multi_color_box is not None and
                 len(existing_multi_color_box) > 1 and
                 multi_color_box_list is not None and
                 len(multi_color_box_list) == 1
             ):
+                # Some MQTT reports contain only the changed ACE box. Preserve
+                # other known boxes so dual-ACE setups do not flicker away.
                 updated_box = AnycubicMultiColorBox.from_json(multi_color_box_list[0])
                 if not updated_box:
                     raise AnycubicDataParsingError(ErrorsDataParsing.ace.format(multi_color_box))

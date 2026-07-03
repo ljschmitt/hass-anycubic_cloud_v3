@@ -2,10 +2,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.3**
+> 🗓️ **Aktuelles Release: 0.3.4**
 >
-> - Behebt die Anzeige der Drucker-Nivellierung: Anycubic-Statuscode `9` wird jetzt als `leveling` erkannt.
-> - Behebt die ETA-Anzeige der Dashboard-Card: Die Uhrzeit wird wieder in lokaler Home-Assistant-/Browser-Zeit statt UTC angezeigt.
+> - Stabilisiert 2x-ACE-Pro-Setups: Einzelne ACE-Teilupdates entfernen bekannte zweite ACE-Boxen nicht mehr kurzfristig aus dem Zustand.
+> - Behebt dadurch ein sporadisches Ausblenden des zweiten ACE in der Dashboard-Card.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
