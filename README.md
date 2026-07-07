@@ -2,7 +2,7 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.4**
+> 🗓️ **Aktuelles Release: 0.3.5-beta.1**
 >
 > - Stabilisiert 2x-ACE-Pro-Setups: Einzelne ACE-Teilupdates entfernen bekannte zweite ACE-Boxen nicht mehr kurzfristig aus dem Zustand.
 > - Behebt dadurch ein sporadisches Ausblenden des zweiten ACE in der Dashboard-Card.
@@ -142,6 +142,8 @@ Drucker, die das Anycubic-Kamera-/Lichtkommando unterstuetzen, erhalten eine nat
 Diese native Entity ist nicht dasselbe wie die optionale `lightEntityId` in der externen Dashboard-Card. `lightEntityId` verweist auf eine beliebige vorhandene Home-Assistant-Lichtquelle, z. B. eine Raumlampe. Die native Kameralicht-Entity gehoert dagegen zum Anycubic-Drucker selbst.
 
 Da Anycubic die Lichtfunktion nicht bei jedem Modell gleich in der Funktionsliste deklariert, wird die Entity bei Druckern mit Kamera-/Video-Funktion oder offizieller `VIDEO_LIGHT`-/`BOX_LIGHT`-Funktion angelegt. Wenn ein Drucker den Befehl nicht unterstuetzt oder offline ist, kann das Schalten fehlschlagen oder unverfuegbar bleiben.
+
+Fuer gezielte Modelltests gibt es den Diagnose-Dienst `anycubic_ha_integration.debug_set_light_status`. Er sendet das Anycubic-Lichtkommando mit einem expliziten `light_type` an einen ausgewaehlten Drucker und ist nur fuer kontrollierte Tests gedacht, z. B. wenn geklaert werden muss, welcher Lichtkanal bei einem Modell Kopflicht oder Kameralicht schaltet.
 
 ### Integrierte Rinkhals/Moonraker-Webcam als HA-Kamera anlegen
 

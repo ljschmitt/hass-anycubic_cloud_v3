@@ -3014,15 +3014,18 @@ class AnycubicPrinter:
     async def set_camera_light(
         self,
         light_on: bool,
+        light_type: int | None = None,
     ) -> str | None:
         response = await self._api_parent._send_order_set_light_status(
             printer=self,
             light_on=light_on,
-            light_type=self.camera_light_type,
+            light_type=light_type if light_type is not None else self.camera_light_type,
         )
         if response is not None:
             self._camera_light_on = bool(light_on)
             self._camera_light_brightness = 100 if light_on else 0
+            if light_type is not None:
+                self._camera_light_type = int(light_type)
         return response
 
     def __repr__(self) -> str:

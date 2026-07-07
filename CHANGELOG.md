@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.5-beta.1
+
+### Added
+
+- Added a diagnostic `debug_set_light_status` service to test explicit Anycubic light command types per printer without changing the existing light entity IDs.
+
 ## 0.3.4
 
 ### Fixed

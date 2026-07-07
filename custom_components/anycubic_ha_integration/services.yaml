@@ -1,6 +1,6 @@
 # Describes the format for available Anycubic Cloud services
 
-multi_color_box_set_slot_pla: &multi_color_box_set_slot
+debug_set_light_status:
   fields:
     config_entry: &anycubic_config_entry
       required: true
@@ -20,6 +20,24 @@ multi_color_box_set_slot_pla: &multi_color_box_set_slot
           max: 9999999999999999999
           step: 1
           mode: box
+    light_type:
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          mode: box
+    light_on:
+      required: true
+      selector:
+        boolean:
+
+multi_color_box_set_slot_pla: &multi_color_box_set_slot
+  fields:
+    config_entry: *anycubic_config_entry
+    device_id: *device_id
+    printer_id: *printer_id
     box_id: &box_id
       required: false
       selector:

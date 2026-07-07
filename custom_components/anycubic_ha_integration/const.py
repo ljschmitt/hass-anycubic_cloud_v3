@@ -52,6 +52,8 @@ CONF_SPEED = "speed"
 CONF_TEMPERATURE = "temperature"
 CONF_LAYERS = "layers"
 CONF_TIME = "time"
+CONF_LIGHT_TYPE = "light_type"
+CONF_LIGHT_ON = "light_on"
 
 AC_EVENT_PRINT_CLOUD_START = "print_cloud_start"
 

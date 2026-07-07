@@ -33,6 +33,8 @@ from .const import (
     CONF_FILE_PATH,
     CONF_FINISHED,
     CONF_LAYERS,
+    CONF_LIGHT_ON,
+    CONF_LIGHT_TYPE,
     CONF_PRINTER_ID,
     CONF_PRINTER_ID_LIST,
     CONF_PRINTER_NAME,
@@ -130,6 +132,17 @@ def build_anycubic_service_schema(
     )
 
 
+def build_anycubic_light_debug_service_schema() -> vol.Schema:
+    return build_anycubic_service_schema(
+        {
+            vol.Required(CONF_LIGHT_TYPE): vol.All(
+                vol.Coerce(int), vol.Range(min=1, max=10)
+            ),
+            vol.Required(CONF_LIGHT_ON): cv.boolean,
+        }
+    )
+
+
 class AnycubicCloudServiceCall:
     """Parent class for all Anycubic Cloud service calls."""
 
@@ -203,6 +216,30 @@ class AnycubicCloudServiceCall:
     async def async_call_service(self, service: ServiceCall) -> None:
         """Execute service call."""
         raise NotImplementedError
+
+
+class DebugSetLightStatus(AnycubicCloudServiceCall):
+    """Send a raw light status command with an explicit Anycubic light type."""
+
+    schema = build_anycubic_light_debug_service_schema()
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        """Execute service call."""
+
+        coordinator = self._get_coordinator(service)
+        printer = self._get_printer(service)
+        light_type = service.data[CONF_LIGHT_TYPE]
+        light_on = service.data[CONF_LIGHT_ON]
+
+        try:
+            await coordinator._connect_mqtt_for_action_response()
+            await printer.set_camera_light(
+                bool(light_on),
+                light_type=int(light_type),
+            )
+            await coordinator.force_state_update()
+        except Exception as error:
+            raise HomeAssistantError(error) from error
 
 
 class BaseMultiColorBoxSetSlot(AnycubicCloudServiceCall):
@@ -1067,6 +1104,7 @@ class ChangePrintOnTime(BaseChangePrintSetting):
 
 
 SERVICES = (
+    ("debug_set_light_status", DebugSetLightStatus),
     ("multi_color_box_set_slot_pla", MultiColorBoxSetSlotPla),
     ("multi_color_box_set_slot_petg", MultiColorBoxSetSlotPetg),
     ("multi_color_box_set_slot_abs", MultiColorBoxSetSlotAbs),
