@@ -31,6 +31,13 @@ export const commonFilesStyle: CSSResult = css`
     margin-bottom: 20px;
   }
 
+  .file-status-msg {
+    color: var(--secondary-text-color);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 16px 0 24px;
+  }
+
   .file-info {
     display: flex;
     min-height: 20px;

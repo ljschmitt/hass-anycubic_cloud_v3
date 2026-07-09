@@ -677,11 +677,14 @@ class RequestFileListLocal(BaseRequestPrinterFileList):
     async def async_call_service(self, service: ServiceCall) -> None:
         """Execute service call."""
 
+        coordinator = self._get_coordinator(service)
         file_path = service.data[CONF_FILE_PATH]
         printer = self._get_printer(service)
 
         try:
+            await coordinator._connect_mqtt_for_action_response()
             await printer.request_local_file_list(file_path=file_path)
+            await coordinator._async_force_data_refresh()
         except Exception as error:
             raise HomeAssistantError(error) from error
 
@@ -692,11 +695,14 @@ class RequestFileListUdisk(BaseRequestPrinterFileList):
     async def async_call_service(self, service: ServiceCall) -> None:
         """Execute service call."""
 
+        coordinator = self._get_coordinator(service)
         file_path = service.data[CONF_FILE_PATH]
         printer = self._get_printer(service)
 
         try:
+            await coordinator._connect_mqtt_for_action_response()
             await printer.request_udisk_file_list(file_path=file_path)
+            await coordinator._async_force_data_refresh()
         except Exception as error:
             raise HomeAssistantError(error) from error
 

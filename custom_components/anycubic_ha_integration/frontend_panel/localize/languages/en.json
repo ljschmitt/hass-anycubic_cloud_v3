@@ -41,6 +41,11 @@
       "delete": "Delete file",
       "prepare_print": "Prepare print"
     },
+    "messages": {
+      "empty": "No files found.",
+      "loading": "Requesting file list...",
+      "not_loaded": "No file list loaded yet."
+    },
     "prepare": {
       "file": "File",
       "path": "Path",

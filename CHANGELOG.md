@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5-beta.3
+
+### Fixed
+
+- Local and USB file-list service calls now establish the MQTT action connection before requesting printer files, matching the existing button path and avoiding delayed or missing responses when MQTT was not already active.
+- The local and USB file-list tabs now show explicit loading, empty, and not-loaded messages instead of leaving the content area blank while waiting for a printer response.
+
 ## 0.3.5-beta.2
 
 ### Fixed

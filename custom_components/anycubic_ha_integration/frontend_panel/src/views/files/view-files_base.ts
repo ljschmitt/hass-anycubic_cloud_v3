@@ -159,8 +159,29 @@ export class AnycubicViewFilesBase extends LitElement {
         ${!this._httpResponse && !this._supportsMQTT
           ? html` <div class="no-mqtt-msg">${this._noMqttMessage}</div> `
           : nothing}
+        ${this._isRefreshing
+          ? html`
+              <div class="file-status-msg">
+                ${localize("files.messages.loading", this.language)}
+              </div>
+            `
+          : nothing}
+        ${!this._isRefreshing && this._fileArray === undefined
+          ? html`
+              <div class="file-status-msg">
+                ${localize("files.messages.not_loaded", this.language)}
+              </div>
+            `
+          : nothing}
+        ${!this._isRefreshing && this._fileArray?.length === 0
+          ? html`
+              <div class="file-status-msg">
+                ${localize("files.messages.empty", this.language)}
+              </div>
+            `
+          : nothing}
         <ul class="files-container">
-          ${this._fileArray
+          ${this._fileArray?.length
             ? this._fileArray.map(
                 (fileInfo) => html`
                   <li class="file-info">

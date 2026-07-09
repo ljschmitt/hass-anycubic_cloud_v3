@@ -41,6 +41,11 @@
       "delete": "Datei löschen",
       "prepare_print": "Druck vorbereiten"
     },
+    "messages": {
+      "empty": "Keine Dateien gefunden.",
+      "loading": "Dateiliste wird angefordert...",
+      "not_loaded": "Noch keine Dateiliste geladen."
+    },
     "prepare": {
       "file": "Datei",
       "path": "Pfad",
