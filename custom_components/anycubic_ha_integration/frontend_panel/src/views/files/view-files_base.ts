@@ -24,7 +24,9 @@ import {
 } from "../../types";
 
 export class AnycubicViewFilesBase extends LitElement {
-  private static autoLoadRequested = new Set<string>();
+  private static autoLoadAttemptedAt = new Map<string, number>();
+
+  private static readonly AUTO_LOAD_RETRY_MS = 30_000;
 
   @property()
   public hass!: HomeAssistant;
@@ -337,7 +339,7 @@ export class AnycubicViewFilesBase extends LitElement {
   private autoLoadInitialFileList = (): void => {
     if (
       !this.selectedPrinterDevice ||
-      !this._listRefreshEntity ||
+      !this.hasFileListRequestTarget() ||
       this._isRefreshing ||
       this._fileArray !== undefined ||
       (!this._httpResponse && !this._supportsMQTT)
@@ -345,19 +347,35 @@ export class AnycubicViewFilesBase extends LitElement {
       return;
     }
 
-    const autoLoadKey = [
-      this.tagName.toLowerCase(),
-      this.selectedPrinterID,
-      this._listRefreshEntity.entity_id,
-    ].join(":");
-
-    if (AnycubicViewFilesBase.autoLoadRequested.has(autoLoadKey)) {
+    const requestTarget = this.getAutoLoadRequestTarget();
+    if (!requestTarget) {
       return;
     }
 
-    AnycubicViewFilesBase.autoLoadRequested.add(autoLoadKey);
+    const autoLoadKey = [
+      this.tagName.toLowerCase(),
+      this.selectedPrinterID,
+      requestTarget,
+    ].join(":");
+
+    const lastAttempt =
+      AnycubicViewFilesBase.autoLoadAttemptedAt.get(autoLoadKey);
+    if (
+      lastAttempt &&
+      Date.now() - lastAttempt < AnycubicViewFilesBase.AUTO_LOAD_RETRY_MS
+    ) {
+      return;
+    }
+
+    AnycubicViewFilesBase.autoLoadAttemptedAt.set(autoLoadKey, Date.now());
     this.requestFileList("/");
   };
+
+  protected hasFileListRequestTarget = (): boolean =>
+    Boolean(this._listRefreshEntity);
+
+  protected getAutoLoadRequestTarget = (): string | undefined =>
+    this._listRefreshEntity?.entity_id;
 
   protected normalizePath = (path: string | undefined): string => {
     if (!path) {

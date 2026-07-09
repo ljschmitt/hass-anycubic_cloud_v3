@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5-beta.2
+
+### Fixed
+
+- Fixed the first-open auto-load behavior for local and USB file-list tabs. A failed or too-early auto-load attempt no longer blocks later automatic retries for the rest of the browser session.
+- Local and USB file-list tabs now use the selected printer device as their auto-load target, matching their service-based request path.
+
 ## 0.3.5-beta.1
 
 ### Added

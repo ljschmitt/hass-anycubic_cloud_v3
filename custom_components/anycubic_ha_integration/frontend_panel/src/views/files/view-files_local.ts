@@ -42,6 +42,12 @@ export class AnycubicViewFilesLocal extends AnycubicViewFilesBase {
     this.requestFileListService("request_file_list_local", path);
   };
 
+  protected hasFileListRequestTarget = (): boolean =>
+    Boolean(this.selectedPrinterDevice);
+
+  protected getAutoLoadRequestTarget = (): string | undefined =>
+    this.selectedPrinterDevice?.id;
+
   deleteFile = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileLocal = ev.currentTarget
       .file_info as AnycubicFileLocal;
