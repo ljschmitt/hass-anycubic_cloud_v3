@@ -178,7 +178,7 @@ export class AnycubicViewFilesBase extends LitElement {
               </div>
             `
           : nothing}
-        ${!this._isRefreshing && this._fileArray == null
+        ${!this._isRefreshing && this._fileArray === undefined
           ? html`
               <div class="file-status-msg">
                 ${localize("files.messages.not_loaded", this.language)}

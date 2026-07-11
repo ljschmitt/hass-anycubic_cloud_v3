@@ -2957,7 +2957,7 @@
                 ${lr("files.messages.loading",this.language)}
               </div>
             `:q}
-        ${this._isRefreshing||null!=this._fileArray?q:J`
+        ${this._isRefreshing||void 0!==this._fileArray?q:J`
               <div class="file-status-msg">
                 ${lr("files.messages.not_loaded",this.language)}
               </div>
