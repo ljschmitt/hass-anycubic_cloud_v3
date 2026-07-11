@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.5
+
+### Added
+
+- Added the diagnostic `debug_set_light_status` service to test explicit Anycubic light command types per printer without changing existing light entity IDs.
+
+### Fixed
+
+- Stabilized local and USB file-list loading in the Anycubic panel by keeping the loading state active until the printer returns real file data or the request times out.
+- Local and USB file-list service calls now establish the MQTT action connection before requesting printer files, matching the existing button path and avoiding delayed or missing responses when MQTT was not already active.
+- The local and USB file-list tabs now handle Home Assistant `file_info: null` states as not loaded instead of rendering a blank content area.
+- Fixed the first-open auto-load behavior for local and USB file-list tabs. A failed or too-early auto-load attempt no longer blocks later automatic retries for the rest of the browser session.
+- Local and USB file-list tabs now use the selected printer device as their auto-load target, matching their service-based request path.
+- Preserved already known ACE boxes when Anycubic sends a single-box `multi_color_box` MQTT update, preventing the secondary ACE Pro from sporadically disappearing in two-ACE setups.
+
 ## 0.3.5-beta.3
 
 ### Fixed

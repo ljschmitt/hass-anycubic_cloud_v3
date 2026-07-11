@@ -28,9 +28,7 @@ export class AnycubicViewFilesUdisk extends AnycubicViewFilesBase {
         this.hass,
         getFileListUdiskFilesEntity(this.printerEntities),
       );
-      this._fileArray = fileListState
-        ? fileListState.attributes.file_info
-        : undefined;
+      this.updateFileArray(fileListState?.attributes.file_info);
       this._currentPath = this.normalizePath(fileListState?.attributes.path);
       this._listRefreshEntity = getFileListUdiskRefreshEntity(
         this.printerEntities,

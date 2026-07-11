@@ -28,9 +28,7 @@ export class AnycubicViewFilesLocal extends AnycubicViewFilesBase {
         this.hass,
         getFileListLocalFilesEntity(this.printerEntities),
       );
-      this._fileArray = fileListState
-        ? fileListState.attributes.file_info
-        : undefined;
+      this.updateFileArray(fileListState?.attributes.file_info);
       this._currentPath = this.normalizePath(fileListState?.attributes.path);
       this._listRefreshEntity = getFileListLocalRefreshEntity(
         this.printerEntities,

@@ -28,6 +28,8 @@ export class AnycubicViewFilesBase extends LitElement {
 
   private static readonly AUTO_LOAD_RETRY_MS = 30_000;
 
+  private static readonly REFRESH_TIMEOUT_MS = 75_000;
+
   @property()
   public hass!: HomeAssistant;
 
@@ -63,6 +65,8 @@ export class AnycubicViewFilesBase extends LitElement {
 
   @state()
   private _isRefreshing: boolean = false;
+
+  private _refreshTimeoutId: number | undefined;
 
   @state()
   protected _isDeleting: boolean;
@@ -130,6 +134,14 @@ export class AnycubicViewFilesBase extends LitElement {
     }
   }
 
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    if (this._refreshTimeoutId !== undefined) {
+      window.clearTimeout(this._refreshTimeoutId);
+      this._refreshTimeoutId = undefined;
+    }
+  }
+
   render(): LitTemplateResult {
     if (this._printPreparationFile) {
       return this.renderPrintPreparation();
@@ -166,7 +178,7 @@ export class AnycubicViewFilesBase extends LitElement {
               </div>
             `
           : nothing}
-        ${!this._isRefreshing && this._fileArray === undefined
+        ${!this._isRefreshing && this._fileArray == null
           ? html`
               <div class="file-status-msg">
                 ${localize("files.messages.not_loaded", this.language)}
@@ -322,23 +334,20 @@ export class AnycubicViewFilesBase extends LitElement {
     void path;
 
     if (this._listRefreshEntity) {
-      this._isRefreshing = true;
+      this.startRefreshWait();
       this.hass
         .callService("button", "press", {
           entity_id: this._listRefreshEntity.entity_id,
         })
-        .then(() => {
-          this._isRefreshing = false;
-        })
         .catch((_e: unknown) => {
-          this._isRefreshing = false;
+          this.finishRefreshWait();
         });
     }
   };
 
   protected requestFileListService = (service: string, path: string): void => {
     if (this.selectedPrinterDevice) {
-      this._isRefreshing = true;
+      this.startRefreshWait();
       if (this.normalizePath(path) !== this._currentPath) {
         this._fileArray = undefined;
       }
@@ -348,13 +357,38 @@ export class AnycubicViewFilesBase extends LitElement {
           device_id: this.selectedPrinterDevice.id,
           path,
         })
-        .then(() => {
-          this._isRefreshing = false;
-        })
         .catch((_e: unknown) => {
-          this._isRefreshing = false;
+          this.finishRefreshWait();
         });
     }
+  };
+
+  protected updateFileArray = (
+    fileArray: AnycubicFileLocal[] | null | undefined,
+  ): void => {
+    this._fileArray = fileArray ?? undefined;
+    if (fileArray !== null && fileArray !== undefined) {
+      this.finishRefreshWait();
+    }
+  };
+
+  private startRefreshWait = (): void => {
+    this._isRefreshing = true;
+    if (this._refreshTimeoutId !== undefined) {
+      window.clearTimeout(this._refreshTimeoutId);
+    }
+    this._refreshTimeoutId = window.setTimeout(() => {
+      this._refreshTimeoutId = undefined;
+      this._isRefreshing = false;
+    }, AnycubicViewFilesBase.REFRESH_TIMEOUT_MS);
+  };
+
+  private finishRefreshWait = (): void => {
+    if (this._refreshTimeoutId !== undefined) {
+      window.clearTimeout(this._refreshTimeoutId);
+      this._refreshTimeoutId = undefined;
+    }
+    this._isRefreshing = false;
   };
 
   private autoLoadInitialFileList = (): void => {

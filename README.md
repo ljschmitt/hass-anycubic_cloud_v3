@@ -2,7 +2,7 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-> 🗓️ **Aktuelles Release: 0.3.5-beta.3**
+> 🗓️ **Aktuelles Release: 0.3.5**
 >
 > - Lokale und USB-Dateiliste stellen vor dem Abruf jetzt aktiv die MQTT-Aktionsverbindung her, damit der Abruf nicht davon abhaengt, ob MQTT bereits durch eine andere Funktion aktiv war.
 > - Lokale und USB-Dateiliste zeigen beim Warten jetzt einen klaren Lade-/Leerstatus statt einer leeren Flaeche.
