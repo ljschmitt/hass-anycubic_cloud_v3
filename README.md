@@ -1,6 +1,16 @@
 # Anycubic HA Integration
 
+[Deutsch](README.md) | [English](README.en.md)
+
+[![Latest release](https://img.shields.io/github/v/release/ljschmitt/hass-anycubic_cloud_v3?label=release)](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
+[![GitHub stars](https://img.shields.io/github/stars/ljschmitt/hass-anycubic_cloud_v3)](https://github.com/ljschmitt/hass-anycubic_cloud_v3/stargazers)
+[![License: GPL-3.0](https://img.shields.io/github/license/ljschmitt/hass-anycubic_cloud_v3)](LICENSE)
+
+[![In HACS oeffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ljschmitt&repository=hass-anycubic_cloud_v3&category=integration)
+
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
+
+Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
 > 🗓️ **Aktuelles Release: 0.3.5**
 >
@@ -100,13 +110,11 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 
 ## 🖼️ Galerie
 
-<img width="300" src="custom_components/anycubic_ha_integration/frontend_panel/dist/assets/printer-kobra-3.webp">
-<img width="300" src="custom_components/anycubic_ha_integration/frontend_panel/dist/assets/printer-kobra-x.webp">
-<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-1.png">  
-<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/anycubic-ace-ui.gif">  
-<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-2.png">  
-<img width="300" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra3-print.png">  
-<img width="200" src="https://raw.githubusercontent.com/WaresWichall/hass-anycubic_cloud/master/screenshots/kobra2-1.png">
+<img width="300" alt="Anycubic Kobra 3 status panel" src="screenshots/kobra3-1.png">
+<img width="300" alt="Anycubic ACE material display" src="screenshots/anycubic-ace-ui.gif">
+<img width="300" alt="Anycubic Kobra 2 Pro status card" src="screenshots/kobra2-2.png">
+<img width="300" alt="Anycubic print service" src="screenshots/kobra3-print.png">
+<img width="200" alt="Anycubic Kobra 2 status card" src="screenshots/kobra2-1.png">
 
 ---
 
@@ -348,7 +356,7 @@ Der Release-Check erwartet stabile Versionen auf `master` bzw. `main` und Pre-re
 
 ## 📄 Lizenz
 
-MIT License – frei für private und kommerzielle Nutzung. Siehe LICENSE-Datei.
+GNU General Public License v3.0. Siehe [LICENSE](LICENSE).
 
 ---
 
