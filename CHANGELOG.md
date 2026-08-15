@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.6
+
+### Added
+
+- Added one sensor per ACE filament slot (`ACE Slot 1`-`ACE Slot 4`, plus `Secondary ACE Slot 1`-`4` for a second ACE box). The state combines material type and colour, e.g. `PLA #FF0000`, and reports `empty` for an unloaded slot, so the loaded filament can be placed anywhere in a dashboard instead of only inside the Anycubic card.
+- Slot sensors expose `material_type`, `sku`, `color`, `color_hex`, `spool_loaded`, `status`, `slot`, `local_slot`, `box_id` and `source` as attributes.
+- The Anycubic filament `sku` is now included in the ACE spool data, including the existing `ace_spools` attributes.
+
 ## 0.3.5
 
 ### Added

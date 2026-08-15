@@ -24,6 +24,7 @@ ATTR_CONFIG_ENTRY = "config_entry"
 ATTR_ANYCUBIC_EVENT = "anycubic_ha_integration"
 
 ENTITY_ID_DRYING_START_PRESET_ = "drying_start_preset_"
+ENTITY_ID_ACE_SLOT_ = "ace_slot_"
 
 CONF_USER_AUTH_MODE = "user_auth_mode"
 CONF_USER_DEVICE_ID = "user_device_id"
@@ -75,6 +76,7 @@ MAX_FILE_UPLOAD_RETRIES = 3
 PRINT_JOB_STARTED_UPDATE_DELAY = 5
 
 MAX_DRYING_PRESETS = 4
+MAX_ACE_SLOTS = 4
 
 
 class PrinterEntityType(IntEnum):

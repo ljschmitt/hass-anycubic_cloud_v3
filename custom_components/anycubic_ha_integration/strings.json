@@ -297,6 +297,18 @@
       "ace_spools": {
         "name": "ACE Spools"
       },
+      "ace_slot_1": {
+        "name": "ACE Slot 1"
+      },
+      "ace_slot_2": {
+        "name": "ACE Slot 2"
+      },
+      "ace_slot_3": {
+        "name": "ACE Slot 3"
+      },
+      "ace_slot_4": {
+        "name": "ACE Slot 4"
+      },
       "material_rack_spools": {
         "name": "Material Rack Spools"
       },
@@ -314,6 +326,18 @@
       },
       "secondary_ace_spools": {
         "name": "Secondary ACE Spools"
+      },
+      "secondary_ace_slot_1": {
+        "name": "Secondary ACE Slot 1"
+      },
+      "secondary_ace_slot_2": {
+        "name": "Secondary ACE Slot 2"
+      },
+      "secondary_ace_slot_3": {
+        "name": "Secondary ACE Slot 3"
+      },
+      "secondary_ace_slot_4": {
+        "name": "Secondary ACE Slot 4"
       },
       "secondary_ace_current_temperature": {
         "name": "Secondary ACE Current Temperature"

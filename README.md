@@ -12,12 +12,11 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.5**
+> 🗓️ **Aktuelles Release: 0.3.6**
 >
-> - Lokale und USB-Dateiliste stellen vor dem Abruf jetzt aktiv die MQTT-Aktionsverbindung her, damit der Abruf nicht davon abhaengt, ob MQTT bereits durch eine andere Funktion aktiv war.
-> - Lokale und USB-Dateiliste zeigen beim Warten jetzt einen klaren Lade-/Leerstatus statt einer leeren Flaeche.
-> - Behebt den ersten automatischen Abruf der lokalen und USB-Dateiliste im Anycubic-Panel, wenn der erste Versuch zu frueh kam oder keine MQTT-Antwort lieferte.
-> - Stabilisiert 2x-ACE-Pro-Setups: Einzelne ACE-Teilupdates entfernen bekannte zweite ACE-Boxen nicht mehr kurzfristig aus dem Zustand.
+> - Neu: ein eigener Sensor je ACE-Slot (`ACE Slot 1`–`4`, bei zweiter Box zusaetzlich `Secondary ACE Slot 1`–`4`). Der Zustand zeigt Materialtyp und Farbe, z. B. `PLA #FF0000`, bei leerem Slot `empty`.
+> - Die Slot-Sensoren liefern `material_type`, `sku`, `color`, `color_hex`, `spool_loaded`, `status`, `slot`, `local_slot`, `box_id` und `source` als Attribute.
+> - Die Anycubic-Filament-`sku` steht jetzt auch in den Attributen des bestehenden `ace_spools`-Sensors zur Verfuegung.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -124,6 +123,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
 - Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit optionaler ACE-Slotnummernliste
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
+- Eigener Sensor je ACE-Slot (`ACE Slot 1`–`4`, bei zweiter Box zusaetzlich `Secondary ACE Slot 1`–`4`) mit Materialtyp und Farbe als Zustand, z. B. `PLA #FF0000` — frei im Dashboard platzierbar
 - Dateimanager (MQTT benötigt)
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …
 - Firmware-Update-Entitäten

@@ -473,6 +473,10 @@ class AnycubicSpoolInfo:
         return self._index
 
     @property
+    def sku(self) -> str:
+        return self._sku
+
+    @property
     def material_type(self) -> str:
         return self._material_type
 
@@ -666,6 +670,7 @@ class AnycubicMultiColorBox:
         spool_list = list([
             {
                 "material_type": slot.material_type,
+                "sku": slot.sku,
                 "color": slot.color,
                 "status": slot.status,
                 "spool_loaded": slot.spool_loaded,

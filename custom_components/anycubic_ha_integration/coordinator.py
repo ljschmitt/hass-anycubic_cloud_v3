@@ -41,9 +41,11 @@ from .const import (
     CONF_USER_TOKEN,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    ENTITY_ID_ACE_SLOT_,
     ENTITY_ID_DRYING_START_PRESET_,
     FAILED_UPDATE_DELAY,
     LOGGER,
+    MAX_ACE_SLOTS,
     MAX_DRYING_PRESETS,
     MAX_FAILED_UPDATES,
     MQTT_ACTION_RESPONSE_ALIVE_SECONDS,
@@ -69,6 +71,9 @@ from .helpers import (
     printer_state_connected_ace_units,
     printer_state_for_key,
     printer_state_supports_ace,
+    spool_attributes,
+    spool_info_for_local_slot,
+    spool_state_string,
     state_string_active,
     state_string_loaded,
 )
@@ -401,6 +406,20 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "duration": preset_duration,
                 "temperature": preset_temperature,
             }
+
+        for x in range(MAX_ACE_SLOTS):
+            local_slot = x + 1
+            primary_spool = spool_info_for_local_slot(primary_ace_spool_info, local_slot)
+            secondary_spool = spool_info_for_local_slot(secondary_ace_spool_info, local_slot)
+
+            states[f"{ENTITY_ID_ACE_SLOT_}{local_slot}"] = spool_state_string(primary_spool)
+            states[f"secondary_{ENTITY_ID_ACE_SLOT_}{local_slot}"] = spool_state_string(secondary_spool)
+
+            if primary_attributes := spool_attributes(primary_spool):
+                attributes[f"{ENTITY_ID_ACE_SLOT_}{local_slot}"] = primary_attributes
+
+            if secondary_attributes := spool_attributes(secondary_spool):
+                attributes[f"secondary_{ENTITY_ID_ACE_SLOT_}{local_slot}"] = secondary_attributes
 
         return {
             'states': states,

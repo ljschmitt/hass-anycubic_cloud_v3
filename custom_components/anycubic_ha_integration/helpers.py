@@ -263,6 +263,73 @@ def state_string_loaded(state: Any) -> str:
     return "loaded" if state is not None else "not loaded"
 
 
+def spool_color_hex(color: Any) -> str | None:
+    """Return an `#RRGGBB` string for a `[red, green, blue]` list."""
+    if not isinstance(color, list) or len(color) != 3:
+        return None
+
+    try:
+        rgb = [int(x) for x in color]
+    except (TypeError, ValueError):
+        return None
+
+    if any(x < 0 or x > 255 for x in rgb):
+        return None
+
+    return "#{:02X}{:02X}{:02X}".format(*rgb)
+
+
+def spool_info_for_local_slot(
+    spool_info: list[dict[str, Any]] | None,
+    local_slot: int,
+) -> dict[str, Any] | None:
+    """Return the spool of a multi color box slot, or None when it is not present."""
+    if not spool_info:
+        return None
+
+    for spool in spool_info:
+        if spool.get("local_slot") == local_slot:
+            return spool
+
+    return None
+
+
+def spool_state_string(spool: dict[str, Any] | None) -> str | None:
+    """Return the sensor state for a single multi color box slot."""
+    if spool is None:
+        return None
+
+    if not spool.get("spool_loaded"):
+        return "empty"
+
+    material_type = str(spool.get("material_type") or "").strip() or "unknown"
+    color_hex = spool_color_hex(spool.get("color"))
+
+    if color_hex is None:
+        return material_type
+
+    return f"{material_type} {color_hex}"
+
+
+def spool_attributes(spool: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Return the sensor attributes for a single multi color box slot."""
+    if spool is None:
+        return None
+
+    return {
+        "material_type": spool.get("material_type"),
+        "sku": spool.get("sku"),
+        "color": spool.get("color"),
+        "color_hex": spool_color_hex(spool.get("color")),
+        "spool_loaded": spool.get("spool_loaded"),
+        "status": spool.get("status"),
+        "slot": spool.get("display_slot", spool.get("slot")),
+        "local_slot": spool.get("local_slot"),
+        "box_id": spool.get("box_id"),
+        "source": spool.get("source"),
+    }
+
+
 # REGEX_TOKEN_STRING = re.compile(r"^['\"]?([_-A-Za-z0-9+\/.]{236,238})['\"]?$")
 
 

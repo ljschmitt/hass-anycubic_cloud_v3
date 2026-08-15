@@ -25,6 +25,8 @@ from homeassistant.util import dt as dt_util
 from .const import (
     COORDINATOR,
     DOMAIN,
+    ENTITY_ID_ACE_SLOT_,
+    MAX_ACE_SLOTS,
     UNIT_LAYERS,
     PrinterEntityType,
 )
@@ -105,6 +107,28 @@ SECONDARY_MULTI_COLOR_BOX_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = 
         printer_entity_type=PrinterEntityType.ACE_SECONDARY,
     ),
 ])
+
+PRIMARY_ACE_SLOT_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
+    AnycubicSensorEntityDescription(
+        key=f"{ENTITY_ID_ACE_SLOT_}{x + 1}",
+        translation_key=f"{ENTITY_ID_ACE_SLOT_}{x + 1}",
+        printer_entity_type=PrinterEntityType.ACE_PRIMARY,
+        not_measured=True,
+        create_when_available=True,
+    ) for x in range(MAX_ACE_SLOTS)
+])
+
+
+SECONDARY_ACE_SLOT_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
+    AnycubicSensorEntityDescription(
+        key=f"secondary_{ENTITY_ID_ACE_SLOT_}{x + 1}",
+        translation_key=f"secondary_{ENTITY_ID_ACE_SLOT_}{x + 1}",
+        printer_entity_type=PrinterEntityType.ACE_SECONDARY,
+        not_measured=True,
+        create_when_available=True,
+    ) for x in range(MAX_ACE_SLOTS)
+])
+
 
 FDM_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
     AnycubicSensorEntityDescription(
@@ -327,6 +351,8 @@ async def async_setup_entry(
             + FDM_SENSOR_TYPES
             + PRIMARY_MULTI_COLOR_BOX_SENSOR_TYPES
             + SECONDARY_MULTI_COLOR_BOX_SENSOR_TYPES
+            + PRIMARY_ACE_SLOT_SENSOR_TYPES
+            + SECONDARY_ACE_SLOT_SENSOR_TYPES
             + GLOBAL_SENSOR_TYPES
         ),
     )
