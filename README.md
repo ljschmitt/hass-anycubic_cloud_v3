@@ -12,11 +12,10 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.6**
+> 🗓️ **Aktuelles Release: 0.3.7**
 >
-> - Neu: ein eigener Sensor je ACE-Slot (`ACE Slot 1`–`4`, bei zweiter Box zusaetzlich `Secondary ACE Slot 1`–`4`). Der Zustand zeigt Materialtyp und Farbe, z. B. `PLA #FF0000`, bei leerem Slot `empty`.
-> - Die Slot-Sensoren liefern `material_type`, `sku`, `color`, `color_hex`, `spool_loaded`, `status`, `slot`, `local_slot`, `box_id` und `source` als Attribute.
-> - Die Anycubic-Filament-`sku` steht jetzt auch in den Attributen des bestehenden `ace_spools`-Sensors zur Verfuegung.
+> - Neu: der `ace_spools`-Sensor liefert `loaded_slot` – den ACE-Slot, der aktuell in den Hotend geladen ist. Damit laesst sich anzeigen, welche Spule gerade tatsaechlich foerdert, und nicht nur, welche Spulen eingelegt sind.
+> - Der Wert ist nullbasiert und indiziert die bestehende `spool_info`-Liste direkt, `spool_info[loaded_slot]` ist also die aktive Spule. `-1` bedeutet, dass kein Filament geladen ist. Die benachbarten Felder `slot`, `local_slot` und `display_slot` bleiben einsbasiert.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.

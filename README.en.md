@@ -21,6 +21,7 @@ The integration is currently available through HACS as a custom repository. Its 
 - Local, USB, and cloud file views
 - ACE spool, material, color, and drying information
 - One sensor per ACE slot (`ACE Slot 1`–`4`, plus `Secondary ACE Slot 1`–`4` with a second box) reporting material type and color as its state, e.g. `PLA #FF0000`, usable anywhere in a dashboard
+- `loaded_slot` attribute on the ACE spools sensor, identifying which slot is currently loaded into the toolhead
 - Native camera-light entity on supported printers
 - On-demand Anycubic cloud camera stream
 - Optional per-printer Home Assistant `camera.*` mapping for local or alternative firmware cameras

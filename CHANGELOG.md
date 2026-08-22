@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.7
+
+### Added
+
+- The `ace_spools` sensor now exposes `loaded_slot`, the ACE slot currently loaded into the toolhead. Until now the ACE data showed which spools are present, but not which one is actually feeding the extruder. The value is zero-based and indexes the existing `spool_info` list directly, so `spool_info[loaded_slot]` is the active spool; `-1` means no filament is loaded. Note that the neighbouring `slot`, `local_slot` and `display_slot` fields remain one-based.
+
 ## 0.3.6
 
 ### Added

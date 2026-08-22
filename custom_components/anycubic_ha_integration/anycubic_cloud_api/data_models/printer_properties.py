@@ -647,6 +647,10 @@ class AnycubicMultiColorBox:
         return self._id
 
     @property
+    def loaded_slot(self) -> int:
+        return self._loaded_slot
+
+    @property
     def auto_feed(self) -> int:
         return self._auto_feed
 
