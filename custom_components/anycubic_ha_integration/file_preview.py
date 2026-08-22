@@ -8,9 +8,20 @@ from typing import Protocol
 class ProjectPreview(Protocol):
     """Project fields required for file preview matching."""
 
-    printer_id: int | None
-    name: str
-    image_url: str | None
+    @property
+    def printer_id(self) -> int | None:
+        """Return the printer ID."""
+        ...
+
+    @property
+    def name(self) -> str:
+        """Return the project filename."""
+        ...
+
+    @property
+    def image_url(self) -> str | None:
+        """Return the project image URL."""
+        ...
 
 
 def normalize_preview_filename(filename: str) -> str:
