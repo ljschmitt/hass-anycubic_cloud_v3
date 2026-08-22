@@ -16,6 +16,7 @@ Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository instal
 >
 > - Neu: der `ace_spools`-Sensor liefert `loaded_slot` – den ACE-Slot, der aktuell in den Hotend geladen ist. Damit laesst sich anzeigen, welche Spule gerade tatsaechlich foerdert, und nicht nur, welche Spulen eingelegt sind.
 > - Der Wert ist nullbasiert und indiziert die bestehende `spool_info`-Liste direkt, `spool_info[loaded_slot]` ist also die aktive Spule. `-1` bedeutet, dass kein Filament geladen ist. Die benachbarten Felder `slot`, `local_slot` und `display_slot` bleiben einsbasiert.
+> - Behoben: `Aux Fan Speed %` und `Box Fan Level %` verschwinden nach einem Neustart nicht mehr aus dem Dashboard. Sie werden jetzt als nicht verfuegbar angezeigt, bis der Drucker den Wert erneut per MQTT sendet.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.

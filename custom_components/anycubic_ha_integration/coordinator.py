@@ -23,6 +23,7 @@ from homeassistant.exceptions import (
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.device_registry import DeviceInfo, async_get as async_get_device_registry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -68,6 +69,7 @@ from .helpers import (
     check_descriptor_status_not_lcd,
     get_drying_preset_from_entry_options,
     printer_attributes_for_key,
+    printer_entity_unique_id,
     printer_state_connected_ace_units,
     printer_state_for_key,
     printer_state_supports_ace,
@@ -460,6 +462,35 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.async_update_listeners()
 
     @callback
+    def _entity_already_registered(
+        self,
+        printer_id: int,
+        platform: Platform,
+        description: AnycubicCloudEntityDescription,
+    ) -> bool:
+        """Whether a `create_when_available` entity exists from an earlier run.
+
+        `create_when_available` keeps entities off printers that never report
+        the value at all. Some of those values, however, only ever arrive by
+        MQTT push (`aux_fan_speed_pct` and `box_fan_level` are only set by a
+        fan message or a print-status `settings` block), so after a restart
+        they are `None` until the printer happens to send one. Skipping the
+        descriptor then removes an entity the user already has on a dashboard.
+
+        Once the entity exists in the registry we know this printer does
+        report the value, so re-create it and let `available` report it as
+        unavailable until the next push arrives.
+        """
+        return (
+            async_get_entity_registry(self.hass).async_get_entity_id(
+                platform,
+                DOMAIN,
+                printer_entity_unique_id(self, printer_id, description.key),
+            )
+            is not None
+        )
+
+    @callback
     def add_entities_for_seen_printers[_AnycubicCloudEntityT: AnycubicCloudEntity](
         self,
         async_add_entities: AddEntitiesCallback,
@@ -549,6 +580,11 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         or (
                             description.create_when_available
                             and printer_state_for_key(self, printer_id, description.key) is None
+                            and not self._entity_already_registered(
+                                printer_id,
+                                platform,
+                                description,
+                            )
                         )
                     ):
                         remaining_unregistered_descriptors.append(description)

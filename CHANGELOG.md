@@ -6,6 +6,10 @@
 
 - The `ace_spools` sensor now exposes `loaded_slot`, the ACE slot currently loaded into the toolhead. Until now the ACE data showed which spools are present, but not which one is actually feeding the extruder. The value is zero-based and indexes the existing `spool_info` list directly, so `spool_info[loaded_slot]` is the active spool; `-1` means no filament is loaded. Note that the neighbouring `slot`, `local_slot` and `display_slot` fields remain one-based.
 
+### Fixed
+
+- `create_when_available` entities that already exist in the entity registry are now re-created on startup instead of being skipped until the printer pushes their value again. `Aux Fan Speed %` and `Box Fan Level %` are only set by an MQTT fan message or a print-status `settings` block, never by the regular cloud poll, so restarting Home Assistant mid-print removed them from dashboards for the rest of the job. They now appear as unavailable until the next push arrives. Printers that have never reported the value still get no entity, so the flag keeps doing its original job.
+
 ## 0.3.6
 
 ### Added
