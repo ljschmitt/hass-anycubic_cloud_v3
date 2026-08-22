@@ -4,7 +4,6 @@ import sys
 import unittest
 from pathlib import Path
 
-
 INTEGRATION_ROOT = (
     Path(__file__).resolve().parents[1]
     / "custom_components"
