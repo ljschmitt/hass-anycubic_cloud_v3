@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.6
+
+### Fixed
+
+- The Anycubic panel and bundled card now list only printer devices owned by this integration, preventing same-named network devices from integrations such as FRITZ!Box from appearing as duplicate printers.
+
 ## 0.3.5
 
 ### Added

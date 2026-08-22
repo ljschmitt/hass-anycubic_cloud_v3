@@ -12,12 +12,10 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.5**
+> 🗓️ **Aktuelles Release: 0.3.6**
 >
-> - Lokale und USB-Dateiliste stellen vor dem Abruf jetzt aktiv die MQTT-Aktionsverbindung her, damit der Abruf nicht davon abhaengt, ob MQTT bereits durch eine andere Funktion aktiv war.
-> - Lokale und USB-Dateiliste zeigen beim Warten jetzt einen klaren Lade-/Leerstatus statt einer leeren Flaeche.
-> - Behebt den ersten automatischen Abruf der lokalen und USB-Dateiliste im Anycubic-Panel, wenn der erste Versuch zu frueh kam oder keine MQTT-Antwort lieferte.
-> - Stabilisiert 2x-ACE-Pro-Setups: Einzelne ACE-Teilupdates entfernen bekannte zweite ACE-Boxen nicht mehr kurzfristig aus dem Zustand.
+> - Die Druckerauswahl im Anycubic-Panel und in der gebuendelten Card zeigt nur noch Druckergeraete dieser Integration.
+> - Gleichnamige Netzwerkgeraete anderer Integrationen werden nicht mehr versehentlich als zusaetzliche Anycubic-Drucker aufgefuehrt.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -121,6 +119,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 ## 🧩 Features
 
 - Mehrere Drucker gleichzeitig
+- Die Druckerauswahl zeigt nur Geraete dieser Integration; gleichnamige Netzwerkgeraete anderer Integrationen werden nicht als zusaetzliche Drucker aufgefuehrt.
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
 - Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit optionaler ACE-Slotnummernliste
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
