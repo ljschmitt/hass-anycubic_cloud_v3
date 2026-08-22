@@ -49,6 +49,9 @@
     "prepare": {
       "file": "Datei",
       "path": "Pfad",
+      "preview_alt": "Vorschau der Druckdatei",
+      "preview_loading": "Vorschau wird geladen...",
+      "preview_unavailable": "Keine Vorschau verfügbar.",
       "print_failed": "Der Druck konnte nicht gestartet werden.",
       "printer": "Drucker",
       "slot_numbers": "Slotnummernliste",

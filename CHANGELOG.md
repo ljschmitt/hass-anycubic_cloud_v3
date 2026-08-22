@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.8-beta.1
+
+### Added
+
+- Added an on-demand preview to local and USB print preparation. The preview is shown only when the selected printer's Anycubic project history contains an exact normalized filename match; remote image URLs remain behind the authenticated Home Assistant backend.
+
 ## 0.3.7
 
 ### Fixed

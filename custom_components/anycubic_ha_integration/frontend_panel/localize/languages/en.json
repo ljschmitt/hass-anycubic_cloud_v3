@@ -49,6 +49,9 @@
     "prepare": {
       "file": "File",
       "path": "Path",
+      "preview_alt": "Print file preview",
+      "preview_loading": "Loading preview...",
+      "preview_unavailable": "No preview available.",
       "print_failed": "The print could not be started.",
       "printer": "Printer",
       "slot_numbers": "Slot number list",
