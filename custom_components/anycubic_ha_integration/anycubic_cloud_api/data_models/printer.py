@@ -1155,7 +1155,7 @@ class AnycubicPrinter:
     ) -> None:
         if action == 'listLocal' and state == 'done':
             data = payload['data']
-            records = data['records']
+            records = data.get('records', [])
             data.get('list_mode')
             file_path = data.get('path', self._pending_local_file_list_path)
             self._pending_local_file_list_path = None
@@ -1166,7 +1166,7 @@ class AnycubicPrinter:
             return
         elif action == 'listUdisk' and state == 'done':
             data = payload['data']
-            records = data['records']
+            records = data.get('records', [])
             data.get('list_mode')
             file_path = data.get('path', self._pending_udisk_file_list_path)
             self._pending_udisk_file_list_path = None
@@ -1754,7 +1754,7 @@ class AnycubicPrinter:
 
     @property
     def local_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
-        if not self._local_file_list or len(self._local_file_list) < 1:
+        if self._local_file_list is None:
             return None
 
         file_list = list([
@@ -1768,7 +1768,7 @@ class AnycubicPrinter:
 
     @property
     def udisk_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
-        if not self._udisk_file_list or len(self._udisk_file_list) < 1:
+        if self._udisk_file_list is None:
             return None
 
         file_list = list([

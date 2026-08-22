@@ -12,12 +12,12 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.6**
+> 🗓️ **Aktuelles Release: 0.3.7**
 >
-> - Die Druckerauswahl im Anycubic-Panel und in der gebuendelten Card zeigt nur noch Druckergeraete dieser Integration.
-> - Gleichnamige Netzwerkgeraete anderer Integrationen werden nicht mehr versehentlich als zusaetzliche Anycubic-Drucker aufgefuehrt.
+> - Leere lokale und USB-Unterordner werden jetzt sofort als leere Ordner angezeigt.
+> - MQTT-Dateilisten ohne `records`-Feld werden als erfolgreiche leere Antwort verarbeitet, statt im Ladezustand haengen zu bleiben.
 >
-> Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
+> Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
@@ -122,6 +122,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 - Die Druckerauswahl zeigt nur Geraete dieser Integration; gleichnamige Netzwerkgeraete anderer Integrationen werden nicht als zusaetzliche Drucker aufgefuehrt.
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
 - Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit optionaler ACE-Slotnummernliste
+- Leere lokale und USB-Unterordner werden als leere Ordner angezeigt, auch wenn der Drucker in der MQTT-Antwort kein `records`-Feld mitsendet.
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
 - Dateimanager (MQTT benötigt)
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …
@@ -368,4 +369,4 @@ GNU General Public License v3.0. Siehe [LICENSE](LICENSE).
 ## ✅ Kompatibilität
 
 - Home Assistant 2025.10.0 oder neuer
-- Getestet mit Home Assistant 2026.6.1
+- Getestet mit Home Assistant 2026.8.3

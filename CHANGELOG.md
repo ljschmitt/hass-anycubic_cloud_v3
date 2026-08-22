@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.7
+
+### Fixed
+
+- Empty local and USB folders are now treated as successfully loaded empty lists when Anycubic omits the `records` field from the MQTT response.
+
 ## 0.3.6
 
 ### Fixed
