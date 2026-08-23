@@ -353,6 +353,19 @@ class AnycubicPrinter:
 
             existing_multi_color_box = getattr(self, "_multi_color_box", None)
 
+            # A cloud poll rebuilds every box from scratch, and the payload
+            # reports loaded_slot as -1 unless a filament change happens to be
+            # running right then. Carry the latched slot over so the active
+            # filament does not reset once a minute.
+            previous_active_slots: dict[int, int | None] = {
+                box.box_id: box.active_slot
+                for box in (existing_multi_color_box or [])
+            }
+
+            def carry_over_active_slot(box: AnycubicMultiColorBox) -> None:
+                if box.active_slot is None and box.box_id in previous_active_slots:
+                    box.set_active_slot(previous_active_slots[box.box_id])
+
             if (
                 existing_multi_color_box is not None and
                 len(existing_multi_color_box) > 1 and
@@ -364,6 +377,8 @@ class AnycubicPrinter:
                 updated_box = AnycubicMultiColorBox.from_json(multi_color_box_list[0])
                 if not updated_box:
                     raise AnycubicDataParsingError(ErrorsDataParsing.ace.format(multi_color_box))
+
+                carry_over_active_slot(updated_box)
 
                 for box_index, existing_box in enumerate(existing_multi_color_box):
                     if existing_box.box_id == updated_box.box_id:
@@ -379,6 +394,7 @@ class AnycubicPrinter:
                 for x in multi_color_box_list:
                     ace = AnycubicMultiColorBox.from_json(x)
                     if ace:
+                        carry_over_active_slot(ace)
                         self._multi_color_box.append(ace)
                     else:
                         raise AnycubicDataParsingError(ErrorsDataParsing.ace.format(multi_color_box))
@@ -1881,6 +1897,33 @@ class AnycubicPrinter:
         return None
 
     @property
+    def primary_multi_color_box_active_slot(self) -> int | None:
+        if self.primary_multi_color_box:
+            return self.primary_multi_color_box.active_slot
+
+        return None
+
+    @property
+    def multi_color_box_active_slots(self) -> dict[int, int]:
+        """Latched active slot per box id, for persisting across restarts."""
+        if not self._multi_color_box:
+            return dict()
+
+        return {
+            box.box_id: box.active_slot
+            for box in self._multi_color_box
+            if box.active_slot is not None
+        }
+
+    def set_multi_color_box_active_slot(self, box_id: int, slot_num: int | None) -> None:
+        """Restore a latched active slot, e.g. from stored state after a restart."""
+        box_index = self._multi_color_box_index_by_id(box_id)
+        if box_index is None or not self._multi_color_box:
+            return
+
+        self._multi_color_box[box_index].set_active_slot(slot_num)
+
+    @property
     def primary_drying_status_is_drying(self) -> bool | None:
         if self.primary_drying_status:
             return self.primary_drying_status.is_drying
@@ -1984,6 +2027,13 @@ class AnycubicPrinter:
             ace_spool_info.append(slot)
 
         return ace_spool_info
+
+    @property
+    def secondary_multi_color_box_active_slot(self) -> int | None:
+        if self.secondary_multi_color_box:
+            return self.secondary_multi_color_box.active_slot
+
+        return None
 
     @property
     def secondary_multi_color_box_current_temperature(self) -> int:

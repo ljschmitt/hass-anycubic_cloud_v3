@@ -12,11 +12,11 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.7**
+> 🗓️ **Aktuelles Release: 0.3.8**
 >
-> - Neu: der `ace_spools`-Sensor liefert `loaded_slot` – den ACE-Slot, der aktuell in den Hotend geladen ist. Damit laesst sich anzeigen, welche Spule gerade tatsaechlich foerdert, und nicht nur, welche Spulen eingelegt sind.
-> - Der Wert ist nullbasiert und indiziert die bestehende `spool_info`-Liste direkt, `spool_info[loaded_slot]` ist also die aktive Spule. `-1` bedeutet, dass kein Filament geladen ist. Die benachbarten Felder `slot`, `local_slot` und `display_slot` bleiben einsbasiert.
-> - Behoben: `Aux Fan Speed %` und `Box Fan Level %` verschwinden nach einem Neustart nicht mehr aus dem Dashboard. Sie werden jetzt als nicht verfuegbar angezeigt, bis der Drucker den Wert erneut per MQTT sendet.
+> - Neu: Sensor `ACE Active Filament` (bei zweiter Box zusaetzlich `Secondary ACE Active Filament`) zeigt das Filament, das gerade in der Duese steckt, z. B. `PLA #0047BB`. Materialtyp, SKU, Farbe, Slotnummer und Box-ID stehen als Attribute daneben.
+> - Behoben: Das aktive Filament verschwand bisher wenige Sekunden nach dem Farbwechsel wieder. Der Drucker meldet `loaded_slot` nur waehrend des Wechsels und danach `-1`, und jeder Cloud-Poll hat die Box aus genau diesem Wert neu aufgebaut. Der zuletzt tatsaechlich gefoerderte Slot wird jetzt gehalten, ueberlebt den Poll und wird gespeichert, also auch einen Neustart von Home Assistant.
+> - Das rohe `loaded_slot`-Attribut am `ace_spools`-Sensor bleibt unveraendert und zeigt weiterhin den Momentanwert.
 >
 > Getestet mit **Home Assistant 2026.6.1**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -123,6 +123,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
 - Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit optionaler ACE-Slotnummernliste
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
+- Sensor `ACE Active Filament`: zeigt dauerhaft das aktuell gefoerderte Filament, auch zwischen zwei Farbwechseln
 - Eigener Sensor je ACE-Slot (`ACE Slot 1`–`4`, bei zweiter Box zusaetzlich `Secondary ACE Slot 1`–`4`) mit Materialtyp und Farbe als Zustand, z. B. `PLA #FF0000` — frei im Dashboard platzierbar
 - Dateimanager (MQTT benötigt)
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …

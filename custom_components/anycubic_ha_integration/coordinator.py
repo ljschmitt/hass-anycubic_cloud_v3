@@ -30,6 +30,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .anycubic_cloud_api.anycubic_api import AnycubicMQTTAPI as AnycubicAPI
 from .anycubic_cloud_api.exceptions.exceptions import AnycubicAPIError, AnycubicAPIParsingError
 from .const import (
+    ACE_STATE_SAVE_DELAY,
     API_SETUP_RETRIES,
     API_SETUP_RETRY_INTERVAL_SECONDS,
     CONF_DEBUG_API_CALLS,
@@ -55,6 +56,7 @@ from .const import (
     MQTT_SCAN_INTERVAL,
     PRINT_JOB_STARTED_UPDATE_DELAY,
     STORAGE_KEY,
+    STORAGE_KEY_ACE_STATE,
     STORAGE_VERSION,
     PrinterEntityType,
 )
@@ -74,6 +76,7 @@ from .helpers import (
     printer_state_for_key,
     printer_state_supports_ace,
     spool_attributes,
+    spool_info_for_active_slot,
     spool_info_for_local_slot,
     spool_state_string,
     state_string_active,
@@ -117,6 +120,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             else mqtt_connect_mode
         )
         self._unregistered_descriptors: dict[int, dict[str, list[AnycubicCloudEntityDescription]]] = dict()
+        self._ace_state_store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY_ACE_STATE)
+        self._ace_active_slots_saved: dict[str, Any] | None = None
         super().__init__(
             hass,
             LOGGER,
@@ -233,6 +238,15 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         material_rack_spool_info = printer.material_rack_spool_info_object
         kobra_x_internal_spool_info = printer.kobra_x_internal_material_rack_spool_info_object
 
+        primary_ace_active_spool = spool_info_for_active_slot(
+            primary_ace_spool_info,
+            printer.primary_multi_color_box_active_slot,
+        )
+        secondary_ace_active_spool = spool_info_for_active_slot(
+            secondary_ace_spool_info,
+            printer.secondary_multi_color_box_active_slot,
+        )
+
         file_list_local = printer.local_file_list_object
         file_list_udisk = printer.udisk_file_list_object
         file_list_cloud = self._cloud_file_list
@@ -256,10 +270,12 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "connected_ace_units": printer.connected_ace_units,
             "multi_color_box_fw_version": printer.primary_multi_color_box_fw_firmware_version,
             "ace_spools": state_string_active(primary_ace_spool_info),
+            "ace_active_filament": spool_state_string(primary_ace_active_spool),
             "multi_color_box_runout_refill": printer.primary_multi_color_box_auto_feed,
             "ace_current_temperature": printer.primary_multi_color_box_current_temperature,
             "secondary_multi_color_box_fw_version": printer.secondary_multi_color_box_fw_firmware_version,
             "secondary_ace_spools": state_string_active(secondary_ace_spool_info),
+            "secondary_ace_active_filament": spool_state_string(secondary_ace_active_spool),
             "secondary_multi_color_box_runout_refill": printer.secondary_multi_color_box_auto_feed,
             "secondary_ace_current_temperature": printer.secondary_multi_color_box_current_temperature,
             "material_rack_spools": state_string_active(material_rack_spool_info),
@@ -424,6 +440,12 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if secondary_attributes := spool_attributes(secondary_spool):
                 attributes[f"secondary_{ENTITY_ID_ACE_SLOT_}{local_slot}"] = secondary_attributes
 
+        if primary_active_attributes := spool_attributes(primary_ace_active_spool):
+            attributes["ace_active_filament"] = primary_active_attributes
+
+        if secondary_active_attributes := spool_attributes(secondary_ace_active_spool):
+            attributes["secondary_ace_active_filament"] = secondary_active_attributes
+
         return {
             'states': states,
             'attributes': attributes,
@@ -440,6 +462,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         for printer_id, printer in self._anycubic_printers.items():
             data_dict['printers'][printer_id] = self._build_printer_dict(printer)
+
+        self._save_ace_active_slots_if_changed()
 
         return data_dict
 
@@ -460,6 +484,56 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.data = self._build_coordinator_data()
         self.last_update_success = True
         self.async_update_listeners()
+
+    def _ace_active_slots_data(self) -> dict[str, Any]:
+        """Serialise the latched ACE slots for storage."""
+        return {
+            str(printer_id): {
+                str(box_id): slot_num
+                for box_id, slot_num in printer.multi_color_box_active_slots.items()
+            }
+            for printer_id, printer in self._anycubic_printers.items()
+        }
+
+    @callback
+    def _save_ace_active_slots_if_changed(self) -> None:
+        """Persist the latched ACE slots so they survive a restart.
+
+        The printer only names the fed slot for a few seconds during a filament
+        change and reports -1 the rest of the time, so without this the active
+        filament would be unknown after every restart until the next change.
+        """
+        data = self._ace_active_slots_data()
+
+        if data == self._ace_active_slots_saved:
+            return
+
+        self._ace_active_slots_saved = data
+        self._ace_state_store.async_delay_save(
+            self._ace_active_slots_data,
+            ACE_STATE_SAVE_DELAY,
+        )
+
+    async def _restore_ace_active_slots(self) -> None:
+        """Reload the latched ACE slots written by a previous run."""
+        try:
+            stored = await self._ace_state_store.async_load()
+
+            if not stored:
+                return
+
+            for printer_id, boxes in stored.items():
+                printer = self._anycubic_printers.get(int(printer_id))
+                if printer is None or not isinstance(boxes, dict):
+                    continue
+
+                for box_id, slot_num in boxes.items():
+                    printer.set_multi_color_box_active_slot(int(box_id), slot_num)
+
+            self._ace_active_slots_saved = self._ace_active_slots_data()
+
+        except Exception as error:
+            LOGGER.warning(f"Could not restore stored Anycubic ACE slot state: {error}")
 
     @callback
     def _entity_already_registered(
@@ -943,6 +1017,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 await self._setup_anycubic_api_connection()
                 await self._setup_anycubic_printer_objects()
+                await self._restore_ace_active_slots()
                 self.hass.create_task(
                     self._async_request_missing_multi_color_box_info_after_startup(),
                     f"Anycubic coordinator {self.entry.entry_id} missing multi-color info startup request",

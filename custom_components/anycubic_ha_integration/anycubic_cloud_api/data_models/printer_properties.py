@@ -524,6 +524,7 @@ class AnycubicMultiColorBox:
         "_model_id",
         "_auto_feed",
         "_loaded_slot",
+        "_active_slot",
         "_feed_status",
         "_temp",
         "_drying_status",
@@ -551,6 +552,7 @@ class AnycubicMultiColorBox:
         self._model_id: int = int(model_id)
         self._auto_feed: int = int(auto_feed)
         self._loaded_slot: int = int(loaded_slot)
+        self._active_slot: int | None = self._loaded_slot if self._loaded_slot >= 0 else None
         self.set_feed_status(feed_status)
         self.set_current_temperature(temp)
         self.set_drying_status(drying_status)
@@ -574,6 +576,8 @@ class AnycubicMultiColorBox:
 
     def set_slot_loaded(self, slot_num: int) -> None:
         self._loaded_slot = slot_num
+        if slot_num >= 0:
+            self._active_slot = slot_num
 
     def set_current_temperature(self, temp: int) -> None:
         self._temp = int(temp)
@@ -649,6 +653,24 @@ class AnycubicMultiColorBox:
     @property
     def loaded_slot(self) -> int:
         return self._loaded_slot
+
+    @property
+    def active_slot(self) -> int | None:
+        """Slot the box fed most recently, or None if it never fed one.
+
+        `loaded_slot` only carries a slot number while a filament change is
+        running and drops back to -1 once the filament is through, so it cannot
+        answer which spool is currently printing. This latches the last real
+        value until the next change.
+        """
+        return self._active_slot
+
+    def set_active_slot(self, slot_num: int | None) -> None:
+        """Restore the latch, e.g. after a rebuild from a cloud poll."""
+        if slot_num is None or int(slot_num) < 0:
+            self._active_slot = None
+        else:
+            self._active_slot = int(slot_num)
 
     @property
     def auto_feed(self) -> int:

@@ -59,6 +59,13 @@ PRIMARY_MULTI_COLOR_BOX_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = li
         not_measured=True,
     ),
     AnycubicSensorEntityDescription(
+        key="ace_active_filament",
+        translation_key="ace_active_filament",
+        printer_entity_type=PrinterEntityType.ACE_PRIMARY,
+        not_measured=True,
+        create_when_available=True,
+    ),
+    AnycubicSensorEntityDescription(
         key="dry_status_target_temperature",
         translation_key="dry_status_target_temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -89,6 +96,13 @@ SECONDARY_MULTI_COLOR_BOX_SENSOR_TYPES: list[AnycubicSensorEntityDescription] = 
         translation_key="secondary_ace_spools",
         printer_entity_type=PrinterEntityType.ACE_SECONDARY,
         not_measured=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="secondary_ace_active_filament",
+        translation_key="secondary_ace_active_filament",
+        printer_entity_type=PrinterEntityType.ACE_SECONDARY,
+        not_measured=True,
+        create_when_available=True,
     ),
     AnycubicSensorEntityDescription(
         key="secondary_dry_status_target_temperature",

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.8
+
+### Added
+
+- New `ACE Active Filament` sensor (plus `Secondary ACE Active Filament` for a second box) reporting the filament currently in the toolhead, e.g. `PLA #0047BB`, with material type, sku, colour, slot number and box id as attributes.
+
+### Fixed
+
+- The active ACE slot no longer disappears seconds after a filament change. The printer only reports `loaded_slot` while a change is actually running and returns `-1` once the filament is through, and every cloud poll rebuilt the box from that payload, so the value was visible for roughly 20-30 seconds per tool change and unusable the rest of the time. The last slot the box actually fed is now latched, carried across cloud-poll rebuilds and stored, so it also survives a Home Assistant restart. The raw `loaded_slot` attribute on `ace_spools` is unchanged and still reports the momentary value.
+
 ## 0.3.7
 
 ### Added

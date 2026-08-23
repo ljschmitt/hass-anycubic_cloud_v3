@@ -297,6 +297,9 @@
       "ace_spools": {
         "name": "ACE Spools"
       },
+      "ace_active_filament": {
+        "name": "ACE Active Filament"
+      },
       "ace_slot_1": {
         "name": "ACE Slot 1"
       },
@@ -326,6 +329,9 @@
       },
       "secondary_ace_spools": {
         "name": "Secondary ACE Spools"
+      },
+      "secondary_ace_active_filament": {
+        "name": "Secondary ACE Active Filament"
       },
       "secondary_ace_slot_1": {
         "name": "Secondary ACE Slot 1"

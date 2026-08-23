@@ -294,6 +294,21 @@ def spool_info_for_local_slot(
     return None
 
 
+def spool_info_for_active_slot(
+    spool_info: list[dict[str, Any]] | None,
+    active_slot: int | None,
+) -> dict[str, Any] | None:
+    """Return the spool the box fed most recently.
+
+    `active_slot` is zero-based and indexes `spool_info` directly, unlike the
+    one-based `local_slot` the per-slot sensors use.
+    """
+    if active_slot is None or active_slot < 0:
+        return None
+
+    return spool_info_for_local_slot(spool_info, active_slot + 1)
+
+
 def spool_state_string(spool: dict[str, Any] | None) -> str | None:
     """Return the sensor state for a single multi color box slot."""
     if spool is None:
