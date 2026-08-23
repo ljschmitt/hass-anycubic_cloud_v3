@@ -1874,6 +1874,13 @@ class AnycubicPrinter:
         return 0
 
     @property
+    def primary_multi_color_box_loaded_slot(self) -> int | None:
+        if self.primary_multi_color_box:
+            return self.primary_multi_color_box.loaded_slot
+
+        return None
+
+    @property
     def primary_drying_status_is_drying(self) -> bool | None:
         if self.primary_drying_status:
             return self.primary_drying_status.is_drying
