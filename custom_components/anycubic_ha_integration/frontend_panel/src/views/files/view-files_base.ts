@@ -7,10 +7,12 @@ import { platform } from "../../const";
 import {
   getPrinterEntities,
   getPrinterEntityIdPart,
+  getPrinterID,
   getPrinterSupportsMQTT,
 } from "../../helpers";
 import {
   AnycubicFileLocal,
+  AnycubicFilePreviewResponse,
   DomClickEvent,
   EvtTargFileInfo,
   EvtTargInput,
@@ -94,6 +96,14 @@ export class AnycubicViewFilesBase extends LitElement {
 
   @state()
   protected _printError: string | undefined;
+
+  @state()
+  private _printPreviewImage: string | undefined;
+
+  @state()
+  private _printPreviewLoading: boolean = false;
+
+  private _printPreviewRequest = 0;
 
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
@@ -288,6 +298,31 @@ export class AnycubicViewFilesBase extends LitElement {
             <dd>${fileInfo?.path || this._currentPath}</dd>
           </div>
         </dl>
+
+        <div class="print-preview" aria-live="polite">
+          ${this._printPreviewLoading
+            ? html`
+                <div class="print-preview-status">
+                  ${localize("files.prepare.preview_loading", this.language)}
+                </div>
+              `
+            : this._printPreviewImage
+              ? html`
+                  <img
+                    src=${this._printPreviewImage}
+                    alt=${localize("files.prepare.preview_alt", this.language)}
+                  />
+                `
+              : html`
+                  <div class="print-preview-status">
+                    <ha-icon icon="mdi:image-off-outline"></ha-icon>
+                    ${localize(
+                      "files.prepare.preview_unavailable",
+                      this.language,
+                    )}
+                  </div>
+                `}
+        </div>
 
         <label class="slot-list-label" for="slot-number-list">
           ${localize("files.prepare.slot_numbers", this.language)}
@@ -498,6 +533,8 @@ export class AnycubicViewFilesBase extends LitElement {
     this._printPreparationFile = fileInfo;
     this._printSlotNumbers = "";
     this._printError = undefined;
+    this._printPreviewImage = undefined;
+    void this.loadPrintPreview(fileInfo);
   };
 
   closePrintPreparation = (): void => {
@@ -508,6 +545,9 @@ export class AnycubicViewFilesBase extends LitElement {
     this._printPreparationFile = undefined;
     this._printSlotNumbers = "";
     this._printError = undefined;
+    this._printPreviewImage = undefined;
+    this._printPreviewLoading = false;
+    this._printPreviewRequest += 1;
   };
 
   updatePrintSlotNumbers = (ev: Event): void => {
@@ -559,6 +599,50 @@ export class AnycubicViewFilesBase extends LitElement {
     _fileInfo: AnycubicFileLocal,
     _slotNumbers: number[] | undefined,
   ): Promise<void> => Promise.resolve();
+
+  protected getFilePreviewSource = (): "local" | "udisk" | undefined =>
+    undefined;
+
+  private loadPrintPreview = async (
+    fileInfo: AnycubicFileLocal,
+  ): Promise<void> => {
+    const source = this.getFilePreviewSource();
+    const printerId = Number.parseInt(
+      getPrinterID(this.selectedPrinterDevice) || "",
+      10,
+    );
+    if (
+      !source ||
+      !fileInfo.name ||
+      !this.selectedPrinterDevice ||
+      !Number.isInteger(printerId)
+    ) {
+      return;
+    }
+
+    const requestId = ++this._printPreviewRequest;
+    this._printPreviewLoading = true;
+    try {
+      const response = await this.hass.callWS<AnycubicFilePreviewResponse>({
+        type: `${platform}/file_preview`,
+        config_entry: this.selectedPrinterDevice.primary_config_entry,
+        printer_id: printerId,
+        source,
+        filename: fileInfo.name,
+      });
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewImage = response.image || undefined;
+      }
+    } catch (_e: unknown) {
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewImage = undefined;
+      }
+    } finally {
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewLoading = false;
+      }
+    }
+  };
 
   static get styles(): CSSResult {
     return css`

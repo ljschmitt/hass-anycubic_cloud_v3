@@ -151,6 +151,10 @@ export interface AnycubicFileCloud extends AnycubicFileLocal {
   id: number;
 }
 
+export interface AnycubicFilePreviewResponse {
+  image: string | null;
+}
+
 export enum CalculatedTimeType {
   ETA = "ETA",
   Elapsed = "Elapsed",

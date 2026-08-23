@@ -165,6 +165,38 @@ export const commonFilesStyle: CSSResult = css`
     margin-bottom: 8px;
   }
 
+  .print-preview {
+    display: flex;
+    width: 100%;
+    min-height: 220px;
+    max-height: 360px;
+    margin: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--divider-color);
+    border-radius: 6px;
+    background: var(--secondary-background-color);
+  }
+
+  .print-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 360px;
+    object-fit: contain;
+  }
+
+  .print-preview-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--secondary-text-color);
+    text-align: center;
+  }
+
   .slot-list-input {
     width: 100%;
     box-sizing: border-box;
@@ -232,6 +264,11 @@ export const commonFilesStyle: CSSResult = css`
 
     .print-preparation-actions {
       flex-direction: column-reverse;
+    }
+
+    .print-preview {
+      min-height: 180px;
+      max-height: 280px;
     }
   }
 `;

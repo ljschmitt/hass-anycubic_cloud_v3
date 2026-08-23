@@ -46,6 +46,8 @@ export class AnycubicViewFilesUdisk extends AnycubicViewFilesBase {
   protected getAutoLoadRequestTarget = (): string | undefined =>
     this.selectedPrinterDevice?.id;
 
+  protected getFilePreviewSource = (): "udisk" => "udisk";
+
   deleteFile = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileLocal = ev.currentTarget
       .file_info as AnycubicFileLocal;
