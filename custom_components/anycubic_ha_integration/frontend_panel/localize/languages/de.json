@@ -59,7 +59,8 @@
       "preview_unavailable": "Keine Vorschau verfügbar.",
       "print_failed": "Der Druck konnte nicht gestartet werden.",
       "printer": "Drucker",
-      "slot_title": "Zugang {display_slot}, interner ACE-Slot {ace_slot}",
+      "slot_title": "Materialzugang {display_slot}",
+      "material_rack": "Regal",
       "slot_numbers": "Slotnummernliste",
       "title": "Druck vorbereiten",
       "unknown_printer": "Unbekannter Drucker"

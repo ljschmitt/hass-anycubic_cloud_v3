@@ -764,7 +764,7 @@
         },
         "slot_number": {
           "name": "Slotnummernliste",
-          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+          "description": "Sichtbare Materialzugänge in der Reihenfolge der Druckfarben, z. B. [1, 2]."
         },
         "uploaded_gcode_file": {
           "name": "G‑code‑Datei",
@@ -790,7 +790,7 @@
         },
         "slot_number": {
           "name": "Slotnummernliste",
-          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+          "description": "Sichtbare Materialzugänge in der Reihenfolge der Druckfarben, z. B. [1, 2]."
         },
         "uploaded_gcode_file": {
           "name": "G‑code‑Datei",
@@ -816,7 +816,7 @@
         },
         "slot_number": {
           "name": "Slotnummernliste",
-          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+          "description": "Sichtbare Materialzugänge in der Reihenfolge der Druckfarben, z. B. [1, 2]."
         },
         "filename": {
           "name": "Dateiname",
@@ -846,7 +846,7 @@
         },
         "slot_number": {
           "name": "Slotnummernliste",
-          "description": "Slotnummern (1–4) zur Zuordnung der Druckfarben, z. B. [1, 2]."
+          "description": "Sichtbare Materialzugänge in der Reihenfolge der Druckfarben, z. B. [1, 2]."
         },
         "filename": {
           "name": "Dateiname",

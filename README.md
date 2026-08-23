@@ -12,10 +12,10 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.9-beta.1**
+> 🗓️ **Aktuelles Release: 0.3.9-beta.2**
 >
-> - Leere lokale und USB-Unterordner werden jetzt sofort als leere Ordner angezeigt.
-> - MQTT-Dateilisten ohne `records`-Feld werden als erfolgreiche leere Antwort verarbeitet, statt im Ladezustand haengen zu bleiben.
+> - Die Druckvorbereitung zeigt alle geladenen Materialquellen mit ihren Farben an.
+> - Beim Kobra X werden die sichtbaren Regalzugänge 1-3 und die ACE-Zugänge 4-7 korrekt auf die internen Druckslots abgebildet.
 >
 > Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
@@ -121,7 +121,7 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 - Mehrere Drucker gleichzeitig
 - Die Druckerauswahl zeigt nur Geraete dieser Integration; gleichnamige Netzwerkgeraete anderer Integrationen werden nicht als zusaetzliche Drucker aufgefuehrt.
 - Druckstart / Pause / Fortsetzen / Abbruch (via Services & UI)
-- Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit farbiger Auswahl der aktuell geladenen ACE-Spulen. Die Auswahlreihenfolge wird als Slotzuordnung uebernommen; eine aufklappbare manuelle Slotnummernliste bleibt als Fallback erhalten.
+- Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit farbiger Auswahl aller aktuell geladenen Materialquellen. Beim Kobra X werden Materialregal und ACE gemeinsam angeboten, waehrend die fuer den ACE reservierte Zuleitung nicht als Filamentspule auswaehlbar ist. Die Auswahlreihenfolge wird als Slotzuordnung uebernommen; eine aufklappbare manuelle Slotnummernliste bleibt als Fallback erhalten.
 - Die Druckvorbereitung zeigt eine Vorschau, wenn die Anycubic-Projekthistorie fuer denselben Drucker einen exakt passenden Dateinamen mit Bild enthaelt. Ohne sicheren Treffer bleibt der Druck weiterhin moeglich und es wird keine fremde Vorschau geraten.
 - Leere lokale und USB-Unterordner werden als leere Ordner angezeigt, auch wenn der Drucker in der MQTT-Antwort kein `records`-Feld mitsendet.
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)

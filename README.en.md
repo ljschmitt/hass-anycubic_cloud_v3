@@ -17,7 +17,7 @@ The integration is currently available through HACS as a custom repository. Its 
 - Multiple Anycubic printers in one Home Assistant installation
 - Cloud polling and optional MQTT real-time updates
 - Print status, temperatures, speed, fan, layers, progress, and timing sensors
-- Pause, resume, cancel, and prepared print workflows with ordered color selection for loaded ACE spools and a collapsible manual slot-number fallback
+- Pause, resume, cancel, and prepared print workflows with ordered color selection for all loaded material sources and a collapsible manual slot-number fallback
 - Local, USB, and cloud file views
 - ACE spool, material, color, and drying information
 - Native camera-light entity on supported printers

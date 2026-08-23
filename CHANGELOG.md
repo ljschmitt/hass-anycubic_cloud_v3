@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.9-beta.2
+
+### Fixed
+
+- Added loaded Kobra X material-rack slots to the print-preparation color selector and mapped both rack and ACE choices to their actual print-service slots.
+
 ## 0.3.9-beta.1
 
 ### Changed

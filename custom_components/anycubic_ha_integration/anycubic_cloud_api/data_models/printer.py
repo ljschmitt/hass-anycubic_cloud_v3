@@ -2468,11 +2468,12 @@ class AnycubicPrinter:
 
         material_list = list()
         for paint_index, slot_index in enumerate(slot_index_list):
-            box_index = slot_index // 4
-            local_slot_index = slot_index - (4 * box_index)
+            box_id = slot_index // 4
+            local_slot_index = slot_index - (4 * box_id)
             material_type = "UNKNOWN"
 
-            if box_index < len(self._multi_color_box):
+            box_index = self._multi_color_box_index_by_id(box_id)
+            if box_index is not None:
                 box_slots = self._multi_color_box[box_index].slots
                 if 0 <= local_slot_index < len(box_slots):
                     material_type = box_slots[local_slot_index].material_type
@@ -2489,6 +2490,21 @@ class AnycubicPrinter:
             slot_index_list=slot_index_list,
             material_list=material_list,
         )
+
+    def print_slot_numbers_to_indices(
+        self,
+        slot_number_list: list[int],
+    ) -> list[int]:
+        """Translate visible one-based material accesses to protocol indices."""
+        if self.is_kobra_x:
+            # Kobra X exposes its internal rack as box -1 and its first ACE as
+            # box 0. Accesses 1-3 are rack slots; access 4 starts the ACE.
+            return [
+                slot_number - 5 if slot_number < 4 else slot_number - 4
+                for slot_number in slot_number_list
+            ]
+
+        return [slot_number - 1 for slot_number in slot_number_list]
 
     async def print_local_file(
         self,

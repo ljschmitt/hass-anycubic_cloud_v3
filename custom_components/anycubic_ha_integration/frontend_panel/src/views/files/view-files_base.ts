@@ -32,6 +32,7 @@ import {
 
 interface PrintSlotOption extends AnycubicSpoolInfo {
   displaySlot: number;
+  localSlot: number;
   serviceSlot: number;
 }
 
@@ -594,8 +595,6 @@ export class AnycubicViewFilesBase extends LitElement {
             this.language,
             "{display_slot}",
             slot.displaySlot,
-            "{ace_slot}",
-            slot.serviceSlot,
           )}
           @click=${this.togglePrintSlot}
         >
@@ -604,12 +603,14 @@ export class AnycubicViewFilesBase extends LitElement {
           </span>
           <span class="print-slot-material">${slot.material_type}</span>
           <span class="print-slot-source">
-            ${localize(
-              "files.prepare.ace_slot",
-              this.language,
-              "{slot}",
-              slot.serviceSlot,
-            )}
+            ${slot.source === "ace"
+              ? localize(
+                  "files.prepare.ace_slot",
+                  this.language,
+                  "{slot}",
+                  slot.localSlot,
+                )
+              : localize("files.prepare.material_rack", this.language)}
           </span>
           ${selected
             ? html`<span class="print-slot-order">${selectedOrder + 1}</span>`
@@ -619,34 +620,54 @@ export class AnycubicViewFilesBase extends LitElement {
     }) as Generator<PrintSlotOption, void, LitTemplateResult>;
 
   private getPrintSlotOptions = (): PrintSlotOption[] => {
+    const materialRackEntity = getPrinterSensorStateObj(
+      this.hass,
+      this.printerEntities,
+      this.printerEntityIdPart,
+      "material_rack_spools",
+      "not loaded",
+      { spool_info: [] },
+    ) as AnycubicSpoolInfoEntity;
+    const materialRackSpools = Array.isArray(
+      materialRackEntity.attributes.spool_info,
+    )
+      ? materialRackEntity.attributes.spool_info
+      : [];
     const entities = [
-      { suffix: "ace_spools", boxId: 0 },
-      { suffix: "secondary_multi_color_box_spools", boxId: 1 },
+      {
+        suffix: "material_rack_spools",
+        spoolInfo: materialRackSpools,
+      },
+      { suffix: "ace_spools" },
+      { suffix: "secondary_multi_color_box_spools" },
     ];
     const slotOptions: PrintSlotOption[] = [];
 
-    entities.forEach(({ suffix, boxId }) => {
-      const spoolEntity = getPrinterSensorStateObj(
-        this.hass,
-        this.printerEntities,
-        this.printerEntityIdPart,
-        suffix,
-        "not loaded",
-        { spool_info: [] },
-      ) as AnycubicSpoolInfoEntity;
-      const spoolInfo = Array.isArray(spoolEntity.attributes.spool_info)
-        ? spoolEntity.attributes.spool_info
-        : [];
+    entities.forEach(({ suffix, spoolInfo: knownSpoolInfo }) => {
+      const spoolEntity = knownSpoolInfo
+        ? undefined
+        : (getPrinterSensorStateObj(
+            this.hass,
+            this.printerEntities,
+            this.printerEntityIdPart,
+            suffix,
+            "not loaded",
+            { spool_info: [] },
+          ) as AnycubicSpoolInfoEntity);
+      const spoolInfo = knownSpoolInfo
+        ? knownSpoolInfo
+        : Array.isArray(spoolEntity?.attributes.spool_info)
+          ? spoolEntity.attributes.spool_info
+          : [];
 
       slotOptions.push(
         ...spoolInfo
           .map((spool, index): PrintSlotOption | undefined => {
             const localSlot = Number(spool.local_slot ?? index + 1);
-            const spoolBoxId = Number(spool.box_id ?? boxId);
-            const serviceSlot = spoolBoxId * 4 + localSlot;
             const displaySlot = Number(
-              spool.display_slot ?? spool.slot ?? serviceSlot,
+              spool.display_slot ?? spool.slot ?? localSlot,
             );
+            const serviceSlot = displaySlot;
 
             if (
               !spool.spool_loaded ||
@@ -664,6 +685,7 @@ export class AnycubicViewFilesBase extends LitElement {
             return {
               ...spool,
               displaySlot,
+              localSlot,
               serviceSlot,
             };
           })
