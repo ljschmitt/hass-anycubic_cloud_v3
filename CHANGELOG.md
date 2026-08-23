@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.8-beta.1
+## 0.3.8
 
 ### Added
 

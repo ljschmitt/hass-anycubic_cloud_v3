@@ -12,7 +12,7 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.8-beta.1**
+> 🗓️ **Aktuelles Release: 0.3.8**
 >
 > - Leere lokale und USB-Unterordner werden jetzt sofort als leere Ordner angezeigt.
 > - MQTT-Dateilisten ohne `records`-Feld werden als erfolgreiche leere Antwort verarbeitet, statt im Ladezustand haengen zu bleiben.
