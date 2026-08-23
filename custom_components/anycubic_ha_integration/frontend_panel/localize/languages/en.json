@@ -47,13 +47,19 @@
       "not_loaded": "No file list loaded yet."
     },
     "prepare": {
+      "ace_slot": "ACE {slot}",
       "file": "File",
+      "filament_assignment": "Filament assignment",
+      "filament_assignment_help": "Select the loaded ACE colors in the order used by the model.",
+      "manual_slot_numbers": "Manual slot numbers",
+      "manual_slot_numbers_help": "Use this fallback for unsupported layouts or to assign the same ACE slot more than once.",
       "path": "Path",
       "preview_alt": "Print file preview",
       "preview_loading": "Loading preview...",
       "preview_unavailable": "No preview available.",
       "print_failed": "The print could not be started.",
       "printer": "Printer",
+      "slot_title": "Access {display_slot}, internal ACE slot {ace_slot}",
       "slot_numbers": "Slot number list",
       "title": "Prepare print",
       "unknown_printer": "Unknown printer"

@@ -47,13 +47,19 @@
       "not_loaded": "Noch keine Dateiliste geladen."
     },
     "prepare": {
+      "ace_slot": "ACE {slot}",
       "file": "Datei",
+      "filament_assignment": "Filamentzuordnung",
+      "filament_assignment_help": "Wähle die geladenen ACE-Farben in der Reihenfolge aus, in der sie im Modell verwendet werden.",
+      "manual_slot_numbers": "Manuelle Slotnummern",
+      "manual_slot_numbers_help": "Nutze diesen Fallback für unbekannte Anordnungen oder um denselben ACE-Slot mehrfach zuzuordnen.",
       "path": "Pfad",
       "preview_alt": "Vorschau der Druckdatei",
       "preview_loading": "Vorschau wird geladen...",
       "preview_unavailable": "Keine Vorschau verfügbar.",
       "print_failed": "Der Druck konnte nicht gestartet werden.",
       "printer": "Drucker",
+      "slot_title": "Zugang {display_slot}, interner ACE-Slot {ace_slot}",
       "slot_numbers": "Slotnummernliste",
       "title": "Druck vorbereiten",
       "unknown_printer": "Unbekannter Drucker"

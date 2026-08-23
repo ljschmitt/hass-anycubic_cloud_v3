@@ -165,6 +165,114 @@ export const commonFilesStyle: CSSResult = css`
     margin-bottom: 8px;
   }
 
+  .print-slot-selection {
+    margin-top: 24px;
+  }
+
+  .print-slot-selection h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+  }
+
+  .print-slot-selection p,
+  .manual-slot-entry p {
+    margin: 0 0 14px;
+    color: var(--secondary-text-color);
+  }
+
+  .print-slot-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: 10px;
+  }
+
+  .print-slot-option {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 118px;
+    padding: 12px 8px 10px;
+    place-items: center;
+    align-content: start;
+    gap: 5px;
+    border: 1px solid var(--divider-color);
+    border-radius: 6px;
+    background: var(--card-background-color);
+    color: var(--primary-text-color);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .print-slot-option:hover,
+  .print-slot-option.selected {
+    border-color: var(--primary-color);
+  }
+
+  .print-slot-option.selected {
+    background: color-mix(
+      in srgb,
+      var(--primary-color) 10%,
+      var(--card-background-color)
+    );
+  }
+
+  .print-slot-color {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border: 2px solid
+      color-mix(in srgb, var(--slot-color) 70%, var(--primary-text-color));
+    border-radius: 50%;
+    background: var(--slot-color);
+    color: var(--slot-contrast);
+    font-weight: 700;
+  }
+
+  .print-slot-material {
+    width: 100%;
+    overflow-wrap: anywhere;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .print-slot-source {
+    color: var(--secondary-text-color);
+    font-size: 12px;
+  }
+
+  .print-slot-order {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--text-primary-color);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .manual-slot-entry {
+    margin-top: 20px;
+    padding-top: 2px;
+  }
+
+  .manual-slot-entry summary {
+    width: fit-content;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .manual-slot-entry[open] summary {
+    margin-bottom: 10px;
+  }
+
   .print-preview {
     display: flex;
     width: 100%;

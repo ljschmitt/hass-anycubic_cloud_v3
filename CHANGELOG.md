@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.9-beta.1
+
+### Changed
+
+- Replaced the prominent free-form ACE slot field in local and USB print preparation with loaded spool colors and ordered selection. A collapsible manual slot list remains available for unsupported layouts and repeated slot assignments.
+
 ## 0.3.8
 
 ### Added
