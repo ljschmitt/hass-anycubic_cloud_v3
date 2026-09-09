@@ -1117,7 +1117,11 @@ class AnycubicPrinter:
 
                 assert self._multi_color_box
                 self._multi_color_box[box_index].set_slot_loaded(loaded_slot)
-                self._multi_color_box[box_index].set_feed_status(box['feed_status'])
+                # Firmware 2.0.1.9+ omits `feed_status` from this payload on
+                # some ACE units — set_feed_status() already accepts None
+                # via AnycubicFeedStatus.from_json(None), so this just stops
+                # the KeyError rather than needing new fallback logic.
+                self._multi_color_box[box_index].set_feed_status(box.get('feed_status'))
             return
         elif action == 'setAutoFeed' and state == 'done':
             data = payload['data']['multi_color_box']
@@ -1320,9 +1324,11 @@ class AnycubicPrinter:
         elif msg_type == 'buried':
             self._process_mqtt_update_buried(action, state, payload)
 
-        elif msg_type in ('info', 'hardwareProfile', 'aiSettings'):
-            # Informational startup reports from newer firmware. They do not
-            # currently drive HA entities, so consume them without error noise.
+        elif msg_type in ('info', 'hardwareProfile', 'aiSettings', 'extrudeControl'):
+            # Informational/control-echo reports from newer firmware
+            # (>= 2.0.1.9, see issue #10). They do not currently drive HA
+            # entities, so consume them without error noise rather than
+            # guessing at a payload shape we have no confirmed sample of.
             payload.force_empty()
 
         else:

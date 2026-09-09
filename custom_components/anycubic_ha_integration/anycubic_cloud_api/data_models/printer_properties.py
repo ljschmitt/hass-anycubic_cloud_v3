@@ -626,7 +626,10 @@ class AnycubicMultiColorBox:
             model_id=data['model_id'],
             auto_feed=data['auto_feed'],
             loaded_slot=data['loaded_slot'],
-            feed_status=data['feed_status'],
+            # Firmware 2.0.1.9+ omits this on some ACE units — __init__
+            # passes it straight to AnycubicFeedStatus.from_json(), which
+            # already returns None for a missing value.
+            feed_status=data.get('feed_status'),
             temp=data['temp'],
             drying_status=data['drying_status'],
             curr_nozzle_temp=data.get('curr_nozzle_temp'),
