@@ -285,6 +285,13 @@ class AnycubicMachineExternalShelves:
         if data is None:
             return None
 
+        # Firmware 2.0.1.9+ reports a stub object with id/loaded set to null
+        # instead of omitting external_shelves entirely when no external
+        # shelf/ACE unit is physically attached (see issue #10). Treat that
+        # the same as "no shelf" rather than crashing on int(None).
+        if data.get('id') is None:
+            return None
+
         return cls(
             id=data['id'],
             type=data['type'],
