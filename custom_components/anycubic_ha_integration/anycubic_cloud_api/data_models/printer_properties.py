@@ -285,6 +285,13 @@ class AnycubicMachineExternalShelves:
         if data is None:
             return None
 
+        # Firmware 2.0.1.9+ reports a stub object with id/loaded set to null
+        # instead of omitting external_shelves entirely when no external
+        # shelf/ACE unit is physically attached (see issue #10). Treat that
+        # the same as "no shelf" rather than crashing on int(None).
+        if data.get('id') is None:
+            return None
+
         return cls(
             id=data['id'],
             type=data['type'],
@@ -626,7 +633,10 @@ class AnycubicMultiColorBox:
             model_id=data['model_id'],
             auto_feed=data['auto_feed'],
             loaded_slot=data['loaded_slot'],
-            feed_status=data['feed_status'],
+            # Firmware 2.0.1.9+ omits this on some ACE units — __init__
+            # passes it straight to AnycubicFeedStatus.from_json(), which
+            # already returns None for a missing value.
+            feed_status=data.get('feed_status'),
             temp=data['temp'],
             drying_status=data['drying_status'],
             curr_nozzle_temp=data.get('curr_nozzle_temp'),

@@ -272,11 +272,16 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 ## 🔐 Token auslesen (Slicer Next)
 
 1. **Slicer Next starten und eingeloggt lassen**
-2. PowerShell-Befehl fuer Slicer Next 1.4.1.2+ (kopiert den neuesten Access-Token aus dem aktuellen Log in die Zwischenablage):
+2. PowerShell-Befehl fuer Slicer Next 1.4.1.2+ (kopiert den neuesten Access-Token aus dem aktuellen Log in die Zwischenablage; prueft sowohl das aeltere `accessToken = ...`-Logformat als auch das ab Slicer Next 2.0.0.3 verwendete `id_token=`-URL-Format):
    ```powershell
    $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log" -Filter "debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-   $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\s]+)' | Select-Object -Last 1
-   $token.Matches.Groups[1].Value | Set-Clipboard
+   $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\s]+)' | Select-Object -Last 1 | ForEach-Object { $_.Matches.Groups[1].Value }
+   if (-not $token) {
+       $token = Select-String -Path $log.FullName -Pattern 'id_token=([A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+)' -AllMatches |
+           ForEach-Object { $_.Matches } | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+   }
+   if (-not $token) { throw "Kein Token im aktuellen Log gefunden. In Slicer Next einmal aus- und wieder einloggen, dann erneut versuchen." }
+   $token | Set-Clipboard
    ```
 3. Alternative fuer aeltere Slicer-Versionen mit Klartext-Token in der `.conf`:
    ```powershell
@@ -285,7 +290,9 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
    ```
 4. In Integration einfügen → fertig
 
-> Hinweis: Der aktuelle Slicer-Next-Token ist ein JWT und besteht aus drei durch Punkte getrennten Teilen. Die Integration entfernt Anführungszeichen, Whitespace und kann auch Log-Zeilen wie `accessToken = ...` verarbeiten.
+> Hinweis: Der aktuelle Slicer-Next-Token ist ein JWT und besteht aus drei durch Punkte getrennten Teilen. Die Integration entfernt Anführungszeichen, Whitespace und kann auch Log-Zeilen wie `accessToken = ...` oder `id_token=...` verarbeiten.
+>
+> Ab Slicer Next 2.0.0.3 wird der Token nicht mehr als eigene `accessToken = ...`-Zeile geloggt, sondern taucht nur noch als `id_token=`-Parameter in geloggten URLs auf (z. B. in Zeilen wie `UrlCollLike3:`/`UrlAllModel4:`). Das Skript oben deckt beide Formate ab; die `.conf`-Alternative aus Schritt 3 enthaelt in 2.0.0.3 keinen `access_token`-Schluessel mehr.
 
 ---
 
