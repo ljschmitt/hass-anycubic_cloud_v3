@@ -192,7 +192,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Newer Slicer Next versions may no longer expose the access token in logs or the configuration file. On Windows, keep exactly one Slicer instance signed in and open the printer view. Follow the [token recovery instructions on GitHub](https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/README.en.md#recover-a-slicer-token-on-windows) to run the helper (64-bit Python 3.9+ required).\n\nThe helper reads Slicer memory locally and checks the access token with Anycubic before copying it to the clipboard. Paste it below only after \"Cloud login successful\". Do not use an ID token or share tokens or memory dumps. Clear the clipboard after pasting. Web mode is an alternative without MQTT.",
+        "description": "Newer Slicer Next versions may no longer expose the access token in logs or the configuration file. On Windows, keep exactly one Slicer instance signed in and open the printer view. Follow the [token recovery instructions on GitHub]({token_instructions_url}) to run the helper (64-bit Python 3.9+ required).\n\nThe helper reads Slicer memory locally and checks the access token with Anycubic before copying it to the clipboard. Paste it below only after \"Cloud login successful\". Do not use an ID token or share tokens or memory dumps. Clear the clipboard after pasting. Web mode is an alternative without MQTT.",
         "data": {
           "user_token": "Slicer Access Token"
         }
