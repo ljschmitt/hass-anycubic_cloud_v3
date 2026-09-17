@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-beta.1
+
+### Changed
+
+- Restored the simple log-based Slicer token workflow for current Slicer Next versions. The single PowerShell command now accepts both the former `accessToken =` form and the current `id_token=` URL parameter; Python and process-memory scanning remain an advanced fallback only.
+
 ## 0.3.9
 
 ### Added

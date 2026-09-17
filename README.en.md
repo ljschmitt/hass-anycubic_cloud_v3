@@ -59,25 +59,21 @@ Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migr
 
 ### Recover a Slicer token on Windows
 
-Newer Slicer versions encrypt the configuration and may no longer log `accessToken = ...`. The old PowerShell command then fails with a null-array error because its search found nothing.
+Slicer Next 2.0.x still writes the required access token to its current debug log, but may label the URL parameter `id_token=` instead of the former `accessToken = ...` line. The command below supports both forms. It does not require Python, a repository download or process-memory access.
 
-1. Install 64-bit Python 3.9 or newer from [python.org](https://www.python.org/downloads/windows/). Download and extract the complete repository using **Code -> Download ZIP**.
-2. Review [the PowerShell launcher](scripts/recover_slicer_token.ps1) and [the Python helper](scripts/recover_slicer_token.py). No extra Python packages are required.
-3. Open exactly one Slicer Next instance, sign in and open the printer view. Run Slicer and PowerShell as the same Windows user, normally without administrator rights.
-4. Open PowerShell in the extracted repository directory and run:
+1. Open Slicer Next, sign in and open the printer view.
+2. Open PowerShell, copy the complete command below and run it once:
 
    ```powershell
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\recover_slicer_token.ps1
+   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'No Slicer token found in the latest log.' }; $token | Set-Clipboard
    ```
 
-   The execution-policy option applies only to this process. Do not bypass organizational restrictions on managed computers.
+3. Paste the token into Home Assistant's **Slicer Next (Windows)** field during reauthentication or reconfiguration. Do not delete an existing integration just to replace its token.
+4. Clear the clipboard after pasting with `Set-Clipboard -Value ''`, including clipboard history or sync when enabled.
 
-5. Only after **Cloud login successful. Access token copied to clipboard**, paste into Home Assistant's **Slicer Next (Windows)** token field during reauthentication/reconfiguration. Do not delete an existing integration just to replace its token.
-6. Clear the clipboard after pasting with `Set-Clipboard -Value ''`. Also remove the entry from clipboard history/sync if enabled, or disable those features before recovery.
+The command reads only the newest local Slicer debug log, copies the last matching JWT and does not print it. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
 
-The helper reads the Slicer process without writing to it or creating a memory dump. It filters for unexpired access tokens, rejects ambiguous accounts and checks candidates over HTTPS against Anycubic's login endpoint before copying one. It does not print or save credentials, change Home Assistant or control printers. An ID token is not an access token; the issuer alone does not distinguish them. Local JWT decoding is not signature verification; cloud acceptance is required.
-
-On failure, follow the helper's message; the clipboard remains unchanged and may contain an older value. If no token is found, sign in and open the printer view before retrying. An expired/revoked token may require signing in again, which can invalidate existing sessions. Do not disable security software to obtain process access. Cloud success validates token exchange only, not MQTT or integration setup. This approach worked locally but is not guaranteed for every Slicer build or future cloud version. Background: [upstream issue #67](https://github.com/WaresWichall/hass-anycubic_cloud/issues/67).
+The simple command was tested locally with Slicer Next 2.0.0.3 but is not guaranteed for every future Slicer build or cloud change.
 
 Use only your own account. Never upload tokens, dumps, configuration files or unredacted logs. Web authentication remains an alternative for polling without MQTT.
 

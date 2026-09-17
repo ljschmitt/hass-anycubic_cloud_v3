@@ -192,7 +192,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Newer Slicer Next versions may no longer expose the access token in logs or the configuration file. On Windows, keep exactly one Slicer instance signed in and open the printer view. Follow the [token recovery instructions on GitHub]({token_instructions_url}) to run the helper (64-bit Python 3.9+ required).\n\nThe helper reads Slicer memory locally and checks the access token with Anycubic before copying it to the clipboard. Paste it below only after \"Cloud login successful\". Do not use an ID token or share tokens or memory dumps. Clear the clipboard after pasting. Web mode is an alternative without MQTT.",
+        "description": "Open Slicer Next on Windows, sign in and open the printer view. Copy this complete command into PowerShell and run it once:\n\n```powershell\n$log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\\debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\\s*=\\s*|id_token=)(eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'No Slicer token found in the latest log.' }; $token | Set-Clipboard\n```\n\nPaste the token below, then clear the clipboard. No Python, download or process-memory access is required. [Detailed instructions]({token_instructions_url}) are available on GitHub. Do not share tokens or unredacted logs. Web mode is an alternative without MQTT.",
         "data": {
           "user_token": "Slicer Access Token"
         }
