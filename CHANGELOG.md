@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.3.9
 
 ### Added
 
 - Added an own-account Windows Slicer token recovery helper with read-only process scanning, access-token filtering and cloud validation before clipboard copy. No dump file or token output is generated.
+- Promoted the beta print-preparation improvements to stable: loaded material colors and Kobra X rack/ACE slot mapping.
 
 ### Documentation
 

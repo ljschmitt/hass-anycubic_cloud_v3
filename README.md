@@ -12,8 +12,9 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.3.9-beta.2**
+> 🗓️ **Aktuelles Release: 0.3.9**
 >
+> - Neuer Windows-Token-Helfer mit Cloud-Pruefung sowie aktualisierte Anleitungen im HA-Anmeldedialog und auf GitHub.
 > - Die Druckvorbereitung zeigt alle geladenen Materialquellen mit ihren Farben an.
 > - Beim Kobra X werden die sichtbaren Regalzugänge 1-3 und die ACE-Zugänge 4-7 korrekt auf die internen Druckslots abgebildet.
 >
