@@ -57,6 +57,30 @@ For MQTT support, select the **Slicer Next (Windows)** authentication method and
 
 Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migration, and troubleshooting instructions are available in the [German documentation](README.md).
 
+### Recover a Slicer token on Windows
+
+Newer Slicer versions encrypt the configuration and may no longer log `accessToken = ...`. The old PowerShell command then fails with a null-array error because its search found nothing.
+
+1. Install 64-bit Python 3.9 or newer from [python.org](https://www.python.org/downloads/windows/). Download and extract the complete repository using **Code -> Download ZIP**.
+2. Review [the PowerShell launcher](scripts/recover_slicer_token.ps1) and [the Python helper](scripts/recover_slicer_token.py). No extra Python packages are required.
+3. Open exactly one Slicer Next instance, sign in and open the printer view. Run Slicer and PowerShell as the same Windows user, normally without administrator rights.
+4. Open PowerShell in the extracted repository directory and run:
+
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\recover_slicer_token.ps1
+   ```
+
+   The execution-policy option applies only to this process. Do not bypass organizational restrictions on managed computers.
+
+5. Only after **Cloud login successful. Access token copied to clipboard**, paste into Home Assistant's **Slicer Next (Windows)** token field during reauthentication/reconfiguration. Do not delete an existing integration just to replace its token.
+6. Clear the clipboard after pasting with `Set-Clipboard -Value ''`. Also remove the entry from clipboard history/sync if enabled, or disable those features before recovery.
+
+The helper reads the Slicer process without writing to it or creating a memory dump. It filters for unexpired access tokens, rejects ambiguous accounts and checks candidates over HTTPS against Anycubic's login endpoint before copying one. It does not print or save credentials, change Home Assistant or control printers. An ID token is not an access token; the issuer alone does not distinguish them. Local JWT decoding is not signature verification; cloud acceptance is required.
+
+On failure, follow the helper's message; the clipboard remains unchanged and may contain an older value. If no token is found, sign in and open the printer view before retrying. An expired/revoked token may require signing in again, which can invalidate existing sessions. Do not disable security software to obtain process access. Cloud success validates token exchange only, not MQTT or integration setup. This approach worked locally but is not guaranteed for every Slicer build or future cloud version. Background: [upstream issue #67](https://github.com/WaresWichall/hass-anycubic_cloud/issues/67).
+
+Use only your own account. Never upload tokens, dumps, configuration files or unredacted logs. Web authentication remains an alternative for polling without MQTT.
+
 ## Dashboard card
 
 The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card). The integration also includes its own Home Assistant side panel, so the external card is optional.

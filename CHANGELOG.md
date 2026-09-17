@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added an own-account Windows Slicer token recovery helper with read-only process scanning, access-token filtering and cloud validation before clipboard copy. No dump file or token output is generated.
+
+### Documentation
+
+- Replaced the unreliable log-based token extraction instructions with German and English recovery steps, null-array troubleshooting and explicit limits on what a successful cloud login verifies.
+- Updated the Slicer authentication dialog in German and English, including the translation source, with recovery guidance and a direct GitHub documentation link.
+
 ## 0.3.9-beta.2
 
 ### Fixed

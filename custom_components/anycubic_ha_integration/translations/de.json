@@ -21,7 +21,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentifizierungsmodus – Slicer Next",
-        "description": "Slicer Next 1.4.1.2+: Slicer eingeloggt offen lassen und diesen PowerShell-Befehl ausfuehren, um den aktuellen Token zu kopieren: $log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\" -Filter \"debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\\s]+)' | Select-Object -Last 1; $token.Matches.Groups[1].Value | Set-Clipboard. Aeltere Versionen speichern access_token ggf. noch in AnycubicSlicerNext.conf. Details siehe README.",
+        "description": "Neuere Slicer-Next-Versionen geben den Access-Token teilweise nicht mehr im Log oder in der Konfigurationsdatei aus. Unter Windows genau eine Slicer-Instanz angemeldet lassen und die Druckeransicht oeffnen. Die [Anleitung zum Token-Auslesen auf GitHub](https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/README.md#windows-token-aus-dem-laufenden-slicer-auslesen) beschreibt das Hilfsskript (64-Bit-Python 3.9+ erforderlich).\n\nDas Hilfsskript liest den Slicer-Speicher lokal und prueft den Access-Token bei Anycubic, bevor es ihn in die Zwischenablage kopiert. Erst nach \"Cloud login successful\" unten einfuegen. Keinen ID-Token verwenden und keine Tokens oder Speicherabbilder weitergeben. Zwischenablage nach dem Einfuegen leeren. Als Alternative steht der Web-Modus ohne MQTT zur Verfuegung.",
         "data": {
           "user_token": "Slicer‑Zugriffstoken"
         }

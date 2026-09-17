@@ -271,21 +271,43 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 
 ## 🔐 Token auslesen (Slicer Next)
 
-1. **Slicer Next starten und eingeloggt lassen**
-2. PowerShell-Befehl fuer Slicer Next 1.4.1.2+ (kopiert den neuesten Access-Token aus dem aktuellen Log in die Zwischenablage):
-   ```powershell
-   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log" -Filter "debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-   $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\s]+)' | Select-Object -Last 1
-   $token.Matches.Groups[1].Value | Set-Clipboard
-   ```
-3. Alternative fuer aeltere Slicer-Versionen mit Klartext-Token in der `.conf`:
-   ```powershell
-   $path = "$env:AppData\AnycubicSlicerNext\AnycubicSlicerNext.conf"; 
-   (Select-String -Path $path -Pattern '"access_token"\s*:\s*"([^"]+)"').Matches.Groups[1].Value | Set-Clipboard
-   ```
-4. In Integration einfügen → fertig
+Neuere Slicer-Versionen speichern die Zugangsdaten verschluesselt in der `.conf`; auch die bisherige Zeile `accessToken = ...` fehlt teilweise im Debug-Log. Die PowerShell-Meldung **"In einem NULL-Array kann kein Index erstellt werden"** bedeutet beim alten Befehl: kein Treffer, aber anschliessender Zugriff auf `Groups[1]`. Ein anderer Regex allein stellt den fehlenden Token nicht wieder her.
 
-> Hinweis: Der aktuelle Slicer-Next-Token ist ein JWT und besteht aus drei durch Punkte getrennten Teilen. Die Integration entfernt Anführungszeichen, Whitespace und kann auch Log-Zeilen wie `accessToken = ...` verarbeiten.
+Der Slicer-Anmeldedialog in Home Assistant verlinkt diese Anleitung auch beim erneuten Authentifizieren. Zeigt eine aeltere installierte Version noch den Log-Befehl, stattdessen die folgenden Schritte verwenden.
+
+### Windows: Token aus dem laufenden Slicer auslesen
+
+Voraussetzungen: Windows, **64-Bit-Python 3.9 oder neuer** von [python.org](https://www.python.org/downloads/windows/) und genau eine laufende, eingeloggte Slicer-Next-Instanz. Keine zusaetzlichen Python-Pakete und normalerweise keine Administratorrechte erforderlich. Slicer und PowerShell unter demselben eigenen Windows-Konto starten.
+
+1. Dieses Repository ueber **Code -> Download ZIP** herunterladen und vollstaendig entpacken. Die Hilfsskripte liegen unter `scripts/`; sie werden nicht als HA-Dienst ausgefuehrt.
+2. [PowerShell-Starter](scripts/recover_slicer_token.ps1) und [Python-Hilfsskript](scripts/recover_slicer_token.py) vor dem Ausfuehren ansehen.
+3. **Slicer Next starten, einloggen und die Druckeransicht oeffnen.** Weitere Slicer-Instanzen schliessen.
+4. PowerShell im entpackten Repository-Ordner oeffnen und ausfuehren:
+
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\recover_slicer_token.ps1
+   ```
+
+   `Bypass` gilt nur fuer diesen gestarteten PowerShell-Prozess, nicht dauerhaft fuer Windows. Auf verwalteten Rechnern keine Organisationsrichtlinien umgehen; bei einer Sperre die Administration kontaktieren.
+
+5. Nur bei **"Cloud login successful. Access token copied to clipboard"** wurde ein gepruefter Token kopiert. In Home Assistant die Anycubic-Integration erneut authentifizieren bzw. neu konfigurieren, **Slicer Next (Windows)** waehlen und den Token mit `Strg+V` einfuegen. Eine bestehende Integration nicht vorschnell loeschen.
+6. Danach die Zwischenablage mit `Set-Clipboard -Value ''` leeren. Falls Windows-Zwischenablageverlauf oder Cloud-Synchronisierung aktiv ist, auch dort den Eintrag entfernen; vor dem Auslesen diese Funktionen gegebenenfalls deaktivieren.
+
+Das Skript liest ausschliesslich den ausgewaehlten Slicer-Prozess mit Lesezugriff. Es erzeugt keinen Speicherdump, schreibt keinen Token in eine Datei und gibt keine Zugangsdaten aus. Zur Pruefung sendet es passende Kandidaten ueber HTTPS an den Anycubic-Login-Endpunkt. Es veraendert weder Home Assistant noch Druckereinstellungen. Die Dekodierung prueft Token-Typ und Zeitangaben, ersetzt aber keine Signaturpruefung; entscheidend ist der anschliessende erfolgreiche Cloud-Login.
+
+**Warum nicht irgendeinen JWT kopieren?** `id_token`, Refresh-Token und Access-Token haben unterschiedliche Aufgaben. Der Aussteller `uc.makeronline.com` allein reicht zur Unterscheidung nicht aus. Ausserdem koennen Speicherfunde angehaengte Zeichen enthalten. Das Skript bevorzugt die kuerzeste gefundene Kopie desselben JWT-Inhalts und kopiert sie nur, wenn Anycubic sie akzeptiert. Bei mehreren Konten bricht es ab.
+
+### Fehlerbehebung und Grenzen
+
+- **Kein Token gefunden:** Slicer einloggen, Druckeransicht oeffnen und erneut versuchen. Neue Slicer-Versionen koennen ein anderes Speicherformat verwenden; die Methode ist kein fuer jede Version garantierter offizieller Export.
+- **Zugriff verweigert:** Slicer und PowerShell als denselben Benutzer ohne unterschiedliche Rechte starten. Sicherheitssoftware nicht deaktivieren.
+- **Cloud lehnt Kandidaten ab:** Im Slicer erneut anmelden und wiederholen. Dabei koennen bestehende Sitzungen oder Tokens ungueltig werden. Ein nicht abgelaufener JWT kann bereits widerrufen sein.
+- **Netzwerk-/HTTP-Fehler:** Verbindung pruefen und spaeter erneut versuchen. Fehlermeldungen bedeuten nicht automatisch falsche Zugangsdaten. Bei einem Fehler bleibt die Zwischenablage unveraendert und kann noch einen alten Wert enthalten.
+- **Cloud-Login erfolgreich, HA weiterhin fehlerhaft:** HA-Protokoll pruefen. Der Helfer testet den Token-Austausch, nicht MQTT, Druckerabfragen oder die gesamte Integration.
+
+Die Speicher-Auslesemethode und der anschliessende Cloud-Token-Austausch wurden lokal unter Windows erfolgreich geprueft. Das ist keine Garantie fuer andere Slicer-Builds, Konten oder kuenftige Cloud-Aenderungen. Hintergrund zur Speicher-Auslesemethode: [Upstream-Issue #67](https://github.com/WaresWichall/hass-anycubic_cloud/issues/67).
+
+Nur eigene Zugangsdaten auslesen. **Keine Tokens, Speicherabbilder, Konfigurationsdateien oder unbereinigten Logs in GitHub-Issues hochladen.** Als Alternative bleibt der unten beschriebene Web-Modus ohne MQTT.
 
 ---
 
