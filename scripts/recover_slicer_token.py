@@ -7,11 +7,8 @@ import argparse
 import ast
 import base64
 import ctypes
-from ctypes import wintypes
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import re
 import subprocess
 import sys
@@ -19,7 +16,9 @@ import time
 import urllib.error
 import urllib.request
 import uuid
-
+from ctypes import wintypes
+from datetime import datetime, timezone
+from pathlib import Path
 
 JWT_PATTERN = re.compile(rb"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+")
 
