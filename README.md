@@ -12,7 +12,7 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.4.0-beta.1**
+> 🗓️ **Aktuelles Release: 0.4.0-beta.2**
 >
 > - Wieder einfacher Token-Abruf direkt aus dem aktuellen Slicer-Debug-Log mit einem PowerShell-Befehl.
 > - Unterstuetzt sowohl das fruehere Format `accessToken =` als auch den aktuellen Slicer-Parameter `id_token=`.

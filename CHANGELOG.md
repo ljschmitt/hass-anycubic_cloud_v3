@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-beta.2
+
+### Fixed
+
+- Kept the PowerShell command embedded in Home Assistant translations free of curly braces so hassfest does not interpret PowerShell script blocks as invalid translation placeholders.
+
 ## 0.4.0-beta.1
 
 ### Changed
