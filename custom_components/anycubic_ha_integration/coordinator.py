@@ -303,6 +303,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         attributes = {
             "ace_spools": {
                 "spool_info": primary_ace_spool_info,
+                "loaded_slot": printer.primary_multi_color_box_loaded_slot,
                 "kobra_x_internal_spool_info": kobra_x_internal_spool_info,
                 "kobra_x_internal_slot_4_reserved_by_ace": (
                     bool(kobra_x_internal_spool_info)
