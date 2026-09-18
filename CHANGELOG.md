@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+### Fixed
+
+- Restored simple Slicer token extraction from the latest debug log, supporting both `accessToken =` and `id_token=`. The authentication dialog includes the command directly; no Python installation or process-memory access is needed for this log-based method.
+- Promoted the validated beta translation fix and synchronized both frontend bundles for the stable release.
+
 ## 0.4.0-beta.2
 
 ### Fixed
