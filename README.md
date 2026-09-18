@@ -12,9 +12,10 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.4.0**
+> 🗓️ **Aktuelles Release: 0.4.1**
 >
 > - Wieder einfacher Token-Abruf direkt aus dem aktuellen Slicer-Debug-Log mit einem PowerShell-Befehl.
+> - Fehlendes optionales ACE-Feld `feed_status` verhindert die Einrichtung nicht mehr; fehlende Pflichtfelder werden nicht mehr als Tokenfehler gemeldet.
 > - Unterstuetzt sowohl das fruehere Format `accessToken =` als auch den aktuellen Slicer-Parameter `id_token=`.
 > - Python, Repository-Download und Prozessspeicherzugriff sind fuer den normalen Weg nicht mehr erforderlich.
 >
@@ -288,6 +289,7 @@ Der Befehl liest nur das neueste lokale Slicer-Debug-Log, kopiert den letzten pa
 
 ### Fehlerbehebung und Grenzen
 
+- **Einrichtungsfehler mit `feed_status` nach bestaetigtem Token:** Ein fehlendes ACE-Datenfeld kann bis Version 0.4.0 faelschlich als Anmeldefehler erscheinen. Das ist kein Nachweis fuer einen ungueltigen Token. Version 0.4.1 behandelt dieses optionale Feld als unbekannt; andere fehlende Pflichtfelder werden als Einrichtungsfehler gemeldet.
 - **Kein Token gefunden:** Slicer einloggen, die Druckeransicht oeffnen und den Befehl erneut ausfuehren. Der Slicer muss zuvor ein aktuelles Debug-Log erzeugt haben.
 - **Token wird abgelehnt:** Im Slicer ab- und erneut anmelden, die Druckeransicht oeffnen und den Token erneut kopieren. Ein noch nicht abgelaufener JWT kann bereits widerrufen sein.
 - **Andere Slicer-Version ohne passenden Log-Eintrag:** Als technischer Notfallweg stehen weiterhin der [PowerShell-Starter](scripts/recover_slicer_token.ps1) und das [Python-Hilfsskript](scripts/recover_slicer_token.py) fuer die lokale, schreibgeschuetzte Prozessspeicher-Suche zur Verfuegung. Dieser Weg ist nicht der normale Einstieg.

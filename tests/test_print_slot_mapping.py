@@ -12,6 +12,7 @@ INTEGRATION_ROOT = (
 sys.path.insert(0, str(INTEGRATION_ROOT))
 
 from anycubic_cloud_api.data_models.printer import AnycubicPrinter  # noqa: E402
+from anycubic_cloud_api.data_models.printer_properties import AnycubicMultiColorBox  # noqa: E402
 
 
 class StubAnycubicAPI:
@@ -55,6 +56,32 @@ class PrintSlotMappingTests(unittest.TestCase):
         )
 
         self.assertEqual(printer.print_slot_numbers_to_indices([1, 4, 5]), [0, 3, 4])
+
+    def test_ace_without_optional_feed_status_still_loads(self) -> None:
+        data = self._box(0, ["PLA", "PETG"])
+        del data["feed_status"]
+        box = AnycubicMultiColorBox.from_json(data)
+        self.assertIsNotNone(box)
+        self.assertEqual(box.box_id, 0)
+        self.assertEqual(box.current_temperature, 25)
+
+    def test_printer_initializes_with_missing_null_or_present_feed_status(self) -> None:
+        for status in ("missing", None, {"type": 0, "current_status": 0, "slot_index": 0}):
+            with self.subTest(status=status):
+                data = self._box(0, ["PLA", "PETG"])
+                if status == "missing":
+                    del data["feed_status"]
+                else:
+                    data["feed_status"] = status
+                printer = AnycubicPrinter(
+                    api_parent=StubAnycubicAPI(),  # type: ignore[arg-type]
+                    machine_type=20030,
+                    machine_name="Test Printer",
+                    id=1,
+                    multi_color_box=[data],
+                    ignore_init_errors=True,
+                )
+                self.assertEqual(printer.print_slot_numbers_to_indices([4, 5]), [0, 1])
 
     def test_kobra_x_maps_rack_and_ace_accesses(self) -> None:
         printer = AnycubicPrinter(

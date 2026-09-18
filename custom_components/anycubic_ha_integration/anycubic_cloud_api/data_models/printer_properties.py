@@ -626,7 +626,7 @@ class AnycubicMultiColorBox:
             model_id=data['model_id'],
             auto_feed=data['auto_feed'],
             loaded_slot=data['loaded_slot'],
-            feed_status=data['feed_status'],
+            feed_status=data.get('feed_status'),
             temp=data['temp'],
             drying_status=data['drying_status'],
             curr_nozzle_temp=data.get('curr_nozzle_temp'),
