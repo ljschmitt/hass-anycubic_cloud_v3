@@ -786,6 +786,11 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except AnycubicAPIParsingError:
             raise
 
+        except KeyError as error:
+            raise ConfigEntryError(
+                "Incomplete Anycubic response during setup; a required field is missing."
+            ) from error
+
         except Exception as error:
             raise ConfigEntryAuthFailed(
                 f"Coordinator authentication failed with unknown Error. Check credentials {error}"

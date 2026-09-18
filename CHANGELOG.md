@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+### Fixed
+
+- Allow missing optional ACE `feed_status` in printer responses during setup.
+- Report missing response fields as setup errors rather than incorrectly requesting new credentials.
+
 ## 0.4.0
 
 ### Fixed
