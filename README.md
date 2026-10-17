@@ -20,7 +20,7 @@ Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository instal
 > - Python, Repository-Download und Prozessspeicherzugriff sind fuer den normalen Weg nicht mehr erforderlich.
 >
 > Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
-> MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows)** und dessen **Access-Token**.
+> MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
 - Fehlerkorrekturen
@@ -234,7 +234,7 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
 5. Installieren → Home Assistant **neustarten**
 6. **Einstellungen → Geräte & Dienste → Integration hinzufügen**
 
-> ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows)**  
+> ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows & macOS)**  
 > und füge den **Access-Token** ein (siehe unten).
 
 Updates werden von HACS nur dann automatisch angeboten, wenn diese Integration als HACS-Custom-Repository installiert wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
@@ -276,14 +276,22 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 Slicer Next 2.0.x schreibt den benoetigten Access-Token weiterhin in das aktuelle Debug-Log, verwendet dort aber teilweise den Parameternamen `id_token=` statt der frueheren Zeile `accessToken = ...`. Der folgende Befehl unterstuetzt beide Schreibweisen. Python, ein Repository-Download und Speicherzugriff sind fuer den normalen Weg nicht erforderlich.
 
 1. **Slicer Next starten, einloggen und die Druckeransicht oeffnen.**
-2. PowerShell oeffnen, den folgenden Befehl vollstaendig kopieren und einmal ausfuehren:
+2. Den Befehl fuer das eigene Betriebssystem vollstaendig kopieren und einmal ausfuehren.
+
+   **Windows** (PowerShell):
 
    ```powershell
    $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'Kein Slicer-Token im neuesten Log gefunden.' }; $token | Set-Clipboard
    ```
 
-3. In Home Assistant bei **Slicer Next (Windows)** den Token mit `Strg+V` einfuegen. Eine bestehende Integration zum Erneuern des Tokens nicht loeschen.
-4. Danach die Zwischenablage mit `Set-Clipboard -Value ''` leeren. Falls der Windows-Zwischenablageverlauf oder die Cloud-Synchronisierung aktiv ist, den Eintrag auch dort entfernen.
+   **macOS** (Terminal; das Log liegt unter `~/Library/Application Support/AnycubicSlicerNext/log/`, der Dateiname des Logs ist bei jedem Start anders und wird automatisch gefunden):
+
+   ```bash
+   f=$(ls -t ~/Library/Application\ Support/AnycubicSlicerNext/log/debug_*.log | head -1); t=$(grep -h -o -E '(accessToken *= *|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -1 | sed -E 's/^(accessToken *= *|id_token=)//'); if [ -n "$t" ]; then printf %s "$t" | pbcopy; echo "Token in die Zwischenablage kopiert"; else echo "Kein Slicer-Token im neuesten Log gefunden"; fi
+   ```
+
+3. In Home Assistant bei **Slicer Next (Windows & macOS)** den Token mit `Strg+V` (macOS: `Cmd+V`) einfuegen. Eine bestehende Integration zum Erneuern des Tokens nicht loeschen.
+4. Danach die Zwischenablage leeren: Windows mit `Set-Clipboard -Value ''`, macOS mit `pbcopy < /dev/null`. Falls der Windows-Zwischenablageverlauf oder die Cloud-Synchronisierung aktiv ist, den Eintrag auch dort entfernen.
 
 Der Befehl liest nur das neueste lokale Slicer-Debug-Log, kopiert den letzten passenden JWT in die Zwischenablage und gibt ihn nicht im Terminal aus. Die Integration prueft den eingefuegten Token anschliessend beim Anycubic-Login. Obwohl der aktuelle Slicer den URL-Parameter `id_token` nennt, enthaelt er in der geprueften Slicer-Version einen JWT mit dem Token-Typ `access-token`.
 
@@ -294,7 +302,7 @@ Der Befehl liest nur das neueste lokale Slicer-Debug-Log, kopiert den letzten pa
 - **Token wird abgelehnt:** Im Slicer ab- und erneut anmelden, die Druckeransicht oeffnen und den Token erneut kopieren. Ein noch nicht abgelaufener JWT kann bereits widerrufen sein.
 - **Andere Slicer-Version ohne passenden Log-Eintrag:** Als technischer Notfallweg stehen weiterhin der [PowerShell-Starter](scripts/recover_slicer_token.ps1) und das [Python-Hilfsskript](scripts/recover_slicer_token.py) fuer die lokale, schreibgeschuetzte Prozessspeicher-Suche zur Verfuegung. Dieser Weg ist nicht der normale Einstieg.
 
-Der einfache Log-Befehl wurde lokal mit Slicer Next 2.0.0.3 erfolgreich geprueft. Das ist keine Garantie fuer alle kuenftigen Slicer-Builds oder Cloud-Aenderungen.
+Der einfache Log-Befehl wurde lokal mit Slicer Next 2.0.0.3 unter Windows erfolgreich geprueft; der macOS-Befehl wurde mit derselben Slicer-Version unter macOS (Apple Silicon) geprueft. Das ist keine Garantie fuer alle kuenftigen Slicer-Builds oder Cloud-Aenderungen.
 
 Nur eigene Zugangsdaten auslesen. **Keine Tokens, Speicherabbilder, Konfigurationsdateien oder unbereinigten Logs in GitHub-Issues hochladen.** Als Alternative bleibt der unten beschriebene Web-Modus ohne MQTT.
 

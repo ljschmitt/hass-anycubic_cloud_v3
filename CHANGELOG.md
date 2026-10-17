@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Documented Slicer token recovery on macOS (README and setup dialog) with a Terminal command that finds the newest Slicer debug log automatically. The authentication method is now labelled **Slicer Next (Windows & macOS)**.
+- Fixed the documentation links opened from the setup dialog so they point to existing README anchors.
+
 ## 0.4.1
 
 ### Fixed

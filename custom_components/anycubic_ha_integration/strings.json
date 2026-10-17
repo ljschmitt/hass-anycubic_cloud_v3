@@ -21,7 +21,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Open Slicer Next on Windows, sign in and open the printer view. Copy this complete command into PowerShell and run it once:\n\n```powershell\n$log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\\debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern '(?:accessToken\\s*=\\s*|id_token=)(eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)' -AllMatches | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Groups | Where-Object Name -eq 1 | Select-Object -ExpandProperty Value -Last 1; $token | Set-Clipboard\n```\n\nPaste the token below, then clear the clipboard. No Python, download or process-memory access is required. [Detailed instructions]({token_instructions_url}) are available on GitHub. Do not share tokens or unredacted logs. Web mode is an alternative without MQTT.",
+        "description": "Open Slicer Next on Windows or macOS, sign in and open the printer view.\n\nWindows: copy this complete command into PowerShell and run it once:\n\n```powershell\n$log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\\debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern '(?:accessToken\\s*=\\s*|id_token=)(eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)' -AllMatches | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Groups | Where-Object Name -eq 1 | Select-Object -ExpandProperty Value -Last 1; $token | Set-Clipboard\n```\n\nmacOS: copy this complete command into Terminal and run it once:\n\n```bash\nf=$(ls -t ~/Library/Application\\ Support/AnycubicSlicerNext/log/debug_*.log | head -1); t=$(grep -h -o -E '(accessToken *= *|id_token=)eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+' \"$f\" | tail -1 | sed -E 's/^(accessToken *= *|id_token=)//'); if [ -n \"$t\" ]; then printf %s \"$t\" | pbcopy; echo \"Token copied to clipboard\"; else echo \"No Slicer token found in the latest log\"; fi\n```\n\nPaste the token below, then clear the clipboard (macOS: pbcopy < /dev/null). No Python, download or process-memory access is required. [Detailed instructions]({token_instructions_url}) are available on GitHub. Do not share tokens or unredacted logs. Web mode is an alternative without MQTT.",
         "data": {
           "user_token": "Slicer Access Token"
         }
@@ -45,7 +45,7 @@
         "description": "Which authentication mode would you like to use?",
         "menu_options": {
           "auth_mode_web": "Web (No MQTT)",
-          "auth_mode_slicer": "Slicer Next (Win)",
+          "auth_mode_slicer": "Slicer Next (Windows & macOS)",
           "auth_mode_android": "Android"
         }
       },

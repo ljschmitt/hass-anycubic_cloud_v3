@@ -53,27 +53,35 @@ Until the default HACS catalog submission is merged:
 4. Restart Home Assistant.
 5. Open **Settings -> Devices & services -> Add integration**.
 
-For MQTT support, select the **Slicer Next (Windows)** authentication method and provide its access token. The alternative web token method supports cloud polling but not MQTT.
+For MQTT support, select the **Slicer Next (Windows & macOS)** authentication method and provide its access token. The alternative web token method supports cloud polling but not MQTT.
 
 Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migration, and troubleshooting instructions are available in the [German documentation](README.md).
 
-### Recover a Slicer token on Windows
+### Recover a Slicer token (Windows and macOS)
 
 Slicer Next 2.0.x still writes the required access token to its current debug log, but may label the URL parameter `id_token=` instead of the former `accessToken = ...` line. The command below supports both forms. It does not require Python, a repository download or process-memory access.
 
 1. Open Slicer Next, sign in and open the printer view.
-2. Open PowerShell, copy the complete command below and run it once:
+2. Copy the complete command for your operating system and run it once.
+
+   **Windows** (PowerShell):
 
    ```powershell
    $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'No Slicer token found in the latest log.' }; $token | Set-Clipboard
    ```
 
-3. Paste the token into Home Assistant's **Slicer Next (Windows)** field during reauthentication or reconfiguration. Do not delete an existing integration just to replace its token.
-4. Clear the clipboard after pasting with `Set-Clipboard -Value ''`, including clipboard history or sync when enabled.
+   **macOS** (Terminal; the log lives in `~/Library/Application Support/AnycubicSlicerNext/log/`, its file name changes on every start and is found automatically):
+
+   ```bash
+   f=$(ls -t ~/Library/Application\ Support/AnycubicSlicerNext/log/debug_*.log | head -1); t=$(grep -h -o -E '(accessToken *= *|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -1 | sed -E 's/^(accessToken *= *|id_token=)//'); if [ -n "$t" ]; then printf %s "$t" | pbcopy; echo "Token copied to clipboard"; else echo "No Slicer token found in the latest log"; fi
+   ```
+
+3. Paste the token into Home Assistant's **Slicer Next (Windows & macOS)** field during reauthentication or reconfiguration. Do not delete an existing integration just to replace its token.
+4. Clear the clipboard after pasting (Windows: `Set-Clipboard -Value ''`, macOS: `pbcopy < /dev/null`), including clipboard history or sync when enabled.
 
 The command reads only the newest local Slicer debug log, copies the last matching JWT and does not print it. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
 
-The simple command was tested locally with Slicer Next 2.0.0.3 but is not guaranteed for every future Slicer build or cloud change.
+The simple commands were tested locally with Slicer Next 2.0.0.3 on Windows; the macOS command was tested with the same Slicer version on macOS (Apple Silicon). Neither is guaranteed for every future Slicer build or cloud change.
 
 Use only your own account. Never upload tokens, dumps, configuration files or unredacted logs. Web authentication remains an alternative for polling without MQTT.
 
