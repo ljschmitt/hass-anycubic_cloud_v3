@@ -38,6 +38,14 @@ Reported or tested:
 
 Feedback about additional models is welcome. Never include tokens, private IP addresses, serial numbers, printer IDs, or other personal data in public issues.
 
+### Kobra S1 Max elapsed print time (development)
+
+The fix for [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17) is not yet part of version 0.4.3: the Kobra S1 Max (model 20029) reports elapsed print time in seconds. Only this value is converted to the minutes still expected by the existing `job_time_elapsed` sensor, panel and dashboard card. Fractional minutes preserve seconds: `2601` seconds becomes `43.35` minutes, displayed as 43 minutes 21 seconds.
+
+Cloud polling and MQTT use the same conversion without modifying or repeatedly dividing the raw values. Remaining time stays in minutes and its derived ETA is unchanged. Other printer models keep their existing behavior; units are never guessed from print duration or progress. Existing entity IDs and the card do not need changes. Automated regression checks cover the correction; confirmation on the affected S1 Max is still pending.
+
+Background: in addition to the issue report, a [hardware capture on the S1 Max](https://github.com/chrisfore/anycubic_ha_local/blob/376bf5546ce9cfbc1f8d52e8f14685e08ae7d051/research/PROTOCOL-VALIDATED.md#info-report-data-master-object) documents elapsed seconds with remaining time still in minutes. This exception is not extended to other models.
+
 ## Screenshots
 
 <img width="420" alt="Anycubic Kobra 3 status panel" src="screenshots/kobra3-1.png">
@@ -138,6 +146,16 @@ Do not publish Anycubic tokens, Home Assistant credentials, printer IDs, serial 
 - [Open an issue](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues)
 - [Latest release](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/latest)
 - [German documentation](README.md)
+
+## Contributors
+
+- [@ljschmitt](https://github.com/ljschmitt)
+- [@WaresWichall](https://github.com/WaresWichall) – original development
+- [@sunnyfunny1977-alt](https://github.com/sunnyfunny1977-alt) – primary-ACE loaded-slot reporting ([#9](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/9))
+- [@sphings79](https://github.com/sphings79) – macOS Slicer-token recovery instructions ([#19](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/19))
+- [@flouou](https://github.com/flouou) – early analysis and proposed fix for incomplete cloud/ACE data, plus token-recovery help ([#12](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/12), [#11](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/11))
+
+Thanks also to everyone reporting bugs, supplying diagnostics and testing fixes on their printers.
 
 ## License
 

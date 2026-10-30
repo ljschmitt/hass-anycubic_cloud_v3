@@ -2063,9 +2063,9 @@ class AnycubicPrinter:
         return None
 
     @property
-    def latest_project_print_time_elapsed_minutes(self) -> int | None:
+    def latest_project_print_time_elapsed_minutes(self) -> float | None:
         if self.latest_project:
-            return self.latest_project.print_time_elapsed_minutes
+            return self.latest_project.get_print_time_elapsed_minutes(self.machine_type)
 
         return None
 

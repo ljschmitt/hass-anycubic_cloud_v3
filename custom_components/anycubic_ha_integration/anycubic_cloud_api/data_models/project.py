@@ -837,7 +837,19 @@ class AnycubicProject:
         return self._total_time_dhm_str
 
     @property
-    def print_time_elapsed_minutes(self) -> int | None:
+    def print_time_elapsed_minutes(self) -> float | None:
+        return self.get_print_time_elapsed_minutes()
+
+    def get_print_time_elapsed_minutes(self, machine_type: int | None = None) -> float | None:
+        """Normalize elapsed time without changing the raw cloud/MQTT value.
+
+        Kobra S1 Max (20029) reports elapsed seconds, but remaining minutes.
+        Other models retain their existing minute-based elapsed time. A printer
+        can supply its model when the project omits or misidentifies it.
+        """
+        model = self._machine_type if machine_type is None else machine_type
+        if self._print_time is not None and model == 20029:
+            return self._print_time / 60
         return self._print_time
 
     @property

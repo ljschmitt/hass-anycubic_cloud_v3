@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Normalize Kobra S1 Max (model 20029) elapsed print seconds to minutes for the existing `job_time_elapsed` sensor, panel and dashboard card. Preserve seconds as fractional minutes, keep raw cloud/MQTT values intact, and leave other models, remaining time and ETA unchanged. Addresses the elapsed-time report in [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17).
+
+### Documentation
+
+- Credit the contributors to primary-ACE loaded-slot reporting, macOS token recovery and earlier parsing/token fixes in both READMEs.
+
 ## 0.4.3
 
 ### Changed

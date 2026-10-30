@@ -76,6 +76,14 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 - MQTT (Echtzeit): **mehrfach pro Sekunde**
 - Erfordert **Slicer Next Token** für MQTT-Zugriff
 
+### Druckzeit beim Kobra S1 Max (Entwicklungsstand)
+
+Die Korrektur zu [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17) ist noch nicht Bestandteil von Version 0.4.3: Beim Kobra S1 Max (Modell 20029) wird die verstrichene Druckzeit in Sekunden gemeldet. Die Integration rechnet ausschliesslich diesen Wert in die weiterhin vom Sensor `job_time_elapsed`, Panel und Dashboard-Card erwarteten Minuten um; Sekunden bleiben als Nachkommastellen erhalten. Beispielsweise werden `2601` Sekunden als `43.35` Minuten und damit als 43 Minuten 21 Sekunden angezeigt.
+
+Cloud-Polling und MQTT verwenden dieselbe Umrechnung, ohne die Rohwerte zu veraendern oder mehrfach zu teilen. Die Restzeit bleibt in Minuten und die daraus berechnete ETA unveraendert. Andere Druckermodelle behalten die bisherige Verarbeitung; es gibt keine automatische Einheitenschaetzung anhand der Druckdauer oder des Fortschritts. Bestehende Entity-IDs und die Card muessen dafuer nicht geaendert werden. Die Korrektur ist automatisiert geprueft; die Bestaetigung am betroffenen S1 Max steht noch aus.
+
+Hintergrund: Neben dem Fehlerbericht dokumentiert eine [Messung am S1 Max](https://github.com/chrisfore/anycubic_ha_local/blob/376bf5546ce9cfbc1f8d52e8f14685e08ae7d051/research/PROTOCOL-VALIDATED.md#info-report-data-master-object) verstrichene Sekunden bei weiterhin minutenbasierter Restzeit. Diese Ausnahme wird nicht auf andere Modelle uebertragen.
+
 ---
 
 ## 🎨 Frontend-Card
@@ -402,6 +410,11 @@ Der Release-Check erwartet stabile Versionen auf `master` bzw. `main` und Pre-re
 
 - [@ljschmitt](https://github.com/ljschmitt)
 - [@WaresWichall](https://github.com/WaresWichall) (Original-Entwicklung)
+- [@sunnyfunny1977-alt](https://github.com/sunnyfunny1977-alt) – aktiver Slot der primaeren ACE ([#9](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/9))
+- [@sphings79](https://github.com/sphings79) – macOS-Anleitung zur Slicer-Token-Auslesung ([#19](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/19))
+- [@flouou](https://github.com/flouou) – fruehe Analyse und Fixvorschlag fuer unvollstaendige Cloud-/ACE-Daten sowie Hilfe zur Token-Auslesung ([#12](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/12), [#11](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/11))
+
+Danke auch an alle, die Fehler melden, Diagnosen bereitstellen und Korrekturen auf ihren Druckern testen.
 
 ---
 
