@@ -96,7 +96,7 @@
       },
       "slot_number#list": {
         "name": "Slot Number List",
-        "description": "Slot Number List (1-4) to map to print colours. e.g. [1, 2]"
+        "description": "Visible material access numbers in print-colour order. For example: [1, 2]."
       },
       "slot_color_red": {
         "name": "Slot Color Red",
@@ -192,7 +192,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Slicer Next 1.4.1.2+: keep Slicer logged in and run this PowerShell command to copy the current token: $log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\" -Filter \"debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern 'accessToken = ([^,\\s]+)' | Select-Object -Last 1; $token.Matches.Groups[1].Value | Set-Clipboard. Older versions may still store access_token in AnycubicSlicerNext.conf. See README.",
+        "description": "Open Slicer Next on Windows, sign in and open the printer view. Copy this complete command into PowerShell and run it once:\n\n```powershell\n$log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\\debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern '(?:accessToken\\s*=\\s*|id_token=)(eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)' -AllMatches | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Groups | Where-Object Name -eq 1 | Select-Object -ExpandProperty Value -Last 1; $token | Set-Clipboard\n```\n\nPaste the token below, then clear the clipboard. No Python, download or process-memory access is required. [Detailed instructions]({token_instructions_url}) are available on GitHub. Do not share tokens or unredacted logs. Web mode is an alternative without MQTT.",
         "data": {
           "user_token": "Slicer Access Token"
         }

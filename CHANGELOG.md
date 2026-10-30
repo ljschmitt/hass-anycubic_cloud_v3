@@ -1,5 +1,85 @@
 # Changelog
 
+## 0.4.2
+
+### Fixed
+
+- Treat an optional external spool holder with a missing or `null` ID as absent. Normalize optional `null` holder status fields to the same inactive defaults as omitted fields in cloud and MQTT data.
+- Retry incomplete or invalid cloud responses during setup instead of misclassifying parsing errors as authentication failures. Preserve reauthentication for rejected credentials and keep other unexpected setup errors separate.
+- Avoid printing or logging complete printer-info responses on parsing failures, since they contain private account and device information.
+
+### Documentation
+
+- Confirm successful token extraction only after verifying the clipboard contents in the German and English PowerShell instructions.
+
+## 0.4.1
+
+### Fixed
+
+- Allow missing optional ACE `feed_status` in printer responses during setup.
+- Report missing response fields as setup errors rather than incorrectly requesting new credentials.
+
+## 0.4.0
+
+### Fixed
+
+- Restored simple Slicer token extraction from the latest debug log, supporting both `accessToken =` and `id_token=`. The authentication dialog includes the command directly; no Python installation or process-memory access is needed for this log-based method.
+- Promoted the validated beta translation fix and synchronized both frontend bundles for the stable release.
+
+## 0.4.0-beta.2
+
+### Fixed
+
+- Kept the PowerShell command embedded in Home Assistant translations free of curly braces so hassfest does not interpret PowerShell script blocks as invalid translation placeholders.
+
+## 0.4.0-beta.1
+
+### Changed
+
+- Restored the simple log-based Slicer token workflow for current Slicer Next versions. The single PowerShell command now accepts both the former `accessToken =` form and the current `id_token=` URL parameter; Python and process-memory scanning remain an advanced fallback only.
+
+## 0.3.9
+
+### Added
+
+- Added an own-account Windows Slicer token recovery helper with read-only process scanning, access-token filtering and cloud validation before clipboard copy. No dump file or token output is generated.
+- Promoted the beta print-preparation improvements to stable: loaded material colors and Kobra X rack/ACE slot mapping.
+
+### Documentation
+
+- Replaced the unreliable log-based token extraction instructions with German and English recovery steps, null-array troubleshooting and explicit limits on what a successful cloud login verifies.
+- Updated the Slicer authentication dialog in German and English, including the translation source, with recovery guidance and a direct GitHub documentation link.
+
+## 0.3.9-beta.2
+
+### Fixed
+
+- Added loaded Kobra X material-rack slots to the print-preparation color selector and mapped both rack and ACE choices to their actual print-service slots.
+
+## 0.3.9-beta.1
+
+### Changed
+
+- Replaced the prominent free-form ACE slot field in local and USB print preparation with loaded spool colors and ordered selection. A collapsible manual slot list remains available for unsupported layouts and repeated slot assignments.
+
+## 0.3.8
+
+### Added
+
+- Added an on-demand preview to local and USB print preparation. The preview is shown only when the selected printer's Anycubic project history contains an exact normalized filename match; remote image URLs remain behind the authenticated Home Assistant backend.
+
+## 0.3.7
+
+### Fixed
+
+- Empty local and USB folders are now treated as successfully loaded empty lists when Anycubic omits the `records` field from the MQTT response.
+
+## 0.3.6
+
+### Fixed
+
+- The Anycubic panel and bundled card now list only printer devices owned by this integration, preventing same-named network devices from integrations such as FRITZ!Box from appearing as duplicate printers.
+
 ## 0.3.5
 
 ### Added

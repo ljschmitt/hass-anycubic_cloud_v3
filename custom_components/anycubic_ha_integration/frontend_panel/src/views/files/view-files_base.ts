@@ -1,5 +1,7 @@
 import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
+import { map } from "lit/directives/map.js";
+import { styleMap } from "lit/directives/style-map.js";
 
 import { commonFilesStyle } from "./styles";
 import { localize } from "../../../localize/localize";
@@ -7,10 +9,15 @@ import { platform } from "../../const";
 import {
   getPrinterEntities,
   getPrinterEntityIdPart,
+  getPrinterID,
+  getPrinterSensorStateObj,
   getPrinterSupportsMQTT,
 } from "../../helpers";
 import {
   AnycubicFileLocal,
+  AnycubicFilePreviewResponse,
+  AnycubicSpoolInfo,
+  AnycubicSpoolInfoEntity,
   DomClickEvent,
   EvtTargFileInfo,
   EvtTargInput,
@@ -22,6 +29,16 @@ import {
   HomeAssistant,
   LitTemplateResult,
 } from "../../types";
+
+interface PrintSlotOption extends AnycubicSpoolInfo {
+  displaySlot: number;
+  localSlot: number;
+  serviceSlot: number;
+}
+
+interface PrintSlotEventTarget extends EventTarget {
+  slotNumber: number;
+}
 
 export class AnycubicViewFilesBase extends LitElement {
   private static autoLoadAttemptedAt = new Map<string, number>();
@@ -94,6 +111,14 @@ export class AnycubicViewFilesBase extends LitElement {
 
   @state()
   protected _printError: string | undefined;
+
+  @state()
+  private _printPreviewImage: string | undefined;
+
+  @state()
+  private _printPreviewLoading: boolean = false;
+
+  private _printPreviewRequest = 0;
 
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
@@ -259,6 +284,8 @@ export class AnycubicViewFilesBase extends LitElement {
     const printerName =
       this.selectedPrinterDevice?.name ||
       localize("files.prepare.unknown_printer", this.language);
+    const slotOptions = this.getPrintSlotOptions();
+    const selectedSlots = this.parseSlotNumbers() ?? [];
 
     return html`
       <div class="files-card print-preparation" elevation="2">
@@ -289,17 +316,72 @@ export class AnycubicViewFilesBase extends LitElement {
           </div>
         </dl>
 
-        <label class="slot-list-label" for="slot-number-list">
-          ${localize("files.prepare.slot_numbers", this.language)}
-        </label>
-        <input
-          id="slot-number-list"
-          class="slot-list-input"
-          .value=${this._printSlotNumbers}
-          placeholder="1, 2"
-          .disabled=${this._isPrinting}
-          @input=${this.updatePrintSlotNumbers}
-        />
+        <div class="print-preview" aria-live="polite">
+          ${this._printPreviewLoading
+            ? html`
+                <div class="print-preview-status">
+                  ${localize("files.prepare.preview_loading", this.language)}
+                </div>
+              `
+            : this._printPreviewImage
+              ? html`
+                  <img
+                    src=${this._printPreviewImage}
+                    alt=${localize("files.prepare.preview_alt", this.language)}
+                  />
+                `
+              : html`
+                  <div class="print-preview-status">
+                    <ha-icon icon="mdi:image-off-outline"></ha-icon>
+                    ${localize(
+                      "files.prepare.preview_unavailable",
+                      this.language,
+                    )}
+                  </div>
+                `}
+        </div>
+
+        ${slotOptions.length > 0
+          ? html`
+              <section class="print-slot-selection">
+                <h3>
+                  ${localize(
+                    "files.prepare.filament_assignment",
+                    this.language,
+                  )}
+                </h3>
+                <p>
+                  ${localize(
+                    "files.prepare.filament_assignment_help",
+                    this.language,
+                  )}
+                </p>
+                <div class="print-slot-options">
+                  ${this.renderPrintSlotOptions(slotOptions, selectedSlots)}
+                </div>
+              </section>
+            `
+          : nothing}
+
+        <details class="manual-slot-entry" ?open=${slotOptions.length === 0}>
+          <summary>
+            ${localize("files.prepare.manual_slot_numbers", this.language)}
+          </summary>
+          <p>
+            ${localize("files.prepare.manual_slot_numbers_help", this.language)}
+          </p>
+          <label class="slot-list-label" for="slot-number-list">
+            ${localize("files.prepare.slot_numbers", this.language)}
+          </label>
+          <input
+            id="slot-number-list"
+            class="slot-list-input"
+            .value=${this._printSlotNumbers}
+            placeholder="1, 2"
+            .disabled=${this._isPrinting}
+            @input=${this.updatePrintSlotNumbers}
+          />
+        </details>
 
         ${this._printError
           ? html`<ha-alert alert-type="error">${this._printError}</ha-alert>`
@@ -488,6 +570,159 @@ export class AnycubicViewFilesBase extends LitElement {
     return slotNumbers.length > 0 ? slotNumbers : undefined;
   };
 
+  private renderPrintSlotOptions = (
+    slotOptions: PrintSlotOption[],
+    selectedSlots: number[],
+  ): Generator<PrintSlotOption, void, LitTemplateResult> =>
+    map(slotOptions, (slot): LitTemplateResult => {
+      const selectedOrder = selectedSlots.indexOf(slot.serviceSlot);
+      const selected = selectedOrder >= 0;
+      const slotStyle = {
+        "--slot-color": this.getPrintSlotColor(slot.color),
+        "--slot-contrast": this.getPrintSlotContrast(slot.color),
+      };
+
+      return html`
+        <button
+          type="button"
+          class="print-slot-option ${selected ? "selected" : ""}"
+          style=${styleMap(slotStyle)}
+          aria-pressed=${selected ? "true" : "false"}
+          .disabled=${this._isPrinting}
+          .slotNumber=${slot.serviceSlot}
+          title=${localize(
+            "files.prepare.slot_title",
+            this.language,
+            "{display_slot}",
+            slot.displaySlot,
+          )}
+          @click=${this.togglePrintSlot}
+        >
+          <span class="print-slot-color">
+            <span>${slot.displaySlot}</span>
+          </span>
+          <span class="print-slot-material">${slot.material_type}</span>
+          <span class="print-slot-source">
+            ${slot.source === "ace"
+              ? localize(
+                  "files.prepare.ace_slot",
+                  this.language,
+                  "{slot}",
+                  slot.localSlot,
+                )
+              : localize("files.prepare.material_rack", this.language)}
+          </span>
+          ${selected
+            ? html`<span class="print-slot-order">${selectedOrder + 1}</span>`
+            : nothing}
+        </button>
+      `;
+    }) as Generator<PrintSlotOption, void, LitTemplateResult>;
+
+  private getPrintSlotOptions = (): PrintSlotOption[] => {
+    const materialRackEntity = getPrinterSensorStateObj(
+      this.hass,
+      this.printerEntities,
+      this.printerEntityIdPart,
+      "material_rack_spools",
+      "not loaded",
+      { spool_info: [] },
+    ) as AnycubicSpoolInfoEntity;
+    const materialRackSpools = Array.isArray(
+      materialRackEntity.attributes.spool_info,
+    )
+      ? materialRackEntity.attributes.spool_info
+      : [];
+    const entities = [
+      {
+        suffix: "material_rack_spools",
+        spoolInfo: materialRackSpools,
+      },
+      { suffix: "ace_spools" },
+      { suffix: "secondary_multi_color_box_spools" },
+    ];
+    const slotOptions: PrintSlotOption[] = [];
+
+    entities.forEach(({ suffix, spoolInfo: knownSpoolInfo }) => {
+      const spoolEntity = knownSpoolInfo
+        ? undefined
+        : (getPrinterSensorStateObj(
+            this.hass,
+            this.printerEntities,
+            this.printerEntityIdPart,
+            suffix,
+            "not loaded",
+            { spool_info: [] },
+          ) as AnycubicSpoolInfoEntity);
+      const spoolInfo = knownSpoolInfo
+        ? knownSpoolInfo
+        : Array.isArray(spoolEntity?.attributes.spool_info)
+          ? spoolEntity.attributes.spool_info
+          : [];
+
+      slotOptions.push(
+        ...spoolInfo
+          .map((spool, index): PrintSlotOption | undefined => {
+            const localSlot = Number(spool.local_slot ?? index + 1);
+            const displaySlot = Number(
+              spool.display_slot ?? spool.slot ?? localSlot,
+            );
+            const serviceSlot = displaySlot;
+
+            if (
+              !spool.spool_loaded ||
+              spool.reserved_by_ace === true ||
+              !Number.isInteger(serviceSlot) ||
+              serviceSlot < 1 ||
+              !Number.isInteger(displaySlot) ||
+              displaySlot < 1 ||
+              !Array.isArray(spool.color) ||
+              spool.color.length < 3
+            ) {
+              return undefined;
+            }
+
+            return {
+              ...spool,
+              displaySlot,
+              localSlot,
+              serviceSlot,
+            };
+          })
+          .filter((slot): slot is PrintSlotOption => slot !== undefined),
+      );
+    });
+
+    return slotOptions;
+  };
+
+  private getPrintSlotColor = (color: number[]): string => {
+    const [red, green, blue] = color.map((value) =>
+      Math.min(255, Math.max(0, Number(value) || 0)),
+    );
+    return `rgb(${red}, ${green}, ${blue})`;
+  };
+
+  private getPrintSlotContrast = (color: number[]): string => {
+    const [red, green, blue] = color.map((value) =>
+      Math.min(255, Math.max(0, Number(value) || 0)),
+    );
+    const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+    return luminance > 150 ? "#111" : "#fff";
+  };
+
+  private togglePrintSlot = (ev: DomClickEvent<PrintSlotEventTarget>): void => {
+    const slotNumber = ev.currentTarget.slotNumber;
+    const slotNumbers = this.parseSlotNumbers() ?? [];
+    const selectedIndex = slotNumbers.indexOf(slotNumber);
+    if (selectedIndex >= 0) {
+      slotNumbers.splice(selectedIndex, 1);
+    } else {
+      slotNumbers.push(slotNumber);
+    }
+    this._printSlotNumbers = slotNumbers.join(", ");
+  };
+
   openPrintPreparation = (ev: DomClickEvent<EvtTargFileInfo>): void => {
     const fileInfo: AnycubicFileLocal = ev.currentTarget
       .file_info as AnycubicFileLocal;
@@ -498,6 +733,8 @@ export class AnycubicViewFilesBase extends LitElement {
     this._printPreparationFile = fileInfo;
     this._printSlotNumbers = "";
     this._printError = undefined;
+    this._printPreviewImage = undefined;
+    void this.loadPrintPreview(fileInfo);
   };
 
   closePrintPreparation = (): void => {
@@ -508,6 +745,9 @@ export class AnycubicViewFilesBase extends LitElement {
     this._printPreparationFile = undefined;
     this._printSlotNumbers = "";
     this._printError = undefined;
+    this._printPreviewImage = undefined;
+    this._printPreviewLoading = false;
+    this._printPreviewRequest += 1;
   };
 
   updatePrintSlotNumbers = (ev: Event): void => {
@@ -559,6 +799,50 @@ export class AnycubicViewFilesBase extends LitElement {
     _fileInfo: AnycubicFileLocal,
     _slotNumbers: number[] | undefined,
   ): Promise<void> => Promise.resolve();
+
+  protected getFilePreviewSource = (): "local" | "udisk" | undefined =>
+    undefined;
+
+  private loadPrintPreview = async (
+    fileInfo: AnycubicFileLocal,
+  ): Promise<void> => {
+    const source = this.getFilePreviewSource();
+    const printerId = Number.parseInt(
+      getPrinterID(this.selectedPrinterDevice) || "",
+      10,
+    );
+    if (
+      !source ||
+      !fileInfo.name ||
+      !this.selectedPrinterDevice ||
+      !Number.isInteger(printerId)
+    ) {
+      return;
+    }
+
+    const requestId = ++this._printPreviewRequest;
+    this._printPreviewLoading = true;
+    try {
+      const response = await this.hass.callWS<AnycubicFilePreviewResponse>({
+        type: `${platform}/file_preview`,
+        config_entry: this.selectedPrinterDevice.primary_config_entry,
+        printer_id: printerId,
+        source,
+        filename: fileInfo.name,
+      });
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewImage = response.image || undefined;
+      }
+    } catch (_e: unknown) {
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewImage = undefined;
+      }
+    } finally {
+      if (requestId === this._printPreviewRequest) {
+        this._printPreviewLoading = false;
+      }
+    }
+  };
 
   static get styles(): CSSResult {
     return css`

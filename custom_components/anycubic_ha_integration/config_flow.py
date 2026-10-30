@@ -304,10 +304,24 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
                 else:
                     return await self.async_step_printer()
 
+        description_placeholders = None
+        if auth_mode == AnycubicAuthMode.SLICER:
+            documentation_page = (
+                "README.md#windows-token-aus-dem-laufenden-slicer-auslesen"
+                if self.hass.config.language == "de"
+                else "README.en.md#recover-a-slicer-token-on-windows"
+            )
+            description_placeholders = {
+                "token_instructions_url": (
+                    "https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/"
+                    f"{documentation_page}"
+                ),
+            }
         return self.async_show_form(
             step_id=step_id,
             data_schema=auth_schema,
             errors=errors,
+            description_placeholders=description_placeholders,
         )
 
     async def async_step_printer(

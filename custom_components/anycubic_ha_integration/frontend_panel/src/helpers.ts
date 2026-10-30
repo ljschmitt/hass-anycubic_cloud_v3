@@ -24,6 +24,7 @@ import {
   PrinterCardStatType,
   TemperatureUnit,
 } from "./types";
+import { platform } from "./const";
 
 const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
   ace_firmware: ["multi_color_box_fw_version"],
@@ -159,10 +160,16 @@ export function getEntityStateBinary(
 
 export function getPrinterDevices(hass: HomeAssistant): HassDeviceList {
   const printers: HassDeviceList = {};
+  const integrationDeviceIDs = new Set(
+    Object.values(hass.entities)
+      .filter((entity) => entity.platform === platform && entity.device_id)
+      .map((entity) => entity.device_id),
+  );
+
   for (const key in hass.devices) {
     const dev = hass.devices[key];
 
-    if (dev.manufacturer === "Anycubic") {
+    if (dev.manufacturer === "Anycubic" && integrationDeviceIDs.has(dev.id)) {
       printers[dev.id] = dev;
     }
   }

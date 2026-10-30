@@ -624,9 +624,9 @@ class AnycubicPrinter:
                 multi_color_box=data.get('multi_color_box'),
                 ignore_init_errors=ignore_init_errors,
             )
-        except Exception as e:
-            print(data)
-            raise e
+        except Exception:
+            # Raw printer responses contain account and device identifiers.
+            raise
 
     def update_from_info_json(self, data: dict[str, Any] | None) -> None:
         if data is None:
@@ -1155,7 +1155,7 @@ class AnycubicPrinter:
     ) -> None:
         if action == 'listLocal' and state == 'done':
             data = payload['data']
-            records = data['records']
+            records = data.get('records', [])
             data.get('list_mode')
             file_path = data.get('path', self._pending_local_file_list_path)
             self._pending_local_file_list_path = None
@@ -1166,7 +1166,7 @@ class AnycubicPrinter:
             return
         elif action == 'listUdisk' and state == 'done':
             data = payload['data']
-            records = data['records']
+            records = data.get('records', [])
             data.get('list_mode')
             file_path = data.get('path', self._pending_udisk_file_list_path)
             self._pending_udisk_file_list_path = None
@@ -1754,7 +1754,7 @@ class AnycubicPrinter:
 
     @property
     def local_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
-        if not self._local_file_list or len(self._local_file_list) < 1:
+        if self._local_file_list is None:
             return None
 
         file_list = list([
@@ -1768,7 +1768,7 @@ class AnycubicPrinter:
 
     @property
     def udisk_file_list_object(self) -> list[dict[str, str | float | bool]] | None:
-        if not self._udisk_file_list or len(self._udisk_file_list) < 1:
+        if self._udisk_file_list is None:
             return None
 
         file_list = list([
@@ -2475,11 +2475,12 @@ class AnycubicPrinter:
 
         material_list = list()
         for paint_index, slot_index in enumerate(slot_index_list):
-            box_index = slot_index // 4
-            local_slot_index = slot_index - (4 * box_index)
+            box_id = slot_index // 4
+            local_slot_index = slot_index - (4 * box_id)
             material_type = "UNKNOWN"
 
-            if box_index < len(self._multi_color_box):
+            box_index = self._multi_color_box_index_by_id(box_id)
+            if box_index is not None:
                 box_slots = self._multi_color_box[box_index].slots
                 if 0 <= local_slot_index < len(box_slots):
                     material_type = box_slots[local_slot_index].material_type
@@ -2496,6 +2497,21 @@ class AnycubicPrinter:
             slot_index_list=slot_index_list,
             material_list=material_list,
         )
+
+    def print_slot_numbers_to_indices(
+        self,
+        slot_number_list: list[int],
+    ) -> list[int]:
+        """Translate visible one-based material accesses to protocol indices."""
+        if self.is_kobra_x:
+            # Kobra X exposes its internal rack as box -1 and its first ACE as
+            # box 0. Accesses 1-3 are rack slots; access 4 starts the ACE.
+            return [
+                slot_number - 5 if slot_number < 4 else slot_number - 4
+                for slot_number in slot_number_list
+            ]
+
+        return [slot_number - 1 for slot_number in slot_number_list]
 
     async def print_local_file(
         self,
