@@ -12,12 +12,12 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.4.2**
+> 🗓️ **Aktuelles Release: 0.4.3**
 >
-> - Leere externe Spulenhalter mit `external_shelves.id: null` verhindern die Einrichtung nach erfolgreichem Login nicht mehr.
-> - Unvollstaendige Cloud-Daten werden bei der Einrichtung erneut angefragt, statt faelschlich eine neue Anmeldung zu verlangen.
-> - Der PowerShell-Befehl bestaetigt das erfolgreiche Kopieren des Tokens nach Pruefung der Zwischenablage.
-> - Optionale externe Spulenstatuswerte und bestehende Material-/Card-Zuordnungen bleiben kompatibel.
+> - Der bestehende ACE-Spulensensor meldet den aktiven Slot der primaeren ACE als zusaetzliches Attribut `loaded_slot`.
+> - Token-Anleitung und Einrichtungsdialog unterstuetzen Windows und macOS mit Pruefung der Zwischenablage.
+> - Bestehende Windows-Anweisungen, Dokumentationslinks, Entity-IDs und Druck-Slotzuordnungen bleiben erhalten.
+> - Passende Dashboard-Card auf Version 0.4.3 synchronisiert; das Card-Verhalten bleibt unveraendert.
 >
 > Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -106,9 +106,9 @@ Bestehende Entity-IDs werden bewusst **nicht automatisch** umbenannt, weil das v
 
 Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt keine Kameras an, loescht keine Entities und veraendert keine persoenlichen Home-Assistant-Einstellungen ausser den bewusst migrierten Entity-IDs.
 
-### Aktiver Slot der primaeren ACE (noch nicht veroeffentlicht)
+### Aktiver Slot der primaeren ACE
 
-Der bestehende Sensor `sensor.anycubic_printer_ace_spools` erhaelt im Entwicklungsstand das zusaetzliche Attribut `loaded_slot`. Es gibt den unveraenderten, **nullbasierten** Cloud-/MQTT-Wert der primaeren ACE zurueck: `0` ist ihr erster Slot, `1` ihr zweiter Slot und `-1` bedeutet, dass kein Slot geladen ist. Ohne primaere ACE ist der Wert `null`. Bei offline befindlichen Druckern kann der letzte bekannte Wert stehen bleiben; er bestaetigt keine aktuelle Filamentbewegung.
+Der bestehende Sensor `sensor.anycubic_printer_ace_spools` erhaelt ab Version **0.4.3** das zusaetzliche Attribut `loaded_slot`. Es gibt den unveraenderten, **nullbasierten** Cloud-/MQTT-Wert der primaeren ACE zurueck: `0` ist ihr erster Slot, `1` ihr zweiter Slot und `-1` bedeutet, dass kein Slot geladen ist. Ohne primaere ACE ist der Wert `null`. Bei offline befindlichen Druckern kann der letzte bekannte Wert stehen bleiben; er bestaetigt keine aktuelle Filamentbewegung.
 
 Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere ACE. Beim Kobra X wird das interne Materialregal nicht als primaere ACE gewertet. Die vorhandenen Felder `local_slot`, `slot` und `display_slot` bleiben einsbasiert und unveraendert. Vor einem Zugriff auf `spool_info[loaded_slot]` immer pruefen, ob `loaded_slot` eine Zahl zwischen `0` und der Listenlaenge minus eins ist; insbesondere darf `-1` nicht als letzter Listeneintrag interpretiert werden. Das Attribut benoetigt keine neue Entity und aendert keine Druck-Slotzuordnung.
 
