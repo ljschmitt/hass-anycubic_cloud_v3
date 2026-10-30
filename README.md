@@ -12,11 +12,11 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.4.4-beta.1**
+> 🗓️ **Aktuelles Release: 0.4.4**
 >
 > - MQTT prueft die Zertifikatskette der Anycubic-CA und den Broker-Hostnamen; keine ungepruefte Ersatzverbindung.
 > - Kobra S1 Max: verstrichene Sekunden werden fuer Sensor, Panel und Card korrekt in Minuten umgerechnet.
-> - Reiner Integrationstest: Die stabile Dashboard-Card 0.4.3 bleibt kompatibel; bestehende Entity-IDs und Restzeit bleiben erhalten.
+> - Passende Dashboard-Card auf Version 0.4.4 synchronisiert; bestehende Entity-IDs und Restzeit bleiben erhalten.
 >
 > Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -77,7 +77,7 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 
 ### Druckzeit beim Kobra S1 Max
 
-Ab Version **0.4.4-beta.1** ist die Druckzeit-Korrektur zu [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17) enthalten: Beim Kobra S1 Max (Modell 20029) wird die verstrichene Druckzeit in Sekunden gemeldet. Die Integration rechnet ausschliesslich diesen Wert in die weiterhin vom Sensor `job_time_elapsed`, Panel und Dashboard-Card erwarteten Minuten um; Sekunden bleiben als Nachkommastellen erhalten. Beispielsweise werden `2601` Sekunden als `43.35` Minuten und damit als 43 Minuten 21 Sekunden angezeigt.
+Ab Version **0.4.4** ist die Druckzeit-Korrektur zu [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17) enthalten: Beim Kobra S1 Max (Modell 20029) wird die verstrichene Druckzeit in Sekunden gemeldet. Die Integration rechnet ausschliesslich diesen Wert in die weiterhin vom Sensor `job_time_elapsed`, Panel und Dashboard-Card erwarteten Minuten um; Sekunden bleiben als Nachkommastellen erhalten. Beispielsweise werden `2601` Sekunden als `43.35` Minuten und damit als 43 Minuten 21 Sekunden angezeigt.
 
 Cloud-Polling und MQTT verwenden dieselbe Umrechnung, ohne die Rohwerte zu veraendern oder mehrfach zu teilen. Die Restzeit bleibt in Minuten und die daraus berechnete ETA unveraendert. Andere Druckermodelle behalten die bisherige Verarbeitung; es gibt keine automatische Einheitenschaetzung anhand der Druckdauer oder des Fortschritts. Bestehende Entity-IDs und die Card muessen dafuer nicht geaendert werden. Die Korrektur ist automatisiert geprueft; die Bestaetigung am betroffenen S1 Max steht noch aus.
 
@@ -280,7 +280,7 @@ Ich uebernehme keine Haftung fuer Schaeden am 3D-Drucker, an angeschlossenem Zub
 
 Fuer die Anycubic-MQTT-Verbindung sind die im Projekt enthaltenen Anycubic-TLS-Client-Zertifikatsdateien erforderlich. Sie gehoeren zur Anycubic-Protokollanbindung und enthalten keine benutzerspezifischen Home-Assistant- oder Anycubic-Zugangsdaten. Eigene Tokens, Logs, Screenshots mit Tokens oder lokale Konfigurationsdateien sollten niemals in Issues, Pull Requests oder Releases hochgeladen werden.
 
-**MQTT-Zertifikatspruefung (ab 0.4.4-beta.1):** Die Verbindung verlangt ein gueltiges Broker-Zertifikat der mitgelieferten Anycubic-CA und einen passenden Hostnamen (`CERT_REQUIRED`, `check_hostname=True`); die Paho-Ausnahme fuer unsichere Verbindungen ist deaktiviert. TLS 1.2 ist die Mindestversion. Fehlende, fremde oder abgelaufene Zertifikate und falsche Hostnamen fuehren zum Verbindungsfehler, ohne Rueckfall auf eine ungepruefte Verbindung.
+**MQTT-Zertifikatspruefung (ab 0.4.4):** Die Verbindung verlangt ein gueltiges Broker-Zertifikat der mitgelieferten Anycubic-CA und einen passenden Hostnamen (`CERT_REQUIRED`, `check_hostname=True`); die Paho-Ausnahme fuer unsichere Verbindungen ist deaktiviert. TLS 1.2 ist die Mindestversion. Fehlende, fremde oder abgelaufene Zertifikate und falsche Hostnamen fuehren zum Verbindungsfehler, ohne Rueckfall auf eine ungepruefte Verbindung.
 
 Anycubics derzeitige Broker- und Client-Zertifikate sind noch mit SHA-1 signiert. Deshalb ist OpenSSL-Kompatibilitaetsstufe `SECLEVEL=0` erforderlich; die angebotenen Cipher-Suites schliessen anonyme, unverschluesselte und PSK-/SRP-Verfahren aus. Die Hersteller-CA hat keine KeyUsage-Erweiterung; verwendet wird die normale TLS-Client-Zertifikatspruefung statt der zusaetzlichen `VERIFY_X509_STRICT`-Vorgaben neuerer Python-Versionen. Die Herstellerzertifikate werden nicht veraendert. Dies ist eine verbleibende Protokoll-Einschraenkung, keine Abschaltung der Zertifikats-, Gueltigkeits- oder Hostnamenpruefung. Die gepruefte Verbindung wurde mit TLS 1.3, erfolgreicher MQTT-Anmeldung und bestaetigten Abonnements getestet, ohne Druckerbefehle zu veroeffentlichen.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4
+
+- Promote the validated 0.4.4-beta.1 fixes: verified MQTT broker certificate/hostname with documented legacy-certificate compatibility, and model-scoped Kobra S1 Max elapsed-time normalization.
+- Preserve other printer models, remaining time, ETA, entity IDs and print-slot mappings; publish the matching dashboard card 0.4.4.
+- Add contributor credits to both READMEs.
+
 ## 0.4.4-beta.1
 
 ### Fixed
