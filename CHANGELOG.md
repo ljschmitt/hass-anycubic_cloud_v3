@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Expose the primary ACE's raw, zero-based `loaded_slot` as an additional attribute on the existing `ace_spools` sensor. Preserve `-1` for no loaded slot and `null` when no primary ACE exists; existing spool data, entity IDs and print mappings are unchanged.
+
 ## 0.4.2
 
 ### Fixed

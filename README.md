@@ -106,6 +106,12 @@ Bestehende Entity-IDs werden bewusst **nicht automatisch** umbenannt, weil das v
 
 Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt keine Kameras an, loescht keine Entities und veraendert keine persoenlichen Home-Assistant-Einstellungen ausser den bewusst migrierten Entity-IDs.
 
+### Aktiver Slot der primaeren ACE (noch nicht veroeffentlicht)
+
+Der bestehende Sensor `sensor.anycubic_printer_ace_spools` erhaelt im Entwicklungsstand das zusaetzliche Attribut `loaded_slot`. Es gibt den unveraenderten, **nullbasierten** Cloud-/MQTT-Wert der primaeren ACE zurueck: `0` ist ihr erster Slot, `1` ihr zweiter Slot und `-1` bedeutet, dass kein Slot geladen ist. Ohne primaere ACE ist der Wert `null`. Bei offline befindlichen Druckern kann der letzte bekannte Wert stehen bleiben; er bestaetigt keine aktuelle Filamentbewegung.
+
+Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere ACE. Beim Kobra X wird das interne Materialregal nicht als primaere ACE gewertet. Die vorhandenen Felder `local_slot`, `slot` und `display_slot` bleiben einsbasiert und unveraendert. Vor einem Zugriff auf `spool_info[loaded_slot]` immer pruefen, ob `loaded_slot` eine Zahl zwischen `0` und der Listenlaenge minus eins ist; insbesondere darf `-1` nicht als letzter Listeneintrag interpretiert werden. Das Attribut benoetigt keine neue Entity und aendert keine Druck-Slotzuordnung.
+
 ---
 
 ## 🖼️ Galerie
