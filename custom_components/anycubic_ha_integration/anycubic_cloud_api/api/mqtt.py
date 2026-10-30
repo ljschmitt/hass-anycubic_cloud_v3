@@ -240,15 +240,22 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
             self._log_to_error(f"Anycubic MQTT unable to start, no certificate found in root: {ssl_root}.")
             raise AnycubicMQTTClientError(ErrorsMQTTClient.cert_missing)
 
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        ssl_context.set_ciphers(('ALL:@SECLEVEL=0'),)
+        # Use standard client verification: the vendor CA lacks KeyUsage and
+        # cannot pass the extra VERIFY_X509_STRICT defaults of newer Python.
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        # Anycubic's current client AND broker certificates use SHA-1 signatures.
+        # OpenSSL needs SECLEVEL=0 for these legacy certificates, but we still
+        # require the pinned Anycubic CA, certificate validity and hostname match.
+        # DEFAULT keeps anonymous/null/export ciphers out of the offered suites.
+        ssl_context.set_ciphers('DEFAULT:!aNULL:!eNULL:!PSK:!SRP:@SECLEVEL=0')
         ssl_context.load_cert_chain(
             crt_path,
             get_mqtt_ssl_path_key(ssl_root),
             None,
         )
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
+        ssl_context.verify_mode = ssl.CERT_REQUIRED
+        ssl_context.check_hostname = True
         ssl_context.load_verify_locations(get_mqtt_ssl_path_ca(ssl_root))
 
         return ssl_context
@@ -364,7 +371,7 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
         self._set_mqtt_username_password()
 
         self._mqtt_client.tls_set_context(self._mqtt_build_ssl_context())
-        self._mqtt_client.tls_insecure_set(True)
+        self._mqtt_client.tls_insecure_set(False)
 
         self._mqtt_client.reconnect_delay_set(min_delay=5, max_delay=60)
 

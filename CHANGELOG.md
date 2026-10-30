@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.4
+
+- Promote the validated 0.4.4-beta.1 fixes: verified MQTT broker certificate/hostname with documented legacy-certificate compatibility, and model-scoped Kobra S1 Max elapsed-time normalization.
+- Preserve other printer models, remaining time, ETA, entity IDs and print-slot mappings; publish the matching dashboard card 0.4.4.
+- Add contributor credits to both READMEs.
+
+## 0.4.4-beta.1
+
+### Fixed
+
+- Verify MQTT broker certificates against the bundled Anycubic CA and check the broker hostname, requiring TLS 1.2 or newer. Remove the insecure Paho mode and restrict cipher suites. Preserve the documented OpenSSL compatibility level needed for Anycubic's SHA-1-signed broker/client certificates; no insecure verification fallback is provided.
+- Normalize Kobra S1 Max (model 20029) elapsed print seconds to minutes for the existing `job_time_elapsed` sensor, panel and dashboard card. Preserve seconds as fractional minutes, keep raw cloud/MQTT values intact, and leave other models, remaining time and ETA unchanged. Addresses the elapsed-time report in [#17](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/17).
+
+### Documentation
+
+- Credit the contributors to primary-ACE loaded-slot reporting, macOS token recovery and earlier parsing/token fixes in both READMEs.
+
 ## 0.4.3
 
 ### Changed

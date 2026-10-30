@@ -35,7 +35,9 @@ jobs:
         with:
           path: "custom_components"
       - name: Run unit tests
-        run: python -m unittest discover -s tests
+        run: |
+          python -m pip install cryptography
+          python -m unittest discover -s tests
       - name: Run mypy
         uses: jpetrucciani/mypy-check@master
         with:
@@ -68,6 +70,8 @@ jobs:
       - name: Run lint
         run: npm run lint
         working-directory: custom_components/anycubic_ha_integration/frontend_panel
+      - name: Test panel and card print-time formatting
+        run: node tests/test_print_time_frontend.cjs
       - name: Build and check diff
         run: |
           npm run build && npm run build_card
