@@ -12,12 +12,12 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
 
-> 🗓️ **Aktuelles Release: 0.4.1**
+> 🗓️ **Aktuelles Release: 0.4.2**
 >
-> - Wieder einfacher Token-Abruf direkt aus dem aktuellen Slicer-Debug-Log mit einem PowerShell-Befehl.
-> - Fehlendes optionales ACE-Feld `feed_status` verhindert die Einrichtung nicht mehr; fehlende Pflichtfelder werden nicht mehr als Tokenfehler gemeldet.
-> - Unterstuetzt sowohl das fruehere Format `accessToken =` als auch den aktuellen Slicer-Parameter `id_token=`.
-> - Python, Repository-Download und Prozessspeicherzugriff sind fuer den normalen Weg nicht mehr erforderlich.
+> - Leere externe Spulenhalter mit `external_shelves.id: null` verhindern die Einrichtung nach erfolgreichem Login nicht mehr.
+> - Unvollstaendige Cloud-Daten werden bei der Einrichtung erneut angefragt, statt faelschlich eine neue Anmeldung zu verlangen.
+> - Der PowerShell-Befehl bestaetigt das erfolgreiche Kopieren des Tokens nach Pruefung der Zwischenablage.
+> - Optionale externe Spulenstatuswerte und bestehende Material-/Card-Zuordnungen bleiben kompatibel.
 >
 > Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -105,6 +105,12 @@ Bestehende Entity-IDs werden bewusst **nicht automatisch** umbenannt, weil das v
 5. Danach eigene Dashboards, Karten, Automationen und Skripte pruefen
 
 Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt keine Kameras an, loescht keine Entities und veraendert keine persoenlichen Home-Assistant-Einstellungen ausser den bewusst migrierten Entity-IDs.
+
+### Aktiver Slot der primaeren ACE (noch nicht veroeffentlicht)
+
+Der bestehende Sensor `sensor.anycubic_printer_ace_spools` erhaelt im Entwicklungsstand das zusaetzliche Attribut `loaded_slot`. Es gibt den unveraenderten, **nullbasierten** Cloud-/MQTT-Wert der primaeren ACE zurueck: `0` ist ihr erster Slot, `1` ihr zweiter Slot und `-1` bedeutet, dass kein Slot geladen ist. Ohne primaere ACE ist der Wert `null`. Bei offline befindlichen Druckern kann der letzte bekannte Wert stehen bleiben; er bestaetigt keine aktuelle Filamentbewegung.
+
+Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere ACE. Beim Kobra X wird das interne Materialregal nicht als primaere ACE gewertet. Die vorhandenen Felder `local_slot`, `slot` und `display_slot` bleiben einsbasiert und unveraendert. Vor einem Zugriff auf `spool_info[loaded_slot]` immer pruefen, ob `loaded_slot` eine Zahl zwischen `0` und der Listenlaenge minus eins ist; insbesondere darf `-1` nicht als letzter Listeneintrag interpretiert werden. Das Attribut benoetigt keine neue Entity und aendert keine Druck-Slotzuordnung.
 
 ---
 
@@ -271,6 +277,8 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 
 ---
 
+<a id="windows-token-aus-dem-laufenden-slicer-auslesen"></a>
+
 ## 🔐 Token auslesen (Slicer Next)
 
 Slicer Next 2.0.x schreibt den benoetigten Access-Token weiterhin in das aktuelle Debug-Log, verwendet dort aber teilweise den Parameternamen `id_token=` statt der frueheren Zeile `accessToken = ...`. Der folgende Befehl unterstuetzt beide Schreibweisen. Python, ein Repository-Download und Speicherzugriff sind fuer den normalen Weg nicht erforderlich.
@@ -281,28 +289,51 @@ Slicer Next 2.0.x schreibt den benoetigten Access-Token weiterhin in das aktuell
    **Windows** (PowerShell):
 
    ```powershell
-   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'Kein Slicer-Token im neuesten Log gefunden.' }; $token | Set-Clipboard
+   & {
+       $ErrorActionPreference = 'Stop'
+       $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+       if (!$log) { throw 'Kein Slicer-Debug-Log gefunden. Slicer starten, einloggen und die Druckeransicht oeffnen.' }
+       $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+       if (!$token) { throw 'Kein Slicer-Token im neuesten Log gefunden.' }
+       Set-Clipboard -Value $token
+       if ((Get-Clipboard -Raw) -cne $token) { throw 'Token konnte nicht in der Zwischenablage bestaetigt werden. Befehl erneut ausfuehren.' }
+       Write-Host 'Token erfolgreich in die Zwischenablage kopiert. Jetzt in Home Assistant mit Strg+V einfuegen.' -ForegroundColor Green
+   }
    ```
 
    **macOS** (Terminal; das Log liegt unter `~/Library/Application Support/AnycubicSlicerNext/log/`, der Dateiname des Logs ist bei jedem Start anders und wird automatisch gefunden):
 
    ```bash
-   f=$(ls -t ~/Library/Application\ Support/AnycubicSlicerNext/log/debug_*.log | head -1); t=$(grep -h -o -E '(accessToken *= *|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -1 | sed -E 's/^(accessToken *= *|id_token=)//'); if [ -n "$t" ]; then printf %s "$t" | pbcopy; echo "Token in die Zwischenablage kopiert"; else echo "Kein Slicer-Token im neuesten Log gefunden"; fi
+   bash <<'ANYCUBIC_TOKEN'
+   f=
+   for candidate in "$HOME/Library/Application Support/AnycubicSlicerNext/log/"debug_*.log; do
+       [ -f "$candidate" ] || continue
+       if [ -z "$f" ] || [ "$candidate" -nt "$f" ]; then f=$candidate; fi
+   done
+   if [ -z "$f" ]; then printf '%s\n' 'Kein Slicer-Debug-Log gefunden. Einloggen und Druckeransicht oeffnen.' >&2; exit 1; fi
+   t=$(grep -h -o -E '(accessToken[[:space:]]*=[[:space:]]*|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -n 1 | sed -E 's/^(accessToken[[:space:]]*=[[:space:]]*|id_token=)//')
+   if [ -z "$t" ]; then printf '%s\n' 'Kein Slicer-Token im neuesten Log gefunden.' >&2; exit 1; fi
+   if ! printf '%s' "$t" | pbcopy; then printf '%s\n' 'Token konnte nicht in die Zwischenablage kopiert werden.' >&2; exit 1; fi
+   copied=$(pbpaste) || exit 1
+   if [ "$copied" != "$t" ]; then printf '%s\n' 'Token konnte nicht in der Zwischenablage bestaetigt werden. Befehl erneut ausfuehren.' >&2; exit 1; fi
+   printf '%s\n' 'Token erfolgreich kopiert und geprueft. Jetzt in Home Assistant mit Cmd+V einfuegen.'
+   ANYCUBIC_TOKEN
    ```
 
 3. In Home Assistant bei **Slicer Next (Windows & macOS)** den Token mit `Strg+V` (macOS: `Cmd+V`) einfuegen. Eine bestehende Integration zum Erneuern des Tokens nicht loeschen.
 4. Danach die Zwischenablage leeren: Windows mit `Set-Clipboard -Value ''`, macOS mit `pbcopy < /dev/null`. Falls der Windows-Zwischenablageverlauf oder die Cloud-Synchronisierung aktiv ist, den Eintrag auch dort entfernen.
 
-Der Befehl liest nur das neueste lokale Slicer-Debug-Log, kopiert den letzten passenden JWT in die Zwischenablage und gibt ihn nicht im Terminal aus. Die Integration prueft den eingefuegten Token anschliessend beim Anycubic-Login. Obwohl der aktuelle Slicer den URL-Parameter `id_token` nennt, enthaelt er in der geprueften Slicer-Version einen JWT mit dem Token-Typ `access-token`.
+Beide Befehle lesen nur das neueste lokale Slicer-Debug-Log und kopieren den letzten passenden JWT in die Zwischenablage. Eine Erfolgsmeldung erscheint erst nach dem Abgleich des Zwischenablage-Inhalts mit dem gefundenen Token (unter PowerShell in Gruen). Der Token selbst wird nicht im Terminal ausgegeben. Der macOS-Block verwendet ausdruecklich die mitgelieferte Bash und kann auch in ein zsh-Terminal eingefuegt werden. Danach direkt in Home Assistant einfuegen; das Kopieren eines anderen Textes ersetzt den Token in der Zwischenablage. Die Integration prueft den eingefuegten Token anschliessend beim Anycubic-Login. Obwohl der aktuelle Slicer den URL-Parameter `id_token` nennt, enthaelt er in der geprueften Slicer-Version einen JWT mit dem Token-Typ `access-token`.
 
 ### Fehlerbehebung und Grenzen
 
+- **Wiederholte Anmeldung trotz weiterhin gueltigem Token (`int()` / `NoneType`):** Anycubic kann fuer einen nicht belegten externen Spulenhalter `external_shelves.id: null` und `loaded: null` liefern. Bis einschliesslich Version 0.4.1 kann dies die Einrichtung nach erfolgreichem Cloud-Login abbrechen und faelschlich eine erneute Anmeldung verlangen. Ab Version **0.4.2** wird dieser leere Halter als nicht vorhanden behandelt; optionale `null`-Statuswerte eines vorhandenen Halters verwenden dieselben inaktiven Standardwerte wie fehlende Statusfelder. Ungueltige Cloud-Daten werden bei der Einrichtung erneut angefragt, ohne einen neuen Token zu verlangen. Die neue Version muss installiert und Home Assistant anschliessend neu gestartet werden, damit die Korrektur wirkt. Ein tatsaechlich abgelehnter oder abgelaufener Token erfordert weiterhin eine erneute Anmeldung.
 - **Einrichtungsfehler mit `feed_status` nach bestaetigtem Token:** Ein fehlendes ACE-Datenfeld kann bis Version 0.4.0 faelschlich als Anmeldefehler erscheinen. Das ist kein Nachweis fuer einen ungueltigen Token. Version 0.4.1 behandelt dieses optionale Feld als unbekannt; andere fehlende Pflichtfelder werden als Einrichtungsfehler gemeldet.
 - **Kein Token gefunden:** Slicer einloggen, die Druckeransicht oeffnen und den Befehl erneut ausfuehren. Der Slicer muss zuvor ein aktuelles Debug-Log erzeugt haben.
 - **Token wird abgelehnt:** Im Slicer ab- und erneut anmelden, die Druckeransicht oeffnen und den Token erneut kopieren. Ein noch nicht abgelaufener JWT kann bereits widerrufen sein.
 - **Andere Slicer-Version ohne passenden Log-Eintrag:** Als technischer Notfallweg stehen weiterhin der [PowerShell-Starter](scripts/recover_slicer_token.ps1) und das [Python-Hilfsskript](scripts/recover_slicer_token.py) fuer die lokale, schreibgeschuetzte Prozessspeicher-Suche zur Verfuegung. Dieser Weg ist nicht der normale Einstieg.
 
-Der einfache Log-Befehl wurde lokal mit Slicer Next 2.0.0.3 unter Windows erfolgreich geprueft; der macOS-Befehl wurde mit derselben Slicer-Version unter macOS (Apple Silicon) geprueft. Das ist keine Garantie fuer alle kuenftigen Slicer-Builds oder Cloud-Aenderungen.
+Das Auslesen wurde lokal mit Slicer Next 2.0.0.3 unter Windows geprueft. Ein Beitragender hat erfolgreiches Auslesen mit dieser Slicer-Version auf macOS (Apple Silicon) rueckgemeldet. Automatisierte Tests decken beide Token-Schreibweisen, die Auswahl des neuesten Logs und Zwischenablagefehler ab; eine native macOS-Pruefung laeuft in CI. Das ist keine Garantie fuer kuenftige Slicer-Builds oder Cloud-Aenderungen.
 
 Nur eigene Zugangsdaten auslesen. **Keine Tokens, Speicherabbilder, Konfigurationsdateien oder unbereinigten Logs in GitHub-Issues hochladen.** Als Alternative bleibt der unten beschriebene Web-Modus ohne MQTT.
 

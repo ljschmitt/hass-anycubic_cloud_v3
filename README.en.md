@@ -57,6 +57,8 @@ For MQTT support, select the **Slicer Next (Windows & macOS)** authentication me
 
 Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migration, and troubleshooting instructions are available in the [German documentation](README.md).
 
+<a id="recover-a-slicer-token-on-windows"></a>
+
 ### Recover a Slicer token (Windows and macOS)
 
 Slicer Next 2.0.x still writes the required access token to its current debug log, but may label the URL parameter `id_token=` instead of the former `accessToken = ...` line. The command below supports both forms. It does not require Python, a repository download or process-memory access.
@@ -67,25 +69,55 @@ Slicer Next 2.0.x still writes the required access token to its current debug lo
    **Windows** (PowerShell):
 
    ```powershell
-   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'No Slicer token found in the latest log.' }; $token | Set-Clipboard
+   & {
+       $ErrorActionPreference = 'Stop'
+       $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+       if (!$log) { throw 'No Slicer debug log found. Start Slicer, sign in and open the printer view.' }
+       $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+       if (!$token) { throw 'No Slicer token found in the latest log.' }
+       Set-Clipboard -Value $token
+       if ((Get-Clipboard -Raw) -cne $token) { throw 'Could not confirm the token in the clipboard. Run the command again.' }
+       Write-Host 'Token successfully copied to clipboard. Paste into Home Assistant with Ctrl+V now.' -ForegroundColor Green
+   }
    ```
 
    **macOS** (Terminal; the log lives in `~/Library/Application Support/AnycubicSlicerNext/log/`, its file name changes on every start and is found automatically):
 
    ```bash
-   f=$(ls -t ~/Library/Application\ Support/AnycubicSlicerNext/log/debug_*.log | head -1); t=$(grep -h -o -E '(accessToken *= *|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -1 | sed -E 's/^(accessToken *= *|id_token=)//'); if [ -n "$t" ]; then printf %s "$t" | pbcopy; echo "Token copied to clipboard"; else echo "No Slicer token found in the latest log"; fi
+   bash <<'ANYCUBIC_TOKEN'
+   f=
+   for candidate in "$HOME/Library/Application Support/AnycubicSlicerNext/log/"debug_*.log; do
+       [ -f "$candidate" ] || continue
+       if [ -z "$f" ] || [ "$candidate" -nt "$f" ]; then f=$candidate; fi
+   done
+   if [ -z "$f" ]; then printf '%s\n' 'No Slicer debug log found. Sign in and open the printer view.' >&2; exit 1; fi
+   t=$(grep -h -o -E '(accessToken[[:space:]]*=[[:space:]]*|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "$f" | tail -n 1 | sed -E 's/^(accessToken[[:space:]]*=[[:space:]]*|id_token=)//')
+   if [ -z "$t" ]; then printf '%s\n' 'No Slicer token found in the latest log.' >&2; exit 1; fi
+   if ! printf '%s' "$t" | pbcopy; then printf '%s\n' 'Could not copy token to clipboard.' >&2; exit 1; fi
+   copied=$(pbpaste) || exit 1
+   if [ "$copied" != "$t" ]; then printf '%s\n' 'Could not confirm the token in the clipboard. Run the command again.' >&2; exit 1; fi
+   printf '%s\n' 'Token successfully copied and verified. Paste into Home Assistant with Cmd+V now.'
+   ANYCUBIC_TOKEN
    ```
 
 3. Paste the token into Home Assistant's **Slicer Next (Windows & macOS)** field during reauthentication or reconfiguration. Do not delete an existing integration just to replace its token.
 4. Clear the clipboard after pasting (Windows: `Set-Clipboard -Value ''`, macOS: `pbcopy < /dev/null`), including clipboard history or sync when enabled.
 
-The command reads only the newest local Slicer debug log, copies the last matching JWT and does not print it. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
+Both commands read only the newest local Slicer debug log and copy the last matching JWT. A success message appears only after checking that the clipboard contains the extracted token (green in PowerShell). The token itself is not printed. The macOS block explicitly uses the built-in Bash and can also be pasted into a zsh Terminal. Paste directly into Home Assistant afterwards; copying other text replaces the token in the clipboard. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
 
-The simple commands were tested locally with Slicer Next 2.0.0.3 on Windows; the macOS command was tested with the same Slicer version on macOS (Apple Silicon). Neither is guaranteed for every future Slicer build or cloud change.
+The Windows log extraction was tested locally with Slicer Next 2.0.0.3. A contributor reported successful macOS extraction with that Slicer version on Apple Silicon. Automated tests cover both token spellings, newest-log selection and clipboard failures; a native macOS check runs in CI. This does not guarantee future Slicer builds or cloud changes.
+
+**Repeated authentication requests with a still-valid token (`int()` / `NoneType`):** Anycubic can return `external_shelves.id: null` and `loaded: null` for an unassigned external spool holder. Through version 0.4.1, this can abort setup after a successful cloud login and incorrectly request reauthentication. Version **0.4.2** treats this empty holder as absent and gives optional `null` status fields on existing holders the same inactive defaults as omitted fields. Invalid cloud data during setup is retried without requesting a new token. Install the new version and restart Home Assistant for this fix to take effect. A genuinely rejected or expired token still requires reauthentication.
 
 Use only your own account. Never upload tokens, dumps, configuration files or unredacted logs. Web authentication remains an alternative for polling without MQTT.
 
 ## Dashboard card
+
+### Loaded slot of the primary ACE (unreleased)
+
+The development version adds `loaded_slot` to the existing `sensor.anycubic_printer_ace_spools` sensor. This is the primary ACE's unchanged, **zero-based** cloud/MQTT value: `0` is its first slot, `1` its second slot, and `-1` means no slot is loaded. The value is `null` when no primary ACE exists. Offline printers can retain a cached value; it does not confirm current filament movement.
+
+With multiple ACE units, this attribute refers only to the primary ACE. The Kobra X internal material rack is not treated as the primary ACE. Existing one-based `local_slot`, `slot` and `display_slot` fields and print-slot mappings stay unchanged. Before accessing `spool_info[loaded_slot]`, check that the value is a number from `0` to the list length minus one; never interpret `-1` as the last list item. This is an additional attribute, not a new entity.
 
 The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card). The integration also includes its own Home Assistant side panel, so the external card is optional.
 

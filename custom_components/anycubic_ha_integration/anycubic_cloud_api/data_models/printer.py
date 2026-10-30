@@ -624,9 +624,9 @@ class AnycubicPrinter:
                 multi_color_box=data.get('multi_color_box'),
                 ignore_init_errors=ignore_init_errors,
             )
-        except Exception as e:
-            print(data)
-            raise e
+        except Exception:
+            # Raw printer responses contain account and device identifiers.
+            raise
 
     def update_from_info_json(self, data: dict[str, Any] | None) -> None:
         if data is None:
@@ -1872,6 +1872,13 @@ class AnycubicPrinter:
             return self.primary_multi_color_box.current_temperature
 
         return 0
+
+    @property
+    def primary_multi_color_box_loaded_slot(self) -> int | None:
+        if self.primary_multi_color_box:
+            return self.primary_multi_color_box.loaded_slot
+
+        return None
 
     @property
     def primary_drying_status_is_drying(self) -> bool | None:

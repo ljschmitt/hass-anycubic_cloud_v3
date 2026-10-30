@@ -6,6 +6,23 @@
 
 - Documented Slicer token recovery on macOS (README and setup dialog) with a Terminal command that finds the newest Slicer debug log automatically. The authentication method is now labelled **Slicer Next (Windows & macOS)**.
 - Fixed the documentation links opened from the setup dialog so they point to existing README anchors.
+- Preserve existing Windows documentation anchors and clipboard verification. Verify the macOS clipboard before confirming success, with regression tests and a native macOS CI job.
+
+### Added
+
+- Expose the primary ACE's raw, zero-based `loaded_slot` as an additional attribute on the existing `ace_spools` sensor. Preserve `-1` for no loaded slot and `null` when no primary ACE exists; existing spool data, entity IDs and print mappings are unchanged.
+
+## 0.4.2
+
+### Fixed
+
+- Treat an optional external spool holder with a missing or `null` ID as absent. Normalize optional `null` holder status fields to the same inactive defaults as omitted fields in cloud and MQTT data.
+- Retry incomplete or invalid cloud responses during setup instead of misclassifying parsing errors as authentication failures. Preserve reauthentication for rejected credentials and keep other unexpected setup errors separate.
+- Avoid printing or logging complete printer-info responses on parsing failures, since they contain private account and device information.
+
+### Documentation
+
+- Confirm successful token extraction only after verifying the clipboard contents in the German and English PowerShell instructions.
 
 ## 0.4.1
 

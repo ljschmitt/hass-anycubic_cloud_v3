@@ -267,22 +267,27 @@ class AnycubicMachineExternalShelves:
         id: int,
         type: str,
         color: list[int],
-        loaded: int,
-        status_type: int,
-        current_status: int,
+        loaded: int | None,
+        status_type: int | None,
+        current_status: int | None,
     ) -> None:
         self._id = int(id)
         self._type = str(type)
         self._color = list([
             int(x) for x in color
         ])
-        self._loaded = int(loaded)
-        self._status_type = int(status_type)
-        self._current_status = int(current_status)
+        self._set_status(loaded, status_type, current_status)
+
+    def _set_status(self, loaded: int | None, status_type: int | None, current_status: int | None) -> None:
+        # Cloud null values mean no reported state, just like omitted fields.
+        self._loaded = int(loaded) if loaded is not None else 0
+        self._status_type = int(status_type) if status_type is not None else 0
+        self._current_status = int(current_status) if current_status is not None else 0
 
     @classmethod
     def from_json(cls, data: dict[str, Any] | None) -> AnycubicMachineExternalShelves | None:
-        if data is None:
+        # An unassigned external holder can be returned as an object with id=null.
+        if data is None or data.get('id') is None:
             return None
 
         return cls(
@@ -300,9 +305,11 @@ class AnycubicMachineExternalShelves:
 
         self._type = data['type']
         self._color = data['color']
-        self._loaded = data['loaded']
-        self._status_type = data['status_type']
-        self._current_status = data['current_status']
+        self._set_status(
+            data.get('loaded', self._loaded),
+            data.get('status_type', self._status_type),
+            data.get('current_status', self._current_status),
+        )
 
     @property
     def spool_info_object(self) -> list[dict[str, Any]]:
@@ -641,6 +648,11 @@ class AnycubicMultiColorBox:
     @property
     def box_id(self) -> int:
         return self._id
+
+    @property
+    def loaded_slot(self) -> int:
+        """Return the raw zero-based slot, preserving the no-slot sentinel -1."""
+        return self._loaded_slot
 
     @property
     def auto_feed(self) -> int:

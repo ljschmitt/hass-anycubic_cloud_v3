@@ -18,6 +18,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import (
     ConfigEntryAuthFailed,
     ConfigEntryError,
+    ConfigEntryNotReady,
     HomeAssistantError,
 )
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
@@ -303,6 +304,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         attributes = {
             "ace_spools": {
                 "spool_info": primary_ace_spool_info,
+                "loaded_slot": printer.primary_multi_color_box_loaded_slot,
                 "kobra_x_internal_spool_info": kobra_x_internal_spool_info,
                 "kobra_x_internal_slot_4_reserved_by_ace": (
                     bool(kobra_x_internal_spool_info)
@@ -778,23 +780,21 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             printer_status = await self._anycubic_api.printer_info_for_id(first_printer_id)
 
             if printer_status is None:
-                raise ConfigEntryAuthFailed("Printer not found. Check config.")
+                raise ConfigEntryError("Printer not found. Check config.")
 
-        except ConfigEntryAuthFailed:
+        except (ConfigEntryAuthFailed, ConfigEntryError):
             raise
 
         except AnycubicAPIParsingError:
             raise
 
-        except KeyError as error:
-            raise ConfigEntryError(
-                "Incomplete Anycubic response during setup; a required field is missing."
+        except (KeyError, TypeError, ValueError) as error:
+            raise AnycubicAPIParsingError(
+                "Incomplete or invalid Anycubic response during setup."
             ) from error
 
         except Exception as error:
-            raise ConfigEntryAuthFailed(
-                f"Coordinator authentication failed with unknown Error. Check credentials {error}"
-            )
+            raise ConfigEntryError("Unexpected error while setting up Anycubic Cloud.") from error
 
     async def _setup_anycubic_printer_objects(self) -> None:
         for printer_id in self.entry.data[CONF_PRINTER_ID_LIST]:
@@ -805,6 +805,10 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._anycubic_printers[int(printer_id)] = printer
             except ConfigEntryError:
                 raise
+            except AnycubicAPIParsingError:
+                raise
+            except (KeyError, TypeError, ValueError) as error:
+                raise AnycubicAPIParsingError("Incomplete or invalid Anycubic printer information during setup.") from error
             except Exception as error:
                 raise ConfigEntryError(error) from error
 
@@ -899,7 +903,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 return
             except AnycubicAPIParsingError as error:
                 if setup_retries >= API_SETUP_RETRIES:
-                    raise ConfigEntryError(error) from error
+                    raise ConfigEntryNotReady("Anycubic Cloud returned incomplete or unavailable data; setup will retry.") from error
                 setup_retries += 1
                 LOGGER.warning(
                     f"Error during Anycubic Cloud setup, retrying in {API_SETUP_RETRY_INTERVAL_SECONDS} seconds."

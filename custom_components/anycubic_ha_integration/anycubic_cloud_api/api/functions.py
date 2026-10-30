@@ -1723,7 +1723,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
                 if resp_msg == 'request error':
                     raise AnycubicAPIParsingError(ErrorsAPIParsing.api_error_rate_limited)
 
-            self._log_to_error(f"Failed to load printer from anycubic response: {resp}")
+            self._log_to_error(f"Failed to parse Anycubic printer information ({type(e).__name__}).")
             raise e
 
         return data
