@@ -113,9 +113,9 @@ Use only your own account. Never upload tokens, dumps, configuration files or un
 
 ## Dashboard card
 
-### Loaded slot of the primary ACE (unreleased)
+### Loaded slot of the primary ACE
 
-The development version adds `loaded_slot` to the existing `sensor.anycubic_printer_ace_spools` sensor. This is the primary ACE's unchanged, **zero-based** cloud/MQTT value: `0` is its first slot, `1` its second slot, and `-1` means no slot is loaded. The value is `null` when no primary ACE exists. Offline printers can retain a cached value; it does not confirm current filament movement.
+Version **0.4.3** adds `loaded_slot` to the existing `sensor.anycubic_printer_ace_spools` sensor. This is the primary ACE's unchanged, **zero-based** cloud/MQTT value: `0` is its first slot, `1` its second slot, and `-1` means no slot is loaded. The value is `null` when no primary ACE exists. Offline printers can retain a cached value; it does not confirm current filament movement.
 
 With multiple ACE units, this attribute refers only to the primary ACE. The Kobra X internal material rack is not treated as the primary ACE. Existing one-based `local_slot`, `slot` and `display_slot` fields and print-slot mappings stay unchanged. Before accessing `spool_info[loaded_slot]`, check that the value is a number from `0` to the list length minus one; never interpret `-1` as the last list item. This is an additional attribute, not a new entity.
 
