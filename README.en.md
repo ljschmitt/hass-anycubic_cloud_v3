@@ -141,6 +141,10 @@ This integration communicates with Anycubic cloud services and can control suppo
 
 Do not publish Anycubic tokens, Home Assistant credentials, printer IDs, serial numbers, MAC addresses, private URLs, local IP addresses, diagnostics containing personal data, or environment-specific camera mappings.
 
+**MQTT certificate verification (development after 0.4.3):** Connections require a valid broker certificate issued by the bundled Anycubic CA and a matching hostname (`CERT_REQUIRED`, `check_hostname=True`), with Paho's insecure mode disabled and TLS 1.2 as the minimum. Missing, untrusted or expired certificates and incorrect hostnames fail closed; there is no fallback to an unverified connection.
+
+Anycubic's current broker and client certificates still have SHA-1 signatures, requiring OpenSSL compatibility level `SECLEVEL=0`. Offered cipher suites exclude anonymous, unencrypted and PSK/SRP authentication. The vendor CA omits KeyUsage, so standard TLS-client certificate verification is used instead of the additional `VERIFY_X509_STRICT` defaults in newer Python versions. Vendor certificates are unchanged. This remains a protocol limitation; certificate-chain, validity and hostname checks stay enabled. A live TLS 1.3 connection, successful MQTT authentication and acknowledged subscriptions were verified without publishing printer commands.
+
 ## Support and feedback
 
 - [Open an issue](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues)

@@ -281,6 +281,10 @@ Ich uebernehme keine Haftung fuer Schaeden am 3D-Drucker, an angeschlossenem Zub
 
 Fuer die Anycubic-MQTT-Verbindung sind die im Projekt enthaltenen Anycubic-TLS-Client-Zertifikatsdateien erforderlich. Sie gehoeren zur Anycubic-Protokollanbindung und enthalten keine benutzerspezifischen Home-Assistant- oder Anycubic-Zugangsdaten. Eigene Tokens, Logs, Screenshots mit Tokens oder lokale Konfigurationsdateien sollten niemals in Issues, Pull Requests oder Releases hochgeladen werden.
 
+**MQTT-Zertifikatspruefung (Entwicklungsstand nach 0.4.3):** Die Verbindung verlangt ein gueltiges Broker-Zertifikat der mitgelieferten Anycubic-CA und einen passenden Hostnamen (`CERT_REQUIRED`, `check_hostname=True`); die Paho-Ausnahme fuer unsichere Verbindungen ist deaktiviert. TLS 1.2 ist die Mindestversion. Fehlende, fremde oder abgelaufene Zertifikate und falsche Hostnamen fuehren zum Verbindungsfehler, ohne Rueckfall auf eine ungepruefte Verbindung.
+
+Anycubics derzeitige Broker- und Client-Zertifikate sind noch mit SHA-1 signiert. Deshalb ist OpenSSL-Kompatibilitaetsstufe `SECLEVEL=0` erforderlich; die angebotenen Cipher-Suites schliessen anonyme, unverschluesselte und PSK-/SRP-Verfahren aus. Die Hersteller-CA hat keine KeyUsage-Erweiterung; verwendet wird die normale TLS-Client-Zertifikatspruefung statt der zusaetzlichen `VERIFY_X509_STRICT`-Vorgaben neuerer Python-Versionen. Die Herstellerzertifikate werden nicht veraendert. Dies ist eine verbleibende Protokoll-Einschraenkung, keine Abschaltung der Zertifikats-, Gueltigkeits- oder Hostnamenpruefung. Die gepruefte Verbindung wurde mit TLS 1.3, erfolgreicher MQTT-Anmeldung und bestaetigten Abonnements getestet, ohne Druckerbefehle zu veroeffentlichen.
+
 Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen koennen gerne ueber GitHub Issues gemeldet werden.
 
 ---
