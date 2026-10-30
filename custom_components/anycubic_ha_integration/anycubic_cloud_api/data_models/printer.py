@@ -624,9 +624,9 @@ class AnycubicPrinter:
                 multi_color_box=data.get('multi_color_box'),
                 ignore_init_errors=ignore_init_errors,
             )
-        except Exception as e:
-            print(data)
-            raise e
+        except Exception:
+            # Raw printer responses contain account and device identifiers.
+            raise
 
     def update_from_info_json(self, data: dict[str, Any] | None) -> None:
         if data is None:

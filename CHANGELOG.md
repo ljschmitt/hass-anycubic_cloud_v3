@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.2
+
+### Fixed
+
+- Treat an optional external spool holder with a missing or `null` ID as absent. Normalize optional `null` holder status fields to the same inactive defaults as omitted fields in cloud and MQTT data.
+- Retry incomplete or invalid cloud responses during setup instead of misclassifying parsing errors as authentication failures. Preserve reauthentication for rejected credentials and keep other unexpected setup errors separate.
+- Avoid printing or logging complete printer-info responses on parsing failures, since they contain private account and device information.
+
+### Documentation
+
+- Confirm successful token extraction only after verifying the clipboard contents in the German and English PowerShell instructions.
+
 ## 0.4.1
 
 ### Fixed
