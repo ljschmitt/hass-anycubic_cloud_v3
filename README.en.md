@@ -62,18 +62,29 @@ Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migr
 Slicer Next 2.0.x still writes the required access token to its current debug log, but may label the URL parameter `id_token=` instead of the former `accessToken = ...` line. The command below supports both forms. It does not require Python, a repository download or process-memory access.
 
 1. Open Slicer Next, sign in and open the printer view.
-2. Open PowerShell, copy the complete command below and run it once:
+2. Open PowerShell, copy the complete command block below and run it once:
 
    ```powershell
-   $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1; if (!$token) { throw 'No Slicer token found in the latest log.' }; $token | Set-Clipboard
+   & {
+       $ErrorActionPreference = 'Stop'
+       $log = Get-ChildItem "$env:AppData\AnycubicSlicerNext\log\debug_*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+       if (!$log) { throw 'No Slicer debug log found. Start Slicer, sign in and open the printer view.' }
+       $token = (Select-String -Path $log.FullName -Pattern '(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)' -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+       if (!$token) { throw 'No Slicer token found in the latest log.' }
+       Set-Clipboard -Value $token
+       if ((Get-Clipboard -Raw) -cne $token) { throw 'Could not confirm the token in the clipboard. Run the command again.' }
+       Write-Host 'Token successfully copied to clipboard. Paste into Home Assistant with Ctrl+V now.' -ForegroundColor Green
+   }
    ```
 
 3. Paste the token into Home Assistant's **Slicer Next (Windows)** field during reauthentication or reconfiguration. Do not delete an existing integration just to replace its token.
 4. Clear the clipboard after pasting with `Set-Clipboard -Value ''`, including clipboard history or sync when enabled.
 
-The command reads only the newest local Slicer debug log, copies the last matching JWT and does not print it. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
+The command reads only the newest local Slicer debug log and copies the last matching JWT. The green success message appears only after checking that the clipboard contains the extracted token. The token itself is not printed. Paste directly into Home Assistant afterwards; copying other text replaces the token in the clipboard. Home Assistant validates the pasted token with Anycubic. Although the current Slicer calls the URL parameter `id_token`, the tested Slicer version stores an `access-token` JWT there. If no token is found, sign in, open the printer view and retry. For Slicer builds that genuinely omit the token, the repository retains the advanced [PowerShell launcher](scripts/recover_slicer_token.ps1) and [Python helper](scripts/recover_slicer_token.py) as a fallback, not as the normal path.
 
 The simple command was tested locally with Slicer Next 2.0.0.3 but is not guaranteed for every future Slicer build or cloud change.
+
+**Repeated authentication requests with a still-valid token (`int()` / `NoneType`):** Anycubic can return `external_shelves.id: null` and `loaded: null` for an unassigned external spool holder. Through version 0.4.1, this can abort setup after a successful cloud login and incorrectly request reauthentication. Version **0.4.2** treats this empty holder as absent and gives optional `null` status fields on existing holders the same inactive defaults as omitted fields. Invalid cloud data during setup is retried without requesting a new token. Install the new version and restart Home Assistant for this fix to take effect. A genuinely rejected or expired token still requires reauthentication.
 
 Use only your own account. Never upload tokens, dumps, configuration files or unredacted logs. Web authentication remains an alternative for polling without MQTT.
 
