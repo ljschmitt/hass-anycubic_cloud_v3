@@ -9,7 +9,11 @@ import sys
 import tempfile
 import threading
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import (
+    datetime,
+    timedelta,
+    timezone,
+)
 from os import path
 from pathlib import Path
 from types import SimpleNamespace
@@ -26,7 +30,10 @@ sys.path.insert(0, str(ROOT))
 from anycubic_cloud_api.exceptions.error_strings import ErrorsMQTTClient  # noqa: E402
 from anycubic_cloud_api.exceptions.exceptions import AnycubicMQTTClientError  # noqa: E402
 from anycubic_cloud_api.helpers.helpers import (  # noqa: E402
-    get_mqtt_ssl_path_ca, get_mqtt_ssl_path_cert, get_mqtt_ssl_path_key, get_ssl_cert_directory,
+    get_mqtt_ssl_path_ca,
+    get_mqtt_ssl_path_cert,
+    get_mqtt_ssl_path_key,
+    get_ssl_cert_directory,
 )
 
 
