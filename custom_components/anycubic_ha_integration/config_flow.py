@@ -307,9 +307,9 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         description_placeholders = None
         if auth_mode == AnycubicAuthMode.SLICER:
             documentation_page = (
-                "README.md#windows-token-aus-dem-laufenden-slicer-auslesen"
+                "README.md#-token-auslesen-slicer-next"
                 if self.hass.config.language == "de"
-                else "README.en.md#recover-a-slicer-token-on-windows"
+                else "README.en.md#recover-a-slicer-token-windows-and-macos"
             )
             description_placeholders = {
                 "token_instructions_url": (

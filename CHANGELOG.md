@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- Documented Slicer token recovery on macOS (README and setup dialog) with a Terminal command that finds the newest Slicer debug log automatically. The authentication method is now labelled **Slicer Next (Windows & macOS)**.
+- Fixed the documentation links opened from the setup dialog so they point to existing README anchors.
+- Preserve existing Windows documentation anchors and clipboard verification. Verify the macOS clipboard before confirming success, with regression tests and a native macOS CI job.
+
 ### Added
 
 - Expose the primary ACE's raw, zero-based `loaded_slot` as an additional attribute on the existing `ace_spools` sensor. Preserve `-1` for no loaded slot and `null` when no primary ACE exists; existing spool data, entity IDs and print mappings are unchanged.
