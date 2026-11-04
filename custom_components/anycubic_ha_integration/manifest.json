@@ -1,6 +1,6 @@
 {
   "domain": "anycubic_ha_integration",
-  "name": "Anycubic HA Integration",
+  "name": "Anycubic Cloud",
   "codeowners": [
     "@ljschmitt"
   ],
@@ -18,5 +18,5 @@
   "requirements": [
     "paho-mqtt>=2.0.0,<3"
   ],
-  "version": "0.4.4"
+  "version": "0.4.5-beta.1"
 }

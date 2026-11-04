@@ -916,7 +916,7 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action == 'auto' and state == 'done':
+        if action in ('auto', 'query') and state == 'done':
             data = payload['data']
 
             if 'fan_speed_pct' in data:
@@ -968,6 +968,28 @@ class AnycubicPrinter:
                 AnycubicPrintStatus.Preheating,
                 data,
             )
+            return
+        elif action == 'start' and state in (
+            'nozzle_purging', 'nozzle_heating', 'nozzle_cooling', 'nozzle_cooling_off',
+            'nozzle_wiping', 'hotbed_heating', 'hotbed_cooling_off',
+            'z_offset_calibrating', 'frequency_sweeping', 'extfilbox_filament_feeding',
+        ):
+            data = payload['data']
+            project = self._latest_project
+            if (
+                project is not None and self._check_latest_project_id_valid(project_id)
+                and (project.print_complete or project.print_failed)
+            ):
+                # A delayed preparation/cooling report must not revive a terminal job.
+                data.force_empty()
+                return
+            self._is_printing = 2
+            print_status = (
+                AnycubicPrintStatus.Printing
+                if project is not None and project.raw_print_status == AnycubicPrintStatus.Printing
+                else AnycubicPrintStatus.Preheating
+            )
+            self._update_latest_project_with_mqtt_print_status_data(project_id, print_status, data)
             return
         elif action == 'start' and state == 'finished':
             data = payload['data']
@@ -1038,6 +1060,7 @@ class AnycubicPrinter:
             if 'print_speed_mode' in settings:
                 self._print_speed_mode = int(settings['print_speed_mode'])
             settings.get('z_comp')
+            settings.get('light')
             if 'target_hotbed_temp' in settings and 'target_nozzle_temp' in settings:
                 self._update_latest_project_target_temps(
                     project_id,
@@ -1117,7 +1140,8 @@ class AnycubicPrinter:
 
                 assert self._multi_color_box
                 self._multi_color_box[box_index].set_slot_loaded(loaded_slot)
-                self._multi_color_box[box_index].set_feed_status(box['feed_status'])
+                if 'feed_status' in box:
+                    self._multi_color_box[box_index].set_feed_status(box['feed_status'])
             return
         elif action == 'setAutoFeed' and state == 'done':
             data = payload['data']['multi_color_box']
@@ -1143,6 +1167,18 @@ class AnycubicPrinter:
             data = payload['data']
             if self.external_shelves:
                 self.external_shelves.update_with_mqtt_data(data)
+            return
+        elif action in ('auto', 'getInfo') and state == 'done':
+            # New firmware reports global feed-path settings here, not the legacy
+            # external holder's id/type/color object. Do not invent a spool or
+            # overwrite the cloud's material/ACE slot mapping from these fields.
+            data = payload['data']
+            for key in (
+                'ace_connect_type', 'auto_refill', 'current_filament', 'enable_clog_check',
+                'enable_runout_check', 'ext_spool', 'ext_spool_status', 'ext_spool_type',
+                'ext_spool_colors', 'ext_spool_icon_type', 'flush_multiplier', 'type',
+            ):
+                data.get(key)
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.shelves)
@@ -1248,6 +1284,8 @@ class AnycubicPrinter:
         if action == 'startCapture' and state in ('initSuccess', 'joinSuccess', 'pushStarted', 'pushStoped', 'done'):
             payload.force_empty()
             return
+        elif action == 'startCapture' and state == 'pushFailed':
+            raise AnycubicAPIError(f"Anycubic camera capture failed (code {payload.get('code')}).")
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('video'))
 
@@ -1317,6 +1355,11 @@ class AnycubicPrinter:
         elif msg_type == 'video':
             self._process_mqtt_update_video(action, state, payload)
 
+        elif msg_type == 'extrudeControl' and action == 'getInfo' and state == 'done':
+            data = payload['data']
+            for key in ('current_status', 'filament_color', 'has_filaments', 'index', 'laps', 'move_type'):
+                data.get(key)
+
         elif msg_type == 'buried':
             self._process_mqtt_update_buried(action, state, payload)
 
@@ -1333,6 +1376,11 @@ class AnycubicPrinter:
         if remaining_data:
             remaining_data.get('taskid')
             remaining_data.get('localtask')
+            if msg_type == 'print':
+                # Per-tool metadata has no unambiguous mapping to the existing
+                # temperature entities; temperature reports remain authoritative.
+                for key in ('channel_no', 'unit_no', 'target_temp'):
+                    remaining_data.get(key)
 
         payload.get('data')
         payload.get('msg')

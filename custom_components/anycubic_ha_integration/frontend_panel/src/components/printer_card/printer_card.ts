@@ -274,7 +274,8 @@ const customCardsWindow = window as CustomCardsWindow;
 customCardsWindow.customCards = customCardsWindow.customCards || [];
 customCardsWindow.customCards.push({
   type: "anycubic-card",
-  name: "Anycubic Card",
+  name: "Anycubic Cloud Card",
   preview: true,
-  description: "Anycubic Cloud Integration Card",
+  description:
+    "Printer status, ACE controls and camera view for Anycubic Cloud.",
 });
