@@ -661,6 +661,8 @@ class AnycubicProject:
             'source_type',
             'temp_dir',
             'temp_gcode',
+            'file_root_path',
+            'filetype',
         ):
             if metadata_key in mqtt_data:
                 mqtt_data[metadata_key]

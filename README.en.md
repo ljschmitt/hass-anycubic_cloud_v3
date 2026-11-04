@@ -1,4 +1,4 @@
-# Anycubic HA Integration
+# Anycubic Cloud
 
 [Deutsch](README.md) | [English](README.en.md)
 
@@ -10,7 +10,11 @@
 
 A Home Assistant integration for Anycubic cloud printers with status sensors, MQTT real-time updates, print and file actions, ACE/material management, and an optional camera view.
 
-The integration is currently available through HACS as a custom repository. Its [submission to the default HACS catalog](https://github.com/hacs/default/pull/8869) is under review.
+From **0.4.5-beta.1**, the display names are **Anycubic Cloud** and **Anycubic Cloud Card**, previously **Anycubic HA Integration** and **Anycubic Frontend Card**. Repository URLs, the `anycubic_ha_integration` domain, existing entity IDs and `custom:anycubic-card` remain unchanged.
+
+**0.4.5-beta.1 is a prerelease**, combining the ACE drying fix, repository-helper cleanup and firmware MQTT handling. Stable remains **0.4.4**. Use matching integration/card beta versions. A read-only check confirmed that the existing stable integration loads after upgrading to Home Assistant 2026.11.0 / Marketplace; full candidate hardware acceptance is still pending.
+
+The integration was [added to the default HACS catalog](https://github.com/hacs/default/pull/8869) on November 2, 2026. Existing custom-repository installations remain usable.
 
 ## Highlights
 
@@ -51,9 +55,17 @@ Background: in addition to the issue report, a [hardware capture on the S1 Max](
 
 ACE controls are below the material spools in the panel's **Main view**; the **Side view** is for the camera. First save duration in minutes and temperature in °C under the integration's **Drying presets** options. Only fully configured presets get a start button. An idle printer's card may be collapsed; `alwaysShow: true` keeps its status and ACE controls visible.
 
-**Unreleased development change:** The shared panel/card drying dialog now resolves the existing `drying_start_preset_1` through `drying_start_preset_4` buttons instead of the incorrect `drying_preset_*` names. It calls the actual entity ID from the entity registry and refreshes immediately when changing between primary and secondary ACEs. No entity renaming is required.
+**From 0.4.5-beta.1 (prerelease):** The shared panel/card drying dialog now resolves the existing `drying_start_preset_1` through `drying_start_preset_4` buttons instead of the incorrect `drying_preset_*` names. It calls the actual entity ID from the entity registry and refreshes immediately when changing between primary and secondary ACEs. No entity renaming is required.
 
 Each stop button now targets only its selected ACE. Previously the secondary stop request could lose its box ID and target the primary ACE, while the primary stop button could stop both ACEs. The internal API's stop-all call without a box selection remains available. Automated tests cover single/dual ACEs and the Kobra X internal material rack; confirmation on the affected Kobra 3 Max is still pending. The panel and separate dashboard card each need a rebuilt bundle to receive the dialog fix.
+
+### Firmware MQTT reports (0.4.5-beta.1)
+
+Reported preparation phases such as `nozzle_purging`, `nozzle_cooling_off` and `hotbed_cooling_off` remain active and do not imply completion. Existing printing/paused jobs keep their status; initial preparation uses the existing `Preheating` state. Only explicit finished/cancelled reports end a job, and delayed phase reports cannot revive a completed/cancelled project. An unattributed phase does not overwrite the last terminal cloud project.
+
+Fan `query` responses update the existing fan fields. Known informational `extrudeControl/getInfo` and modern `extfilbox` fields are consumed without guessing material, slot mappings or ambiguous per-tool temperatures. Omitted `feed_status` preserves the cached ACE feed state. Unknown fields remain visible. Camera `pushFailed` remains a real error with its vendor code.
+
+Before stable promotion, test preset visibility, start, feedback and stop on the affected Kobra 3 Max; on dual ACEs verify that stopping one leaves the other running. Also check a known print lifecycle and slot display on another printer, then inspect fresh logs. Synthetic regression replays and green CI do not replace these hardware checks.
 
 ## Screenshots
 
@@ -62,11 +74,11 @@ Each stop button now targets only its selected ACE. Previously the secondary sto
 
 ## Installation with HACS
 
-Until the default HACS catalog submission is merged:
+Search for **Anycubic Cloud** in HACS, install it and restart Home Assistant. Then add the integration under **Settings → Devices & services**. If an older catalog has not refreshed yet, reload the repository data or use the custom-repository fallback:
 
 1. Open **HACS -> Integrations -> menu -> Custom repositories**.
 2. Add `https://github.com/ljschmitt/hass-anycubic_cloud_v3` as an **Integration**.
-3. Search for **Anycubic HA Integration** and install it.
+3. Search for **Anycubic Cloud** and install it.
 4. Restart Home Assistant.
 5. Open **Settings -> Devices & services -> Add integration**.
 
@@ -149,6 +161,18 @@ Alternative firmware cameras can be mapped per printer to an existing Home Assis
 If a supported local camera source is available, it can be added with [Generic Camera](https://www.home-assistant.io/integrations/generic/) and mapped with `cameraEntityId` or the panel's per-printer `cameraEntityIds`. Compatibility of an alternative firmware or bridge with the Kobra 3 Max is not confirmed here. Cloud playback requires a secure browser context such as HTTPS.
 
 ## Security and privacy
+
+### Branding in Home Assistant and HACS
+
+Home Assistant 2026.3+ can serve the integration's local `brand/icon.png`, `dark_icon.png`, `logo.png` and `dark_logo.png` through its authenticated `/api/brands/integration/anycubic_ha_integration/` endpoint. A successful PNG response confirms local delivery; an unauthenticated request can return 403.
+
+HACS 2.0.5 still [hardcodes a public Brands CDN URL for update-entity images](https://github.com/hacs/integration/blob/2.0.5/custom_components/hacs/update.py#L71-L79), and its old frontend also uses CDN-based icon resolution. Inclusion in the HACS catalog does not publish an integration's local images to that CDN. Refreshing the browser cache or re-adding the repository does not repair this source mismatch.
+
+[Frenck confirms this is fixed in Marketplace with Home Assistant 2026.11](https://github.com/hacs/integration/issues/5223#issuecomment-6222989180); its [update entity uses the local Brands endpoint](https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/marketplace/update.py#L94-L104). Plan upgrades/migration using the [official announcement](https://github.com/hacs/integration/issues/5590). This integration does not patch or upgrade HACS/Home Assistant.
+
+### Repository-only developer helpers (from 0.4.5-beta.1)
+
+Following [Frenck's review](https://github.com/hacs/default/pull/8869#pullrequestreview-5735268964), unused diagnostics, delete/upload/print helpers and their token sample are moved outside the installed integration to [`scripts/anycubic_helpers/`](scripts/anycubic_helpers/README.md). Imports do not execute their actions. The translation generator now runs with `python scripts/build_translations.py`; CI and development instructions use that path. Existing installed files are not removed by this source change until an updated package is installed through the normal workflow.
 
 This integration communicates with Anycubic cloud services and can control supported printer actions. Use it at your own risk and test control functions carefully.
 

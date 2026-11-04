@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.4.5-beta.1
 
+- Rename the public integration/card labels to **Anycubic Cloud** / **Anycubic Cloud Card**. Preserve repository URLs, integration domain, config-entry identifiers, entity IDs and `custom:anycubic-card`.
+- Handle reported preparation/cooling subphases without inventing job completion or reviving a terminal project. Accept fan query reports, consume known informational extruder/feed-path metadata and retain cached ACE feed status when omitted. Preserve authoritative cloud material/slot mapping and visibility of unknown data and actual camera failures. Adds synthetic firmware replays for [#10](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/10).
+- Verify the existing stable integration loads after a read-only Home Assistant 2026.11.0 / Marketplace upgrade check. Full candidate hardware acceptance, especially Kobra 3 Max drying, remains pending; this release is a prerelease, not stable promotion.
+- Fix the cross-platform shell test harness to use Git Bash and LF stdin on Windows rather than a WSL alias. Documented token commands are unchanged.
+
+- Move repository-only debug/delete/upload/print helpers and the token sample out of `custom_components/anycubic_ha_integration/scripts/` into `scripts/anycubic_helpers/`. Adjust imports, documented module commands and token/cache ignore rules; guard action entry points against execution on import.
+- Move the translation generator to `scripts/build_translations.py`, preserving its output locations and updating CI/development instructions. Keep generated translations unchanged.
+- Document the completed HACS catalog admission and the verified HACS 2.0.5 branding-source mismatch, with upstream evidence for the Marketplace correction in Home Assistant 2026.11.
 - Fix the shared panel/card ACE drying dialog to find the existing `drying_start_preset_*` buttons, call their registry entity IDs and refresh controls immediately when changing ACE or printer. Preserve existing entity IDs and preset options. Addresses [#23](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/23); affected-printer confirmation is pending.
 - Preserve the selected box ID in drying-stop orders. Primary/secondary stop buttons now stop only their respective ACE; keep the internal API's explicit stop-all default. Cover legacy models, S1 Max, single/dual ACE and the Kobra X rack in offline command regressions.
 - Clarify where ACE controls live, manual cloud-camera support in the card, the absence of a native cloud `camera.*` entity and the distinction between `alwaysShow` and automatic camera playback.
