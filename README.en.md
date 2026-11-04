@@ -30,6 +30,7 @@ The integration was [added to the default HACS catalog](https://github.com/hacs/
 Reported or tested:
 
 - Anycubic Kobra 3 Combo
+- Anycubic Kobra 3 Max + ACE 1 Pro: basic functions, spool/drying status and cloud camera reported; drying controls are tracked in [#23](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/23).
 - Anycubic Kobra X, including known ACE/material setups and camera light
 - Anycubic Kobra S1 basic functions; camera and chamber light still need further testing
 - Anycubic Kobra 2, Kobra 2 Max, and Kobra 2 Pro
@@ -45,6 +46,14 @@ Version **0.4.4** includes the elapsed-time fix for [#17](https://github.com/ljs
 Cloud polling and MQTT use the same conversion without modifying or repeatedly dividing the raw values. Remaining time stays in minutes and its derived ETA is unchanged. Other printer models keep their existing behavior; units are never guessed from print duration or progress. Existing entity IDs and the card do not need changes. Automated regression checks cover the correction; confirmation on the affected S1 Max is still pending.
 
 Background: in addition to the issue report, a [hardware capture on the S1 Max](https://github.com/chrisfore/anycubic_ha_local/blob/376bf5546ce9cfbc1f8d52e8f14685e08ae7d051/research/PROTOCOL-VALIDATED.md#info-report-data-master-object) documents elapsed seconds with remaining time still in minutes. This exception is not extended to other models.
+
+### ACE controls and drying (#23)
+
+ACE controls are below the material spools in the panel's **Main view**; the **Side view** is for the camera. First save duration in minutes and temperature in °C under the integration's **Drying presets** options. Only fully configured presets get a start button. An idle printer's card may be collapsed; `alwaysShow: true` keeps its status and ACE controls visible.
+
+**Unreleased development change:** The shared panel/card drying dialog now resolves the existing `drying_start_preset_1` through `drying_start_preset_4` buttons instead of the incorrect `drying_preset_*` names. It calls the actual entity ID from the entity registry and refreshes immediately when changing between primary and secondary ACEs. No entity renaming is required.
+
+Each stop button now targets only its selected ACE. Previously the secondary stop request could lose its box ID and target the primary ACE, while the primary stop button could stop both ACEs. The internal API's stop-all call without a box selection remains available. Automated tests cover single/dual ACEs and the Kobra X internal material rack; confirmation on the affected Kobra 3 Max is still pending. The panel and separate dashboard card each need a rebuilt bundle to receive the dialog fix.
 
 ## Screenshots
 
@@ -131,9 +140,13 @@ The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https
 
 ## Camera behavior
 
-The cloud camera stream is started only after the user presses Play. It is stopped when leaving the view, changing printers, or stopping playback. This prevents background camera sessions.
+In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
+
+The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 
 Alternative firmware cameras can be mapped per printer to an existing Home Assistant `camera.*` entity. Printers without a mapping continue to use the Anycubic cloud camera.
+
+If a supported local camera source is available, it can be added with [Generic Camera](https://www.home-assistant.io/integrations/generic/) and mapped with `cameraEntityId` or the panel's per-printer `cameraEntityIds`. Compatibility of an alternative firmware or bridge with the Kobra 3 Max is not confirmed here. Cloud playback requires a secure browser context such as HTTPS.
 
 ## Security and privacy
 

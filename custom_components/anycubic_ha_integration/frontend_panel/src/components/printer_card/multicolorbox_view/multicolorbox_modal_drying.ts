@@ -11,7 +11,6 @@ import { customElementIfUndef } from "../../../internal/register-custom-element"
 
 import {
   getPrinterDryingButtonStateObj,
-  getPrinterEntityId,
   isPrinterButtonStateAvailable,
 } from "../../../helpers";
 
@@ -37,10 +36,10 @@ const animOptionsCard: motionOptions = {
   properties: ["height", "opacity", "scale"],
 };
 
-const PRIMARY_DRYING_PRESET_1 = "drying_preset_1";
-const PRIMARY_DRYING_PRESET_2 = "drying_preset_2";
-const PRIMARY_DRYING_PRESET_3 = "drying_preset_3";
-const PRIMARY_DRYING_PRESET_4 = "drying_preset_4";
+const PRIMARY_DRYING_PRESET_1 = "drying_start_preset_1";
+const PRIMARY_DRYING_PRESET_2 = "drying_start_preset_2";
+const PRIMARY_DRYING_PRESET_3 = "drying_start_preset_3";
+const PRIMARY_DRYING_PRESET_4 = "drying_start_preset_4";
 const PRIMARY_DRYING_STOP = "drying_stop";
 
 const SECONDARY_PREFIX = "secondary_";
@@ -200,7 +199,10 @@ export class AnycubicPrintercardMulticolorboxModalDrying extends LitElement {
 
     if (
       changedProperties.has("hass") ||
-      changedProperties.has("selectedPrinterDevice")
+      changedProperties.has("selectedPrinterDevice") ||
+      changedProperties.has("printerEntities") ||
+      changedProperties.has("printerEntityIdPart") ||
+      changedProperties.has("box_id")
     ) {
       const dryingPresetState1: AnycubicDryingPresetEntity =
         getPrinterDryingButtonStateObj(
@@ -359,14 +361,16 @@ export class AnycubicPrintercardMulticolorboxModalDrying extends LitElement {
   }
 
   private _pressHassButton(suffix: string): void {
-    if (this.printerEntityIdPart) {
+    const button = getPrinterDryingButtonStateObj(
+      this.hass,
+      this.printerEntities,
+      this.printerEntityIdPart,
+      suffix,
+    );
+    if (isPrinterButtonStateAvailable(button)) {
       this.hass
         .callService("button", "press", {
-          entity_id: getPrinterEntityId(
-            this.printerEntityIdPart,
-            "button",
-            suffix,
-          ),
+          entity_id: button.entity_id,
         })
         .then()
         .catch((_e: unknown) => {

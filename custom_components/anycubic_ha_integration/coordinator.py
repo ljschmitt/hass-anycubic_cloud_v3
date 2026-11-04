@@ -1040,7 +1040,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             elif printer and event_key == 'drying_stop':
                 await self._connect_mqtt_for_action_response()
-                await printer.multi_color_box_drying_stop()
+                await printer.multi_color_box_drying_stop(box_id=0)
 
             elif printer and event_key == 'secondary_drying_stop':
                 await self._connect_mqtt_for_action_response()
