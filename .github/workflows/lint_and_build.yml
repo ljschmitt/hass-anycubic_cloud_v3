@@ -51,7 +51,7 @@ jobs:
           configuration: "--settings-path=pyproject.toml"
       - name: Check translation diff
         run: |
-          python custom_components/anycubic_ha_integration/scripts/build_translations.py
+          python scripts/build_translations.py
           git diff --exit-code
   lint-ts:
     runs-on: ubuntu-latest

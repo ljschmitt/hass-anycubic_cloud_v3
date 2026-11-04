@@ -7,5 +7,8 @@ custom_components/anycubic_cloud/scripts/*.json
 custom_components/anycubic_cloud/scripts/*.token
 custom_components/anycubic_cloud/scripts/anycubic_credentials.py
 debug_dump.json
+scripts/anycubic_helpers/*.token
+scripts/anycubic_helpers/*.cache
+scripts/anycubic_helpers/*.json
 test_api
 AGENTS.md

@@ -10,7 +10,7 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
+Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
 > 🗓️ **Aktuelles Release: 0.4.4**
 >
@@ -237,26 +237,26 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
 
 ## 📦 Installation über HACS (empfohlen)
 
-1. **HACS → Integrationen → ⋯ → Custom Repositories**
-2. Repository:  
-   https://github.com/ljschmitt/hass-anycubic_cloud_v3  
-   Kategorie: **Integration**
-3. **Daten neu laden**
-4. Integration in HACS suchen:  
-   **Anycubic HA Integration**
-5. Installieren → Home Assistant **neustarten**
-6. **Einstellungen → Geräte & Dienste → Integration hinzufügen**
+1. In **HACS** nach **Anycubic HA Integration** suchen.
+2. Installieren → Home Assistant **neustarten**.
+3. **Einstellungen → Geräte & Dienste → Integration hinzufügen**.
+
+Falls ein aelterer HACS-Katalog die Integration noch nicht anzeigt, die Repository-Daten neu laden. Als Fallback kann `https://github.com/ljschmitt/hass-anycubic_cloud_v3` weiterhin unter **Custom Repositories** mit Kategorie **Integration** hinzugefuegt werden.
 
 > ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows & macOS)**  
 > und füge den **Access-Token** ein (siehe unten).
 
-Updates werden von HACS nur dann automatisch angeboten, wenn diese Integration als HACS-Custom-Repository installiert wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
+HACS bietet Updates fuer die durch HACS verwaltete Installation an, unabhaengig davon, ob sie ueber den Standardkatalog oder als Custom Repository hinzugefuegt wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
 
 ### Brand-/Icon-Hinweis
 
 Home Assistant 2026.3 und neuer kann Brand-Bilder direkt aus `custom_components/anycubic_ha_integration/brand/` laden. Diese Integration liefert dafuer `icon.png`, `logo.png`, `dark_icon.png` und `dark_logo.png` mit.
 
-Wenn Home Assistant selbst das Icon korrekt zeigt, HACS in der Download-Liste aber weiterhin ein Platzhalter-Icon anzeigt, liegt das an der HACS-/Brands-CDN-Anzeige und nicht an den lokalen Brand-Dateien der Integration. Direkte Aufrufe von `/api/brands/integration/anycubic_ha_integration/icon.png` benoetigen ausserdem eine gueltige Home-Assistant-Authentifizierung; ohne Token ist ein `403 Forbidden` normal.
+**Bekannte HACS-2.0.5-Grenze:** [HACS verwendet fuer Update-Entity-Bilder weiterhin die oeffentliche Brands-CDN-URL](https://github.com/hacs/integration/blob/2.0.5/custom_components/hacs/update.py#L71-L79). Auch die alte HACS-Downloadliste verwendet den CDN-basierten `brandsUrl`-Helfer statt der lokalen Brand-Dateien. Die Aufnahme in den Standardkatalog kopiert diese Dateien nicht auf das CDN. Ein Platzhalter in HACS ist daher kein Nachweis fuer fehlende oder falsch abgelegte Integrationsbilder.
+
+Die lokale, authentifizierte URL `/api/brands/integration/anycubic_ha_integration/icon.png` muss dagegen ein PNG liefern; ohne Authentifizierung ist `403 Forbidden` normal. Bei einem lokalen Erfolg und einem HACS-Platzhalter liegt der Fehler im alten HACS-Bildpfad. Ein Browser-Cache-Refresh oder erneutes Hinzufuegen unseres Repositorys korrigiert diese fest codierte Quelle nicht.
+
+[Frenck bestaetigt die Korrektur im Marketplace ab Home Assistant 2026.11](https://github.com/hacs/integration/issues/5223#issuecomment-6222989180). Dessen [Update-Entity verwendet den lokalen Brands-Endpunkt](https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/marketplace/update.py#L94-L104). Ein Update bzw. eine Migration sollte nach der [offiziellen Marketplace-Ankuendigung](https://github.com/hacs/integration/issues/5590) geplant werden; die Integration patched oder aktualisiert HACS/Home Assistant nicht selbst.
 
 ---
 
@@ -268,7 +268,7 @@ Wenn Home Assistant selbst das Icon korrekt zeigt, HACS in der Download-Liste ab
 3. Home Assistant neu starten
 4. Integration hinzufügen wie oben
 
-Manuell installierte Versionen erhalten keine automatische Update-Anzeige in HACS. Fuer automatische Update-Hinweise bitte die Installation ueber HACS als Custom Repository verwenden.
+Manuell installierte Versionen erhalten keine automatische Update-Anzeige in HACS. Fuer automatische Update-Hinweise bitte die Installation ueber HACS verwalten.
 
 ---
 
@@ -388,6 +388,8 @@ Beta-Releases sind besonders sinnvoll fuer:
 Bitte bei Beta-Feedback keine Tokens, privaten IPs, Seriennummern, Drucker-IDs oder Screenshots mit persoenlichen Daten in Issues hochladen.
 
 ### Maintainer-Hinweis
+
+**Unveroeffentlichte Bereinigung:** Die nicht zur Laufzeit benoetigten Diagnose-, Loesch-, Upload-/Druck-Helfer und ihre Token-Beispieldatei liegen unter [`scripts/anycubic_helpers/`](scripts/anycubic_helpers/README.md), der Uebersetzungsgenerator unter `scripts/build_translations.py`. Sie werden dadurch nicht mit der Integration installiert. Modulimporte starten keine Aktionen; alte Aufrufe unter `custom_components/.../scripts/` sind durch die dokumentierten Repository-Modulaufrufe zu ersetzen. CI und Entwickleranleitung verwenden den neuen Generatorpfad. Dies setzt den [Review-Hinweis von Frenck](https://github.com/hacs/default/pull/8869#pullrequestreview-5735268964) um.
 
 Die Projektversion wird zentral in `Version` gepflegt. Vor einem Release:
 

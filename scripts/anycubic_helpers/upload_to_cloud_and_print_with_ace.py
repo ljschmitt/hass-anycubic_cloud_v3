@@ -9,7 +9,7 @@ from . import script_base
 
 
 def get_sys_args() -> dict[str, Any]:
-    parser = argparse.ArgumentParser(description='Anycubic Cloud Direct Print with ACE')
+    parser = argparse.ArgumentParser(description='Anycubic Cloud Upload & Print')
     parser.add_argument(
         '--printer-id',
         help='Printer ID.',
@@ -55,7 +55,7 @@ class anycubic_api_with_script(script_base.anycubic_api_with_script):
 
         slot_indexes = list([x - 1 for x in self._args['slots']])
 
-        response = await self.print_and_upload_no_cloud_save(
+        response = await self.print_and_upload_save_in_cloud(
             printer=printer,
             full_file_path=file_path,
             slot_index_list=slot_indexes,
@@ -68,4 +68,5 @@ def main() -> None:
     asyncio.run(script_base.main_mqtt_async(anycubic_api_with_script, sys_args))
 
 
-main()
+if __name__ == "__main__":
+    main()

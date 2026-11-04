@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Move repository-only debug/delete/upload/print helpers and the token sample out of `custom_components/anycubic_ha_integration/scripts/` into `scripts/anycubic_helpers/`. Adjust imports, documented module commands and token/cache ignore rules; guard action entry points against execution on import.
+- Move the translation generator to `scripts/build_translations.py`, preserving its output locations and updating CI/development instructions. Keep generated translations unchanged.
+- Document the completed HACS catalog admission and the verified HACS 2.0.5 branding-source mismatch, with upstream evidence for the Marketplace correction in Home Assistant 2026.11.
+
 ## 0.4.4
 
 - Promote the validated 0.4.4-beta.1 fixes: verified MQTT broker certificate/hostname with documented legacy-certificate compatibility, and model-scoped Kobra S1 Max elapsed-time normalization.

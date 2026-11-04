@@ -10,7 +10,7 @@
 
 A Home Assistant integration for Anycubic cloud printers with status sensors, MQTT real-time updates, print and file actions, ACE/material management, and an optional camera view.
 
-The integration is currently available through HACS as a custom repository. Its [submission to the default HACS catalog](https://github.com/hacs/default/pull/8869) is under review.
+The integration was [added to the default HACS catalog](https://github.com/hacs/default/pull/8869) on November 2, 2026. Existing custom-repository installations remain usable.
 
 ## Highlights
 
@@ -53,7 +53,7 @@ Background: in addition to the issue report, a [hardware capture on the S1 Max](
 
 ## Installation with HACS
 
-Until the default HACS catalog submission is merged:
+Search for **Anycubic HA Integration** in HACS, install it and restart Home Assistant. Then add the integration under **Settings → Devices & services**. If an older catalog has not refreshed yet, reload the repository data or use the custom-repository fallback:
 
 1. Open **HACS -> Integrations -> menu -> Custom repositories**.
 2. Add `https://github.com/ljschmitt/hass-anycubic_cloud_v3` as an **Integration**.
@@ -136,6 +136,18 @@ The cloud camera stream is started only after the user presses Play. It is stopp
 Alternative firmware cameras can be mapped per printer to an existing Home Assistant `camera.*` entity. Printers without a mapping continue to use the Anycubic cloud camera.
 
 ## Security and privacy
+
+### Branding in Home Assistant and HACS
+
+Home Assistant 2026.3+ can serve the integration's local `brand/icon.png`, `dark_icon.png`, `logo.png` and `dark_logo.png` through its authenticated `/api/brands/integration/anycubic_ha_integration/` endpoint. A successful PNG response confirms local delivery; an unauthenticated request can return 403.
+
+HACS 2.0.5 still [hardcodes a public Brands CDN URL for update-entity images](https://github.com/hacs/integration/blob/2.0.5/custom_components/hacs/update.py#L71-L79), and its old frontend also uses CDN-based icon resolution. Inclusion in the HACS catalog does not publish an integration's local images to that CDN. Refreshing the browser cache or re-adding the repository does not repair this source mismatch.
+
+[Frenck confirms this is fixed in Marketplace with Home Assistant 2026.11](https://github.com/hacs/integration/issues/5223#issuecomment-6222989180); its [update entity uses the local Brands endpoint](https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/marketplace/update.py#L94-L104). Plan upgrades/migration using the [official announcement](https://github.com/hacs/integration/issues/5590). This integration does not patch or upgrade HACS/Home Assistant.
+
+### Repository-only developer helpers (unreleased)
+
+Following [Frenck's review](https://github.com/hacs/default/pull/8869#pullrequestreview-5735268964), unused diagnostics, delete/upload/print helpers and their token sample are moved outside the installed integration to [`scripts/anycubic_helpers/`](scripts/anycubic_helpers/README.md). Imports do not execute their actions. The translation generator now runs with `python scripts/build_translations.py`; CI and development instructions use that path. Existing installed files are not removed by this source change until an updated package is installed through the normal workflow.
 
 This integration communicates with Anycubic cloud services and can control supported printer actions. Use it at your own risk and test control functions carefully.
 

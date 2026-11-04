@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
 from typing import Any
 
-ROOT_DIR = Path(os.path.dirname(os.path.dirname(__file__)))
+ROOT_DIR = Path(__file__).resolve().parents[1] / "custom_components" / "anycubic_ha_integration"
 OUT_STRINGS_PATH = ROOT_DIR / "strings.json"
 TRANSLATIONS_DIR = ROOT_DIR / "translations"
 INPUT_TRANSLATIONS_DIR = TRANSLATIONS_DIR / "input_translation_files"
@@ -117,7 +116,7 @@ def substitute_reference(
 
 
 def read_input_strings(file_path: Path) -> dict[str, Any]:
-    input_string_data = file_path.read_text()
+    input_string_data = file_path.read_text(encoding="utf-8")
     input_string_dict: dict[str, Any] = json.loads(input_string_data)
 
     return input_string_dict
@@ -143,14 +142,10 @@ def run_single(
         indent=2,
     )
 
-    (TRANSLATIONS_DIR / file_path.name).write_text(
-        translated_dump
-    )
+    (TRANSLATIONS_DIR / file_path.name).write_text(translated_dump, encoding="utf-8")
 
     if file_path.name == "en.json":
-        OUT_STRINGS_PATH.write_text(
-            translated_dump
-        )
+        OUT_STRINGS_PATH.write_text(translated_dump, encoding="utf-8")
 
 
 def translate_all() -> None:
@@ -158,4 +153,5 @@ def translate_all() -> None:
         run_single(lang_file)
 
 
-translate_all()
+if __name__ == "__main__":
+    translate_all()
