@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fix the shared panel/card ACE drying dialog to find the existing `drying_start_preset_*` buttons, call their registry entity IDs and refresh controls immediately when changing ACE or printer. Preserve existing entity IDs and preset options. Addresses [#23](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/23); affected-printer confirmation is pending.
+- Preserve the selected box ID in drying-stop orders. Primary/secondary stop buttons now stop only their respective ACE; keep the internal API's explicit stop-all default. Cover legacy models, S1 Max, single/dual ACE and the Kobra X rack in offline command regressions.
+- Clarify where ACE controls live, manual cloud-camera support in the card, the absence of a native cloud `camera.*` entity and the distinction between `alwaysShow` and automatic camera playback.
+
 ## 0.4.4
 
 - Promote the validated 0.4.4-beta.1 fixes: verified MQTT broker certificate/hostname with documented legacy-certificate compatibility, and model-scoped Kobra S1 Max elapsed-time normalization.

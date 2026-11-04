@@ -55,6 +55,7 @@ Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository instal
 ### Getestet / rueckgemeldet
 
 - ✅ Kobra 3 Combo
+- Kobra 3 Max + ACE 1 Pro: Basisfunktionen, Spulen-/Trocknungsstatus und Cloudkamera rueckgemeldet; Trocknungssteuerung siehe [#23](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/23) und Hinweis unten.
 - ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert; Kameralicht-Entity getestet)
 - ✅ Kobra S1 (Basisfunktionen rueckgemeldet; Kamera und Chamber-Light noch offen)
 - ✅ Kobra 2, 2 Max, 2 Pro
@@ -151,11 +152,23 @@ Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere
 
 ---
 
+### ACE-Steuerung und Trocknung (#23)
+
+Die ACE-Steuerung befindet sich in der **Hauptansicht** unter den Materialspulen; die **Nebenansicht** ist fuer die Kamera vorgesehen. In den Integrationsoptionen unter **Trocknungsvorgaben** zuerst Dauer in Minuten und Temperatur in °C speichern. Nur vollstaendig konfigurierte Presets bekommen einen Start-Button. Bei inaktiven Druckern kann die Card eingeklappt sein; `alwaysShow: true` haelt Status und ACE-Steuerung sichtbar.
+
+**Entwicklungsstand, noch nicht veroeffentlicht:** Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet jetzt die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4` statt der falschen `drying_preset_*`-Namen. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Entity-IDs muessen nicht umbenannt werden.
+
+Der Stop-Button betrifft jeweils nur die ausgewaehlte ACE. Zuvor konnte der sekundaere Stop-Befehl seine Box-ID verlieren und stattdessen die primaere ACE ansprechen; der primaere Stop-Button konnte beide ACEs stoppen. Der interne API-Aufruf ohne Box-Auswahl behaelt seine Stop-alle-Funktion. Automatisierte Tests pruefen Einzel- und Doppel-ACE sowie Kobra X mit internem Materialregal; eine Funktionsbestaetigung am betroffenen Kobra 3 Max steht noch aus. Panel und separate Dashboard-Card benoetigen fuer den Dialogfix jeweils ein neu gebautes Bundle.
+
 ## 📷 Kamera / Nebenansicht
 
 Die Nebenansicht bietet standardmaessig den Anycubic-Cloud-Kamerastream des ausgewaehlten Druckers an. Fuer normale Anycubic-Firmware muss dafuer nichts weiter eingerichtet werden.
 
 Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Erst wenn in der Nebenansicht der Play-Button gedrueckt wird, wird die lokale Kameraquelle bzw. die Anycubic-Cloud-Kamerasession angefragt. Beim Stoppen, Verlassen der Ansicht oder Wechsel auf einen anderen Drucker wird der Stream wieder beendet.
+
+Auch die optionale Dashboard-Card kann den Cloudstream nach einem Klick auf die Druckergrafik anzeigen. Dabei wird eine authentifizierte Agora-/WebRTC-Session im Browser gestartet; die Integration legt dafuer keine native Home-Assistant-`camera.*`-Entity an und stellt keine feste RTSP-/MJPEG-URL zum Kopieren bereit. Eine vorhandene lokale Kameraquelle kann dagegen ueber eine [Generic Camera](https://www.home-assistant.io/integrations/generic/)-Entity eingebunden und mit `cameraEntityId` bzw. `cameraEntityIds` zugeordnet werden. Eine alternative Firmware oder Kamera-Bruecke muss den jeweiligen Drucker tatsaechlich unterstuetzen; das ist fuer den Kobra 3 Max hier nicht bestaetigt.
+
+Die Card hat derzeit keine Option, die Kameraansicht automatisch als Startansicht zu oeffnen. `alwaysShow: true` zeigt Status und ACE-Bereich dauerhaft an, startet aber keine Kamera. Das automatische Oeffnen der Kamera waere eine eigene Erweiterung.
 
 Bei Druckern mit alternativer Firmware oder lokaler Kamera-Bruecke, z. B. Rinkhals/Moonraker, kann optional pro Drucker eine Home-Assistant-`camera.*`-Entity verwendet werden. Das ueberschreibt nicht die Standardkamera fuer alle Drucker, sondern nur den jeweils gemappten Drucker.
 

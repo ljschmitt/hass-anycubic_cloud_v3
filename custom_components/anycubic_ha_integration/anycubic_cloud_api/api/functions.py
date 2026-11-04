@@ -1589,6 +1589,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if box_id >= 0:
             order_params: list[dict[str, Any]] | dict[str, Any] = {
                 'status': 0,
+                'box_id': box_id,
             }
         else:
             order_params = [
