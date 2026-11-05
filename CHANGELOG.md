@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.5
+
+Promote the changes from 0.4.5-beta.1 with matching panel and dashboard-card bundles. Reproduce the Kobra X MQTT errors in a full print and an ACE drying start and stop, then replay the captured messages against the fixes. Hardware feedback on the S1 Max and Kobra 3 Max remains open.
+
+- Accept `print/start/auto_leveling` as a preparation phase after reproducing an MQTT parser error on a Kobra X. Keep `job_in_progress` active when cloud polling reports `leveling` for the print job. A null pause flag leaves the job unpaused.
+- Keep Kobra X jobs active for cloud status codes 19, 27, 29 and 30 when the printer is busy before the first layer at zero progress. Retain the raw codes in the status attributes.
+- Accept observed filament cutting, unloading and ACE feeding MQTT reports. Keep a busy Kobra X job active through cloud codes 19 and 26 during the filament change.
+- Recognize known hardware and assistant metadata in `properties/report/done` without changing the active print state.
+- Process ACE drying updates that omit the measured temperature. Normalize the observed Kobra X duration format to minutes and retain the latest per-box MQTT drying report across cloud refreshes until the reported time elapses or a stop arrives.
+
 ## 0.4.5-beta.1
 
 - Rename the public integration/card labels to **Anycubic Cloud** / **Anycubic Cloud Card**. Preserve repository URLs, integration domain, config-entry identifiers, entity IDs and `custom:anycubic-card`.

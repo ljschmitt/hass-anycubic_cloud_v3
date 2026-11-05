@@ -12,7 +12,7 @@ A Home Assistant integration for Anycubic cloud printers with status sensors, MQ
 
 From **0.4.5-beta.1**, the display names are **Anycubic Cloud** and **Anycubic Cloud Card**, previously **Anycubic HA Integration** and **Anycubic Frontend Card**. Repository URLs, the `anycubic_ha_integration` domain, existing entity IDs and `custom:anycubic-card` remain unchanged.
 
-**0.4.5-beta.1 is a prerelease**, combining the ACE drying fix, repository-helper cleanup and firmware MQTT handling. Stable remains **0.4.4**. Use matching integration/card beta versions. A read-only check confirmed that the existing stable integration loads after upgrading to Home Assistant 2026.11.0 / Marketplace; full candidate hardware acceptance is still pending.
+**0.4.5** combines the ACE drying fix, repository-helper cleanup and MQTT fixes from the Kobra X print and drying test. Use matching integration and dashboard-card versions. The beta was tested on Home Assistant 2026.11.0 with Marketplace.
 
 The integration was [added to the default HACS catalog](https://github.com/hacs/default/pull/8869) on November 2, 2026. Existing custom-repository installations remain usable.
 
@@ -55,17 +55,19 @@ Background: in addition to the issue report, a [hardware capture on the S1 Max](
 
 ACE controls are below the material spools in the panel's **Main view**; the **Side view** is for the camera. First save duration in minutes and temperature in °C under the integration's **Drying presets** options. Only fully configured presets get a start button. An idle printer's card may be collapsed; `alwaysShow: true` keeps its status and ACE controls visible.
 
-**From 0.4.5-beta.1 (prerelease):** The shared panel/card drying dialog now resolves the existing `drying_start_preset_1` through `drying_start_preset_4` buttons instead of the incorrect `drying_preset_*` names. It calls the actual entity ID from the entity registry and refreshes immediately when changing between primary and secondary ACEs. No entity renaming is required.
+The shared panel/card drying dialog resolves the existing `drying_start_preset_1` through `drying_start_preset_4` buttons. It calls the actual entity ID from the entity registry and refreshes immediately when changing between primary and secondary ACEs. Existing entity IDs remain valid.
 
 Each stop button now targets only its selected ACE. Previously the secondary stop request could lose its box ID and target the primary ACE, while the primary stop button could stop both ACEs. The internal API's stop-all call without a box selection remains available. Automated tests cover single/dual ACEs and the Kobra X internal material rack; confirmation on the affected Kobra 3 Max is still pending. The panel and separate dashboard card each need a rebuilt bundle to receive the dialog fix.
 
-### Firmware MQTT reports (0.4.5-beta.1)
+Drying reports can update the status, target temperature and remaining time when the measured temperature is omitted. On the Kobra X, the integration converts the observed seconds-based total duration to minutes. It retains the latest active MQTT status for each ACE until the reported time elapses or a stop arrives, and counts down locally between reports.
+
+### Firmware MQTT reports (0.4.5)
 
 Reported preparation phases such as `nozzle_purging`, `nozzle_cooling_off` and `hotbed_cooling_off` remain active and do not imply completion. Existing printing/paused jobs keep their status; initial preparation uses the existing `Preheating` state. Only explicit finished/cancelled reports end a job, and delayed phase reports cannot revive a completed/cancelled project. An unattributed phase does not overwrite the last terminal cloud project.
 
 Fan `query` responses update the existing fan fields. Known informational `extrudeControl/getInfo` and modern `extfilbox` fields are consumed without guessing material, slot mappings or ambiguous per-tool temperatures. Omitted `feed_status` preserves the cached ACE feed state. Unknown fields remain visible. Camera `pushFailed` remains a real error with its vendor code.
 
-Before stable promotion, test preset visibility, start, feedback and stop on the affected Kobra 3 Max; on dual ACEs verify that stopping one leaves the other running. Also check a known print lifecycle and slot display on another printer, then inspect fresh logs. Synthetic regression replays and green CI do not replace these hardware checks.
+The Kobra X completed a print through cooldown on the beta and acknowledged an ACE stop from Home Assistant. The observed leveling, filament change and drying messages were replayed against the fixes. Hardware feedback on preset visibility, start, status and stop remains open for the S1 Max and Kobra 3 Max. On dual ACEs, verify that stopping one leaves the other running.
 
 ## Screenshots
 

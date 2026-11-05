@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from math import ceil
+from time import monotonic
 from typing import Any
 
 from ..exceptions.error_strings import ErrorsDataParsing
@@ -380,6 +382,7 @@ class AnycubicDryingStatus:
         "_target_temp",
         "_duration",
         "_remain_time",
+        "_expires_at",
     )
 
     def __init__(
@@ -388,27 +391,35 @@ class AnycubicDryingStatus:
         target_temp: int,
         duration: int,
         remain_time: int,
+        *,
+        count_down: bool = False,
     ) -> None:
         self._status = int(status)
         self._target_temp = int(target_temp)
         self._duration = int(duration)
         self._remain_time = int(remain_time)
+        self._expires_at = monotonic() + self._remain_time * 60 if count_down and self._remain_time > 0 else None
 
     @classmethod
-    def from_json(cls, data: dict[str, Any] | None) -> AnycubicDryingStatus | None:
+    def from_json(
+        cls, data: dict[str, Any] | None, *, duration_in_seconds: bool = False, count_down: bool = False,
+    ) -> AnycubicDryingStatus | None:
         if data is None:
             return None
 
+        duration = int(data.get('duration', 0))
+        data.get('humidity')
         return cls(
             status=data['status'],
             target_temp=data.get('target_temp', 0),
-            duration=data.get('duration', 0),
+            duration=duration // 60 if duration_in_seconds else duration,
             remain_time=data.get('remain_time', 0),
+            count_down=count_down,
         )
 
     @property
     def is_drying(self) -> bool:
-        return self._status == 1
+        return self._status == 1 and (self._expires_at is None or monotonic() < self._expires_at)
 
     @property
     def raw_status_code(self) -> int:
@@ -424,6 +435,8 @@ class AnycubicDryingStatus:
 
     @property
     def remaining_time(self) -> int:
+        if self._status == 1 and self._expires_at is not None:
+            return max(0, ceil((self._expires_at - monotonic()) / 60))
         return self._remain_time if self.is_drying else 0
 
     def __repr__(self) -> str:
@@ -569,8 +582,13 @@ class AnycubicMultiColorBox:
     def set_auto_feed(self, auto_feed: int) -> None:
         self._auto_feed = int(auto_feed)
 
-    def set_drying_status(self, drying_status: dict[str, Any] | None) -> None:
-        self._drying_status = AnycubicDryingStatus.from_json(drying_status)
+    def set_drying_status(
+        self, drying_status: dict[str, Any] | None, *, duration_in_seconds: bool = False, count_down: bool = False,
+    ) -> AnycubicDryingStatus | None:
+        self._drying_status = AnycubicDryingStatus.from_json(
+            drying_status, duration_in_seconds=duration_in_seconds, count_down=count_down,
+        )
+        return self._drying_status
 
     def set_feed_status(self, feed_status: dict[str, Any] | None) -> None:
         self._feed_status = AnycubicFeedStatus.from_json(feed_status)

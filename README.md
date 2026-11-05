@@ -12,18 +12,18 @@ Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-
 
 Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Dashboard-Karte **Anycubic Cloud Card**. Zuvor hiessen die Eintraege **Anycubic HA Integration** und **Anycubic Frontend Card**. Repository-Adressen, Integration-Domain `anycubic_ha_integration`, vorhandene Entity-IDs und der Card-Typ `custom:anycubic-card` bleiben erhalten.
 
-**0.4.5-beta.1 ist ein Test-Release:** Es kombiniert die ACE-Trocknungskorrektur aus #23, die Entwickler-Helfer-Bereinigung und MQTT-Kompatibilitaet aus #10. Die letzte stabile Version bleibt **0.4.4**. Beide Beta-Pakete gemeinsam verwenden; fuer die stabile Freigabe fehlen noch die Trocknungsbestaetigung am betroffenen Kobra 3 Max und die beschriebenen Hardwaretests.
+**0.4.5** kombiniert die ACE-Trocknungskorrektur aus #23, die Entwickler-Helfer-Bereinigung und die MQTT-Korrekturen aus #10 und dem Kobra-X-Praxistest. Verwende Integration und optionale Dashboard-Card in derselben Version.
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.5-beta.1**
+> 🗓️ **Aktuelles Release: 0.4.5**
 >
-> - Beta: ACE-Presets und Stop-Befehle fuer die ausgewaehlte ACE korrigiert.
-> - MQTT-Kompatibilitaet fuer neue Vorbereitungs-, Luefter- und Materialberichte; keine vorzeitige Fertigmeldung.
+> - ACE-Presets und Stop-Befehle fuer die ausgewaehlte ACE korrigiert.
+> - MQTT-Berichte fuer Nivellieren, Filamentwechsel und Trocknung verarbeitet. Druckfortschritt bleibt beim Filamentwechsel aktiv.
 > - Entwickler-Helfer aus dem installierten Integrationsordner entfernt; passende Card und einheitliche Anzeigenamen.
 > - Bestehende TLS-Zertifikatspruefung, Entity-IDs, Slotzuordnungen und Druckzeiteinheiten bleiben erhalten.
 >
-> Basisbetrieb der bisherigen stabilen Version nach Update auf **Home Assistant 2026.11.0 / Marketplace** geprueft; Mindestversion weiterhin **Home Assistant 2025.10.0**. Der neue Beta-Kandidat benoetigt noch den beschriebenen Praxistest.
+> **Home Assistant 2026.11.0 / Marketplace** mit der Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
@@ -89,13 +89,15 @@ Cloud-Polling und MQTT verwenden dieselbe Umrechnung, ohne die Rohwerte zu verae
 
 Hintergrund: Neben dem Fehlerbericht dokumentiert eine [Messung am S1 Max](https://github.com/chrisfore/anycubic_ha_local/blob/376bf5546ce9cfbc1f8d52e8f14685e08ae7d051/research/PROTOCOL-VALIDATED.md#info-report-data-master-object) verstrichene Sekunden bei weiterhin minutenbasierter Restzeit. Diese Ausnahme wird nicht auf andere Modelle uebertragen.
 
-### MQTT-Berichte neuerer Firmware (ab 0.4.5-beta.1)
+### MQTT-Berichte neuerer Firmware (0.4.5)
 
-Die Beta behandelt die in [#10](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/10) und in Logs beobachteten Vorbereitungsphasen, darunter `nozzle_purging`, `nozzle_cooling_off` und `hotbed_cooling_off`. Ein laufender Druck bleibt aktiv; vorbereitende Phasen verwenden den bestehenden Status `Preheating`. Erst die ausdrueckliche Fertig-/Abbruchmeldung beendet den Auftrag. Verspaetete Phasenmeldungen reaktivieren keinen bereits beendeten Auftrag. Berichte ohne eindeutige neue Auftragszuordnung ersetzen nicht den letzten abgeschlossenen Cloud-Auftrag.
+Die Integration behandelt die in [#10](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/10) und in Logs beobachteten Vorbereitungsphasen, darunter `nozzle_purging`, `nozzle_cooling_off` und `hotbed_cooling_off`. Ein laufender Druck bleibt aktiv. Vorbereitende Phasen verwenden den bestehenden Status `Preheating`. Erst die ausdrueckliche Fertig-/Abbruchmeldung beendet den Auftrag. Verspaetete Phasenmeldungen lassen einen bereits beendeten Auftrag abgeschlossen.
+
+Ein Kobra-X-Testdruck mit Firmware 2.0.2.2 zeigte zusaetzlich `print/start/auto_leveling` und Meldungen fuer Schneiden, Entladen und Zufuehren beim Filamentwechsel. Die Integration behandelt sie als Teil des Druckablaufs. Meldet die Cloud `leveling`, bleibt `job_in_progress` waehrend des Nivellierens aktiv. Die Cloud-Codes `19`, `27`, `29` und `30` werden beim beschaeftigten Kobra X vor der ersten Schicht und bei 0 % als Vorbereitung angezeigt. Bei den Codes `19` und `26` waehrend eines laufenden Filamentwechsels bleibt der Druck aktiv. Der Rohcode bleibt in `current_status` sichtbar.
 
 Luefterantworten mit `action: query` aktualisieren dieselben Werte wie bisherige `auto`-Berichte. Bekannte `extrudeControl/getInfo`- und neue `extfilbox`-Metadaten werden erkannt; daraus werden keine Materialspulen, Slotzuordnungen oder mehrdeutigen Zieltemperaturen geraten. Fehlt bei `feedFilament` das optionale `feed_status`, bleibt der zuletzt bekannte Status erhalten. Unbekannte Felder werden weiterhin gemeldet. `video/startCapture/pushFailed` bleibt ein echter Kamerafehler mit Hersteller-Code und wird nicht als Erfolg verschluckt.
 
-Automatisierte Replays decken neue und alte Berichte, Auftragsende, Pause, Einzel-/Doppel-ACE und Materialzuordnungen ab. Das ersetzt keinen vollstaendigen Hardwaretest. Vor einer stabilen Freigabe die Beta mit passender Card pruefen: Preset-Anzeige, Start/Rueckmeldung/Stop je ACE; bei zwei ACEs darf Stop nur die ausgewaehlte betreffen. Zusaetzlich einen bekannten Druckablauf, Statuswechsel und Slotanzeige auf einem weiteren Modell pruefen und die neuen Logs bewerten. Neue Meldungen vorerst lokal sammeln und vor dem Teilen bereinigen.
+Der Kobra X absolvierte mit der Beta einen vollstaendigen Druck bis zum Abkuehlen und bestaetigte einen aus Home Assistant ausgeloesten ACE-Stop. Die beobachteten Parserfehler wurden mit Regressionstests nachgestellt und behoben. Rueckmeldungen zu Preset-Anzeige, Start, Status und Stop am S1 Max und Kobra 3 Max sind weiterhin willkommen. Bei zwei ACEs bitte auch pruefen, ob die jeweils andere weiterlaeuft. Neue Meldungen vor dem Teilen bereinigen.
 
 ---
 
@@ -169,9 +171,11 @@ Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere
 
 Die ACE-Steuerung befindet sich in der **Hauptansicht** unter den Materialspulen; die **Nebenansicht** ist fuer die Kamera vorgesehen. In den Integrationsoptionen unter **Trocknungsvorgaben** zuerst Dauer in Minuten und Temperatur in °C speichern. Nur vollstaendig konfigurierte Presets bekommen einen Start-Button. Bei inaktiven Druckern kann die Card eingeklappt sein; `alwaysShow: true` haelt Status und ACE-Steuerung sichtbar.
 
-**Ab 0.4.5-beta.1 (Beta):** Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet jetzt die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4` statt der falschen `drying_preset_*`-Namen. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Entity-IDs muessen nicht umbenannt werden.
+Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4`. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Bestehende Entity-IDs bleiben gueltig.
 
 Der Stop-Button betrifft jeweils nur die ausgewaehlte ACE. Zuvor konnte der sekundaere Stop-Befehl seine Box-ID verlieren und stattdessen die primaere ACE ansprechen; der primaere Stop-Button konnte beide ACEs stoppen. Der interne API-Aufruf ohne Box-Auswahl behaelt seine Stop-alle-Funktion. Automatisierte Tests pruefen Einzel- und Doppel-ACE sowie Kobra X mit internem Materialregal; eine Funktionsbestaetigung am betroffenen Kobra 3 Max steht noch aus. Panel und separate Dashboard-Card benoetigen fuer den Dialogfix jeweils ein neu gebautes Bundle.
+
+Trocknungsberichte ohne `temp` aktualisieren den Status, die Solltemperatur und die Restzeit. Die zuletzt gemessene Ist-Temperatur bleibt erhalten. Beim Kobra X wird die beobachtete Gesamtdauer in Sekunden auf Minuten umgerechnet. Der letzte aktive MQTT-Bericht bleibt je ACE bis zum Stop oder bis zum Ablauf der gemeldeten Restzeit gueltig, auch wenn die Cloud-Antwort zwischenzeitlich andere Werte liefert. Zwischen den Berichten zaehlt Home Assistant die Restminuten lokal herunter.
 
 ## 📷 Kamera / Nebenansicht
 
@@ -464,4 +468,4 @@ GNU General Public License v3.0. Siehe [LICENSE](LICENSE).
 ## ✅ Kompatibilität
 
 - Home Assistant 2025.10.0 oder neuer
-- Home Assistant 2026.11.0 / Marketplace: Laden der bisherigen stabilen Integration geprueft; Kandidaten-Praxistest noch offen
+- Home Assistant 2026.11.0 / Marketplace: Laden von Integration und Card sowie Kobra-X-Druckablauf mit der Beta geprueft

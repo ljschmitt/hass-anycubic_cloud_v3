@@ -96,6 +96,7 @@ class AnycubicPrinter:
         "_multi_color_box_fw_version",
         "_external_shelves",
         "_multi_color_box",
+        "_mqtt_drying_statuses",
         "_latest_project",
         "_fan_speed",
         "_aux_fan_speed_pct",
@@ -208,6 +209,7 @@ class AnycubicPrinter:
         self._set_multi_color_box_fw_version(multi_color_box_fw_version)
         self._set_external_shelves(external_shelves)
         self._set_multi_color_box(multi_color_box)
+        self._mqtt_drying_statuses: dict[int, AnycubicDryingStatus] = {}
 
         self._latest_project: AnycubicProject | None = None
         self._fan_speed: int = 0
@@ -645,6 +647,8 @@ class AnycubicPrinter:
         self._description = extra_data.get('description')
         self._device_status = data['device_status']
         self._is_printing = data['is_printing']
+        if not self.printer_online:
+            self._mqtt_drying_statuses.clear()
         self._material_used = extra_data.get('material_used')
         self._set_total_print_time(extra_data.get('print_totaltime'))
         self._print_count = extra_data.get('print_count')
@@ -777,6 +781,7 @@ class AnycubicPrinter:
             return
         elif action == 'onlineReport' and state == 'offline':
             self._device_status = 2
+            self._mqtt_drying_statuses.clear()
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.lastwill)
@@ -972,7 +977,9 @@ class AnycubicPrinter:
         elif action == 'start' and state in (
             'nozzle_purging', 'nozzle_heating', 'nozzle_cooling', 'nozzle_cooling_off',
             'nozzle_wiping', 'hotbed_heating', 'hotbed_cooling_off',
-            'z_offset_calibrating', 'frequency_sweeping', 'extfilbox_filament_feeding',
+            'auto_leveling', 'z_offset_calibrating', 'frequency_sweeping',
+            'filament_cutting', 'extfilbox_filament_feeding', 'extfilbox_filament_unfeeding',
+            'ace_filament_feeding', 'ace_filament_unfeeding',
         ):
             data = payload['data']
             project = self._latest_project
@@ -986,7 +993,9 @@ class AnycubicPrinter:
             self._is_printing = 2
             print_status = (
                 AnycubicPrintStatus.Printing
-                if project is not None and project.raw_print_status == AnycubicPrintStatus.Printing
+                if project is not None and (
+                    project.raw_print_status == AnycubicPrintStatus.Printing or self._kobra_x_project_phase == 'printing'
+                )
                 else AnycubicPrintStatus.Preheating
             )
             self._update_latest_project_with_mqtt_print_status_data(project_id, print_status, data)
@@ -1125,8 +1134,28 @@ class AnycubicPrinter:
                     continue
 
                 assert self._multi_color_box
-                self._multi_color_box[box_index].set_current_temperature(box['temp'])
-                self._multi_color_box[box_index].set_drying_status(box['drying_status'])
+                ace = self._multi_color_box[box_index]
+                if (temperature := box.get('temp')) is not None:
+                    ace.set_current_temperature(temperature)
+
+                drying_data = box['drying_status']
+                previous = self._mqtt_drying_statuses.get(box_id)
+                duration_in_seconds = False
+                if self.is_kobra_x and action == 'autoUpdateDryStatus' and drying_data is not None:
+                    duration = int(drying_data.get('duration', 0))
+                    if previous is not None and previous.is_drying:
+                        duration_in_seconds = duration == previous.total_duration * 60
+                    elif self.fw_version and self.fw_version.firmware_version == '2.0.2.2':
+                        # This firmware also sends seconds in periodic reports after reconnect.
+                        remaining = int(drying_data.get('remain_time', 0))
+                        duration_in_seconds = duration % 60 == 0 and 0 < remaining <= duration // 60
+                drying_status = ace.set_drying_status(
+                    drying_data, duration_in_seconds=duration_in_seconds, count_down=self.is_kobra_x,
+                )
+                if self.is_kobra_x and drying_status is not None and drying_status.remaining_time > 0:
+                    self._mqtt_drying_statuses[box_id] = drying_status
+                else:
+                    self._mqtt_drying_statuses.pop(box_id, None)
             return
         elif action == 'feedFilament' and state == 'done':
             data = payload['data']['multi_color_box']
@@ -1359,6 +1388,18 @@ class AnycubicPrinter:
             data = payload['data']
             for key in ('current_status', 'filament_color', 'has_filaments', 'index', 'laps', 'move_type'):
                 data.get(key)
+
+        elif msg_type == 'properties' and action == 'report' and state == 'done':
+            data = payload['data']
+            for key in ('assistant_settings', 'head_channel_count', 'option_settings'):
+                data.get(key)
+            for key, fields in (('hardware_settings', ('diameter', 'material')), ('hotbed_settings', ('material',))):
+                settings = data.get(key)
+                if isinstance(settings, AnycubicConsumableData):
+                    for field in fields:
+                        settings.get(field)
+                    if settings.is_empty:
+                        data.get(key)
 
         elif msg_type == 'buried':
             self._process_mqtt_update_buried(action, state, payload)
@@ -1782,19 +1823,22 @@ class AnycubicPrinter:
 
         return None
 
-    @property
-    def primary_drying_status(self) -> AnycubicDryingStatus | None:
-        if self.primary_multi_color_box is None:
+    def _drying_status_for_box(self, box: AnycubicMultiColorBox | None) -> AnycubicDryingStatus | None:
+        if box is None:
             return None
 
-        return self.primary_multi_color_box.drying_status
+        mqtt_status = self._mqtt_drying_statuses.get(box.box_id)
+        if self.printer_online and mqtt_status is not None and mqtt_status.is_drying:
+            return mqtt_status
+        return box.drying_status
+
+    @property
+    def primary_drying_status(self) -> AnycubicDryingStatus | None:
+        return self._drying_status_for_box(self.primary_multi_color_box)
 
     @property
     def secondary_drying_status(self) -> AnycubicDryingStatus | None:
-        if self.secondary_multi_color_box is None:
-            return None
-
-        return self.secondary_multi_color_box.drying_status
+        return self._drying_status_for_box(self.secondary_multi_color_box)
 
     @property
     def latest_project(self) -> AnycubicProject | None:
@@ -2160,9 +2204,23 @@ class AnycubicPrinter:
         return None
 
     @property
+    def _kobra_x_project_phase(self) -> str | None:
+        project = self.latest_project
+        if not self.is_kobra_x or not self.is_busy or project is None:
+            return None
+        if project.raw_print_status in (19, 27, 29, 30) and (
+            project.progress_percentage == 0 and project.print_current_layer in (None, 0)
+        ):
+            return 'preheating'
+        # These codes were also observed while the printer changed filament mid-print.
+        if project.raw_print_status in (19, 26) and 0 < project.progress_percentage < 100:
+            return 'printing'
+        return None
+
+    @property
     def latest_project_print_in_progress(self) -> bool | None:
         if self.latest_project:
-            return self.latest_project.print_in_progress
+            return self.latest_project.print_in_progress or self._kobra_x_project_phase is not None
 
         return None
 
@@ -2190,7 +2248,7 @@ class AnycubicPrinter:
     @property
     def latest_project_print_status(self) -> str | None:
         if self.latest_project:
-            return self.latest_project.print_status
+            return self._kobra_x_project_phase or self.latest_project.print_status
 
         return None
 
