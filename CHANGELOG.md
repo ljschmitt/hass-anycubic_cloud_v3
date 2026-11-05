@@ -8,7 +8,7 @@ Promote the changes from 0.4.5-beta.1 with matching panel and dashboard-card bun
 - Keep Kobra X jobs active for cloud status codes 19, 27, 29 and 30 when the printer is busy before the first layer at zero progress. Retain the raw codes in the status attributes.
 - Accept observed filament cutting, unloading and ACE feeding MQTT reports. Keep a busy Kobra X job active through cloud codes 19 and 26 during the filament change.
 - Recognize known hardware and assistant metadata in `properties/report/done` without changing the active print state.
-- Process ACE drying updates that omit the measured temperature. Normalize the observed Kobra X duration format to minutes and retain the latest per-box MQTT drying report across cloud refreshes until the reported time elapses or a stop arrives.
+- Process ACE drying updates that omit the measured temperature. Normalize the observed Kobra X duration format to minutes. Retain the latest per-box MQTT status across cloud refreshes and reconcile it with fresh MQTT box information, stop reports and the remaining-time countdown.
 
 ## 0.4.5-beta.1
 

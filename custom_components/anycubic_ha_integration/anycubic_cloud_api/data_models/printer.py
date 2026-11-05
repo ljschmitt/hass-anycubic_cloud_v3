@@ -1091,6 +1091,29 @@ class AnycubicPrinter:
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.job_status)
 
+    def _update_mqtt_drying_status(
+        self, ace: AnycubicMultiColorBox, drying_data: dict[str, Any] | None, action: str,
+    ) -> None:
+        box_id = ace.box_id
+        previous = self._mqtt_drying_statuses.get(box_id)
+        duration_in_seconds = False
+        if self.is_kobra_x and action in ('autoUpdateDryStatus', 'getInfo') and drying_data is not None:
+            duration = int(drying_data.get('duration', 0))
+            if previous is not None and previous.is_drying:
+                duration_in_seconds = duration == previous.total_duration * 60
+            elif action == 'autoUpdateDryStatus' and self.fw_version and self.fw_version.firmware_version == '2.0.2.2':
+                # This firmware also sends seconds in periodic reports after reconnect.
+                remaining = int(drying_data.get('remain_time', 0))
+                duration_in_seconds = duration % 60 == 0 and 0 < remaining <= duration // 60
+
+        drying_status = ace.set_drying_status(
+            drying_data, duration_in_seconds=duration_in_seconds, count_down=self.is_kobra_x,
+        )
+        if self.is_kobra_x and drying_status is not None and drying_status.remaining_time > 0:
+            self._mqtt_drying_statuses[box_id] = drying_status
+        else:
+            self._mqtt_drying_statuses.pop(box_id, None)
+
     def _process_mqtt_update_multicolorbox(
         self,
         action: str,
@@ -1102,6 +1125,13 @@ class AnycubicPrinter:
             data = payload_data['multi_color_box']
             payload_data.get('head_tools_model')
             self._set_multi_color_box(data)
+            if self.is_kobra_x and data is not None and self._multi_color_box:
+                # A fresh MQTT snapshot supersedes an earlier report for the same box.
+                for box in data if isinstance(data, list) else [data]:
+                    box_index = self._multi_color_box_index_by_id(int(box['id']))
+                    drying_status = box['drying_status']
+                    if box_index is not None and drying_status is not None:
+                        self._update_mqtt_drying_status(self._multi_color_box[box_index], drying_status, action)
             return
         elif action in ['setInfo', 'refresh'] and state == 'success':
             data = payload['data']['multi_color_box']
@@ -1138,24 +1168,7 @@ class AnycubicPrinter:
                 if (temperature := box.get('temp')) is not None:
                     ace.set_current_temperature(temperature)
 
-                drying_data = box['drying_status']
-                previous = self._mqtt_drying_statuses.get(box_id)
-                duration_in_seconds = False
-                if self.is_kobra_x and action == 'autoUpdateDryStatus' and drying_data is not None:
-                    duration = int(drying_data.get('duration', 0))
-                    if previous is not None and previous.is_drying:
-                        duration_in_seconds = duration == previous.total_duration * 60
-                    elif self.fw_version and self.fw_version.firmware_version == '2.0.2.2':
-                        # This firmware also sends seconds in periodic reports after reconnect.
-                        remaining = int(drying_data.get('remain_time', 0))
-                        duration_in_seconds = duration % 60 == 0 and 0 < remaining <= duration // 60
-                drying_status = ace.set_drying_status(
-                    drying_data, duration_in_seconds=duration_in_seconds, count_down=self.is_kobra_x,
-                )
-                if self.is_kobra_x and drying_status is not None and drying_status.remaining_time > 0:
-                    self._mqtt_drying_statuses[box_id] = drying_status
-                else:
-                    self._mqtt_drying_statuses.pop(box_id, None)
+                self._update_mqtt_drying_status(ace, box['drying_status'], action)
             return
         elif action == 'feedFilament' and state == 'done':
             data = payload['data']['multi_color_box']

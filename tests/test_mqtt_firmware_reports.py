@@ -266,6 +266,34 @@ class FirmwareMQTTTests(unittest.TestCase):
         self.assertEqual(device.primary_drying_status_total_duration, 480)
         self.assertEqual(device.primary_drying_status_remaining_time, 8)
 
+    def test_fresh_mqtt_box_info_overrides_only_that_ace_drying_cache(self):
+        device = printer(model=20030)
+        device._device_status = 1
+        boxes = [ace(-1), ace(0), ace(1)]
+        device._set_multi_color_box(boxes)
+        start = {"status": 1, "duration": 480, "remain_time": 480, "target_temp": 50}
+        report(device, "multiColorBox", "setDry", "success", {"multi_color_box": [
+            {"id": 0, "drying_status": start}, {"id": 1, "drying_status": start},
+        ]})
+
+        report(device, "multiColorBox", "getInfo", "success", {"multi_color_box": [boxes[1]]})
+        self.assertTrue(device.primary_drying_status_is_drying)
+
+        primary = {**boxes[1], "drying_status": {**start, "duration": 28800, "remain_time": 475, "target_temp": 45}}
+        report(device, "multiColorBox", "getInfo", "success", {"multi_color_box": [primary]})
+        self.assertEqual(device.primary_drying_status_target_temperature, 45)
+        self.assertEqual(device.primary_drying_status_total_duration, 480)
+        self.assertEqual(device.primary_drying_status_remaining_time, 475)
+        device._set_multi_color_box(boxes)
+        self.assertTrue(device.primary_drying_status_is_drying)
+        self.assertEqual(device.primary_drying_status_remaining_time, 475)
+
+        primary["drying_status"] = {"status": 0}
+        report(device, "multiColorBox", "getInfo", "success", {"multi_color_box": [primary]})
+        self.assertFalse(device.primary_drying_status_is_drying)
+        self.assertEqual(device.primary_drying_status_remaining_time, 0)
+        self.assertTrue(device.secondary_drying_status_is_drying)
+
     def test_kobra_x_drying_periodic_report_without_start_expires(self):
         device = printer(model=20030)
         device._device_status = 1
