@@ -661,6 +661,8 @@ class AnycubicProject:
             'source_type',
             'temp_dir',
             'temp_gcode',
+            'file_root_path',
+            'filetype',
         ):
             if metadata_key in mqtt_data:
                 mqtt_data[metadata_key]
@@ -892,7 +894,8 @@ class AnycubicProject:
             self._print_status == AnycubicPrintStatus.Printing or
             self._print_status == AnycubicPrintStatus.Downloading or
             self._print_status == AnycubicPrintStatus.Checking or
-            self._print_status == AnycubicPrintStatus.Preheating
+            self._print_status == AnycubicPrintStatus.Preheating or
+            self._print_status == AnycubicPrintStatus.Leveling
         )
 
     @property
@@ -909,7 +912,7 @@ class AnycubicProject:
 
     @property
     def print_is_paused(self) -> bool:
-        return self._pause != 0 and self.print_in_progress
+        return bool(self._pause) and self.print_in_progress
 
     @property
     def print_supplies_usage(self) -> int | None:

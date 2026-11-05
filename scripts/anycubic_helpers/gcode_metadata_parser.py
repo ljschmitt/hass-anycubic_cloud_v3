@@ -7,8 +7,8 @@ from os import path
 from typing import Any
 
 from aiofiles import open as aio_file_open
+from anycubic_cloud_api.data_models.gcode_file import AnycubicGcodeFile
 
-from ..anycubic_cloud_api.data_models.gcode_file import AnycubicGcodeFile
 from . import script_base
 
 
@@ -58,4 +58,5 @@ def main() -> None:
     asyncio.run(script_base.main_mqtt_async(anycubic_api_with_script, sys_args))
 
 
-main()
+if __name__ == "__main__":
+    main()

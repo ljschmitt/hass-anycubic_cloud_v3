@@ -66,4 +66,5 @@ def main() -> None:
     asyncio.run(script_base.main_mqtt_async(anycubic_api_with_script, sys_args))
 
 
-main()
+if __name__ == "__main__":
+    main()

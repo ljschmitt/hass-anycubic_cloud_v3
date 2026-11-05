@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from os import path
 from typing import Any
 
 from . import script_base
 
 
 def get_sys_args() -> dict[str, Any]:
-    parser = argparse.ArgumentParser(description='Anycubic Delete Local File')
+    parser = argparse.ArgumentParser(description='Anycubic Cloud Direct Print with ACE')
     parser.add_argument(
         '--printer-id',
         help='Printer ID.',
@@ -16,9 +17,16 @@ def get_sys_args() -> dict[str, Any]:
         required=True,
     )
     parser.add_argument(
-        '--filename',
-        help='Local filename to delete.',
+        '--filepath',
+        help='Path to file for upload & print.',
         type=str,
+        required=True,
+    )
+    parser.add_argument(
+        '--slots',
+        nargs='+',
+        type=int,
+        help='ACE Slot Numbers to map to print colours.',
         required=True,
     )
     return vars(parser.parse_args())
@@ -29,8 +37,10 @@ class anycubic_api_with_script(script_base.anycubic_api_with_script):
     async def script_runner(self) -> None:
         await self.check_api_tokens()
 
-        if not self._args['filename'] or len(self._args['filename']) < 1:
-            raise Exception('Invalid file name.')
+        if not self._args['filepath'] or len(self._args['filepath']) < 1:
+            raise Exception('Invalid file path.')
+
+        file_path = path.expanduser(self._args['filepath'])
 
         if not self._args['printer_id'] or self._args['printer_id'] < 1:
             raise Exception('Invalid printer ID.')
@@ -40,8 +50,16 @@ class anycubic_api_with_script(script_base.anycubic_api_with_script):
         if not printer:
             raise Exception('No printer loaded from API.')
 
-        response = await printer.delete_local_file(self._args['filename'])
+        if not self._args['slots'] or len(self._args['slots']) < 1:
+            raise Exception('No ACE Slots mapped to print.')
 
+        slot_indexes = list([x - 1 for x in self._args['slots']])
+
+        response = await self.print_and_upload_no_cloud_save(
+            printer=printer,
+            full_file_path=file_path,
+            slot_index_list=slot_indexes,
+        )
         self._log_to_debug(f"Success: {response}")
 
 
@@ -50,4 +68,5 @@ def main() -> None:
     asyncio.run(script_base.main_mqtt_async(anycubic_api_with_script, sys_args))
 
 
-main()
+if __name__ == "__main__":
+    main()

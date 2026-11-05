@@ -20,7 +20,8 @@ TOKEN_NEW = "eyJbmV3.payload.signature"
 BASH = shutil.which("bash")
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
 if os.name == "nt":
-    if not BASH and Path("C:/Program Files/Git/bin/bash.exe").exists():
+    # WSL's bash alias neither uses /c paths nor inherits these test variables.
+    if Path("C:/Program Files/Git/bin/bash.exe").exists():
         BASH = "C:/Program Files/Git/bin/bash.exe"
     if not POWERSHELL:
         candidate = Path(os.environ.get("SystemRoot", "C:/Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
@@ -87,8 +88,12 @@ class TokenCommandTests(unittest.TestCase):
         environment = {**os.environ, "TEST_HOME": shell_path(self.root), "TEST_BIN": shell_path(tools),
                        "TEST_CLIPBOARD": shell_path(self.clipboard), "TEST_MODE": mode}
         setup = 'export HOME="$TEST_HOME"\nexport PATH="$TEST_BIN:/bin:/usr/bin:$PATH"\n'
-        return subprocess.run([outer_shell or BASH, "-s"], input=setup + command + "\n", env=environment,
-                              text=True, capture_output=True, timeout=20)
+        # Binary stdin preserves LF on Windows; text mode rewrites shell input
+        # to CRLF and makes Git Bash fail before exercising the actual command.
+        result = subprocess.run([outer_shell or BASH, "-s"], input=(setup + command + "\n").encode("utf-8"),
+                                env=environment, capture_output=True, timeout=20)
+        return subprocess.CompletedProcess(result.args, result.returncode,
+                                           result.stdout.decode("utf-8"), result.stderr.decode("utf-8"))
 
     def run_windows(self, command, mode="ok"):
         import base64

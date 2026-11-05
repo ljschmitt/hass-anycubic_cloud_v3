@@ -1,4 +1,4 @@
-# Anycubic HA Integration
+# Anycubic Cloud
 
 [Deutsch](README.md) | [English](README.en.md)
 
@@ -10,15 +10,20 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository installierbar. Die [Aufnahme in den standardmaessigen HACS-Katalog](https://github.com/hacs/default/pull/8869) befindet sich in der Pruefung.
+Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Dashboard-Karte **Anycubic Cloud Card**. Zuvor hiessen die Eintraege **Anycubic HA Integration** und **Anycubic Frontend Card**. Repository-Adressen, Integration-Domain `anycubic_ha_integration`, vorhandene Entity-IDs und der Card-Typ `custom:anycubic-card` bleiben erhalten.
 
-> 🗓️ **Aktuelles Release: 0.4.4**
+**0.4.5** kombiniert die ACE-Trocknungskorrektur aus #23, die Entwickler-Helfer-Bereinigung und die MQTT-Korrekturen aus #10 und dem Kobra-X-Praxistest. Verwende Integration und optionale Dashboard-Card in derselben Version.
+
+Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
+
+> 🗓️ **Aktuelles Release: 0.4.5**
 >
-> - MQTT prueft die Zertifikatskette der Anycubic-CA und den Broker-Hostnamen; keine ungepruefte Ersatzverbindung.
-> - Kobra S1 Max: verstrichene Sekunden werden fuer Sensor, Panel und Card korrekt in Minuten umgerechnet.
-> - Passende Dashboard-Card auf Version 0.4.4 synchronisiert; bestehende Entity-IDs und Restzeit bleiben erhalten.
+> - ACE-Presets und Stop-Befehle fuer die ausgewaehlte ACE korrigiert.
+> - MQTT-Berichte fuer Nivellieren, Filamentwechsel und Trocknung verarbeitet. Druckfortschritt bleibt beim Filamentwechsel aktiv.
+> - Entwickler-Helfer aus dem installierten Integrationsordner entfernt; passende Card und einheitliche Anzeigenamen.
+> - Bestehende TLS-Zertifikatspruefung, Entity-IDs, Slotzuordnungen und Druckzeiteinheiten bleiben erhalten.
 >
-> Getestet mit **Home Assistant 2026.8.3**, freigegeben ab **Home Assistant 2025.10.0**.
+> **Home Assistant 2026.11.0 / Marketplace** mit der Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
@@ -55,6 +60,7 @@ Die Integration ist derzeit ueber HACS als benutzerdefiniertes Repository instal
 ### Getestet / rueckgemeldet
 
 - ✅ Kobra 3 Combo
+- Kobra 3 Max + ACE 1 Pro: Basisfunktionen, Spulen-/Trocknungsstatus und Cloudkamera rueckgemeldet; Trocknungssteuerung siehe [#23](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/23) und Hinweis unten.
 - ✅ Kobra X (Basisfunktionen; ACE-/Materialanzeige fuer bekannte 4-Farben-Setups verbessert; Kameralicht-Entity getestet)
 - ✅ Kobra S1 (Basisfunktionen rueckgemeldet; Kamera und Chamber-Light noch offen)
 - ✅ Kobra 2, 2 Max, 2 Pro
@@ -82,6 +88,16 @@ Ab Version **0.4.4** ist die Druckzeit-Korrektur zu [#17](https://github.com/ljs
 Cloud-Polling und MQTT verwenden dieselbe Umrechnung, ohne die Rohwerte zu veraendern oder mehrfach zu teilen. Die Restzeit bleibt in Minuten und die daraus berechnete ETA unveraendert. Andere Druckermodelle behalten die bisherige Verarbeitung; es gibt keine automatische Einheitenschaetzung anhand der Druckdauer oder des Fortschritts. Bestehende Entity-IDs und die Card muessen dafuer nicht geaendert werden. Die Korrektur ist automatisiert geprueft; die Bestaetigung am betroffenen S1 Max steht noch aus.
 
 Hintergrund: Neben dem Fehlerbericht dokumentiert eine [Messung am S1 Max](https://github.com/chrisfore/anycubic_ha_local/blob/376bf5546ce9cfbc1f8d52e8f14685e08ae7d051/research/PROTOCOL-VALIDATED.md#info-report-data-master-object) verstrichene Sekunden bei weiterhin minutenbasierter Restzeit. Diese Ausnahme wird nicht auf andere Modelle uebertragen.
+
+### MQTT-Berichte neuerer Firmware (0.4.5)
+
+Die Integration behandelt die in [#10](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/10) und in Logs beobachteten Vorbereitungsphasen, darunter `nozzle_purging`, `nozzle_cooling_off` und `hotbed_cooling_off`. Ein laufender Druck bleibt aktiv. Vorbereitende Phasen verwenden den bestehenden Status `Preheating`. Erst die ausdrueckliche Fertig-/Abbruchmeldung beendet den Auftrag. Verspaetete Phasenmeldungen lassen einen bereits beendeten Auftrag abgeschlossen.
+
+Ein Kobra-X-Testdruck mit Firmware 2.0.2.2 zeigte zusaetzlich `print/start/auto_leveling` und Meldungen fuer Schneiden, Entladen und Zufuehren beim Filamentwechsel. Die Integration behandelt sie als Teil des Druckablaufs. Meldet die Cloud `leveling`, bleibt `job_in_progress` waehrend des Nivellierens aktiv. Die Cloud-Codes `19`, `27`, `29` und `30` werden beim beschaeftigten Kobra X vor der ersten Schicht und bei 0 % als Vorbereitung angezeigt. Bei den Codes `19` und `26` waehrend eines laufenden Filamentwechsels bleibt der Druck aktiv. Der Rohcode bleibt in `current_status` sichtbar.
+
+Luefterantworten mit `action: query` aktualisieren dieselben Werte wie bisherige `auto`-Berichte. Bekannte `extrudeControl/getInfo`- und neue `extfilbox`-Metadaten werden erkannt; daraus werden keine Materialspulen, Slotzuordnungen oder mehrdeutigen Zieltemperaturen geraten. Fehlt bei `feedFilament` das optionale `feed_status`, bleibt der zuletzt bekannte Status erhalten. Unbekannte Felder werden weiterhin gemeldet. `video/startCapture/pushFailed` bleibt ein echter Kamerafehler mit Hersteller-Code und wird nicht als Erfolg verschluckt.
+
+Der Kobra X absolvierte mit der Beta einen vollstaendigen Druck bis zum Abkuehlen und bestaetigte einen aus Home Assistant ausgeloesten ACE-Stop. Die beobachteten Parserfehler wurden mit Regressionstests nachgestellt und behoben. Rueckmeldungen zu Preset-Anzeige, Start, Status und Stop am S1 Max und Kobra 3 Max sind weiterhin willkommen. Bei zwei ACEs bitte auch pruefen, ob die jeweils andere weiterlaeuft. Neue Meldungen vor dem Teilen bereinigen.
 
 ---
 
@@ -151,11 +167,25 @@ Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere
 
 ---
 
+### ACE-Steuerung und Trocknung (#23)
+
+Die ACE-Steuerung befindet sich in der **Hauptansicht** unter den Materialspulen; die **Nebenansicht** ist fuer die Kamera vorgesehen. In den Integrationsoptionen unter **Trocknungsvorgaben** zuerst Dauer in Minuten und Temperatur in °C speichern. Nur vollstaendig konfigurierte Presets bekommen einen Start-Button. Bei inaktiven Druckern kann die Card eingeklappt sein; `alwaysShow: true` haelt Status und ACE-Steuerung sichtbar.
+
+Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4`. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Bestehende Entity-IDs bleiben gueltig.
+
+Der Stop-Button betrifft jeweils nur die ausgewaehlte ACE. Zuvor konnte der sekundaere Stop-Befehl seine Box-ID verlieren und stattdessen die primaere ACE ansprechen; der primaere Stop-Button konnte beide ACEs stoppen. Der interne API-Aufruf ohne Box-Auswahl behaelt seine Stop-alle-Funktion. Automatisierte Tests pruefen Einzel- und Doppel-ACE sowie Kobra X mit internem Materialregal; eine Funktionsbestaetigung am betroffenen Kobra 3 Max steht noch aus. Panel und separate Dashboard-Card benoetigen fuer den Dialogfix jeweils ein neu gebautes Bundle.
+
+Trocknungsberichte ohne `temp` aktualisieren den Status, die Solltemperatur und die Restzeit. Die zuletzt gemessene Ist-Temperatur bleibt erhalten. Beim Kobra X wird die beobachtete Gesamtdauer in Sekunden auf Minuten umgerechnet. Der letzte aktive MQTT-Bericht bleibt je ACE bis zum Stop oder bis zum Ablauf der gemeldeten Restzeit gueltig, auch wenn die Cloud-Antwort zwischenzeitlich andere Werte liefert. Zwischen den Berichten zaehlt Home Assistant die Restminuten lokal herunter.
+
 ## 📷 Kamera / Nebenansicht
 
 Die Nebenansicht bietet standardmaessig den Anycubic-Cloud-Kamerastream des ausgewaehlten Druckers an. Fuer normale Anycubic-Firmware muss dafuer nichts weiter eingerichtet werden.
 
 Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Erst wenn in der Nebenansicht der Play-Button gedrueckt wird, wird die lokale Kameraquelle bzw. die Anycubic-Cloud-Kamerasession angefragt. Beim Stoppen, Verlassen der Ansicht oder Wechsel auf einen anderen Drucker wird der Stream wieder beendet.
+
+Auch die optionale Dashboard-Card kann den Cloudstream nach einem Klick auf die Druckergrafik anzeigen. Dabei wird eine authentifizierte Agora-/WebRTC-Session im Browser gestartet; die Integration legt dafuer keine native Home-Assistant-`camera.*`-Entity an und stellt keine feste RTSP-/MJPEG-URL zum Kopieren bereit. Eine vorhandene lokale Kameraquelle kann dagegen ueber eine [Generic Camera](https://www.home-assistant.io/integrations/generic/)-Entity eingebunden und mit `cameraEntityId` bzw. `cameraEntityIds` zugeordnet werden. Eine alternative Firmware oder Kamera-Bruecke muss den jeweiligen Drucker tatsaechlich unterstuetzen; das ist fuer den Kobra 3 Max hier nicht bestaetigt.
+
+Die Card hat derzeit keine Option, die Kameraansicht automatisch als Startansicht zu oeffnen. `alwaysShow: true` zeigt Status und ACE-Bereich dauerhaft an, startet aber keine Kamera. Das automatische Oeffnen der Kamera waere eine eigene Erweiterung.
 
 Bei Druckern mit alternativer Firmware oder lokaler Kamera-Bruecke, z. B. Rinkhals/Moonraker, kann optional pro Drucker eine Home-Assistant-`camera.*`-Entity verwendet werden. Das ueberschreibt nicht die Standardkamera fuer alle Drucker, sondern nur den jeweils gemappten Drucker.
 
@@ -199,7 +229,7 @@ Anschliessend wird die Kamera im Anycubic-Panel nur fuer diesen Drucker gemappt.
 
 Das Mapping gehoert in die **Panel-Kartenkonfiguration** der Anycubic-Integration:
 
-1. **Einstellungen -> Geraete & Dienste -> Anycubic HA Integration**
+1. **Einstellungen -> Geraete & Dienste -> Anycubic Cloud**
 2. Beim Integrationseintrag **Konfigurieren** auswaehlen
 3. **Panel-Kartenkonfiguration** oeffnen
 4. Falls dort `null` steht, den Inhalt durch die YAML-Konfiguration ersetzen
@@ -237,26 +267,26 @@ Fuer einfache Setups mit nur einer Kamera kann weiterhin die bestehende Option `
 
 ## 📦 Installation über HACS (empfohlen)
 
-1. **HACS → Integrationen → ⋯ → Custom Repositories**
-2. Repository:  
-   https://github.com/ljschmitt/hass-anycubic_cloud_v3  
-   Kategorie: **Integration**
-3. **Daten neu laden**
-4. Integration in HACS suchen:  
-   **Anycubic HA Integration**
-5. Installieren → Home Assistant **neustarten**
-6. **Einstellungen → Geräte & Dienste → Integration hinzufügen**
+1. In **HACS** nach **Anycubic Cloud** suchen.
+2. Installieren → Home Assistant **neustarten**.
+3. **Einstellungen → Geräte & Dienste → Integration hinzufügen**.
+
+Falls ein aelterer HACS-Katalog die Integration noch nicht anzeigt, die Repository-Daten neu laden. Als Fallback kann `https://github.com/ljschmitt/hass-anycubic_cloud_v3` weiterhin unter **Custom Repositories** mit Kategorie **Integration** hinzugefuegt werden.
 
 > ⚠️ Wähle als Auth-Methode: **Slicer Next (Windows & macOS)**  
 > und füge den **Access-Token** ein (siehe unten).
 
-Updates werden von HACS nur dann automatisch angeboten, wenn diese Integration als HACS-Custom-Repository installiert wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
+HACS bietet Updates fuer die durch HACS verwaltete Installation an, unabhaengig davon, ob sie ueber den Standardkatalog oder als Custom Repository hinzugefuegt wurde. Bei manueller ZIP-Installation muss die Integration auch manuell aktualisiert werden.
 
 ### Brand-/Icon-Hinweis
 
 Home Assistant 2026.3 und neuer kann Brand-Bilder direkt aus `custom_components/anycubic_ha_integration/brand/` laden. Diese Integration liefert dafuer `icon.png`, `logo.png`, `dark_icon.png` und `dark_logo.png` mit.
 
-Wenn Home Assistant selbst das Icon korrekt zeigt, HACS in der Download-Liste aber weiterhin ein Platzhalter-Icon anzeigt, liegt das an der HACS-/Brands-CDN-Anzeige und nicht an den lokalen Brand-Dateien der Integration. Direkte Aufrufe von `/api/brands/integration/anycubic_ha_integration/icon.png` benoetigen ausserdem eine gueltige Home-Assistant-Authentifizierung; ohne Token ist ein `403 Forbidden` normal.
+**Bekannte HACS-2.0.5-Grenze:** [HACS verwendet fuer Update-Entity-Bilder weiterhin die oeffentliche Brands-CDN-URL](https://github.com/hacs/integration/blob/2.0.5/custom_components/hacs/update.py#L71-L79). Auch die alte HACS-Downloadliste verwendet den CDN-basierten `brandsUrl`-Helfer statt der lokalen Brand-Dateien. Die Aufnahme in den Standardkatalog kopiert diese Dateien nicht auf das CDN. Ein Platzhalter in HACS ist daher kein Nachweis fuer fehlende oder falsch abgelegte Integrationsbilder.
+
+Die lokale, authentifizierte URL `/api/brands/integration/anycubic_ha_integration/icon.png` muss dagegen ein PNG liefern; ohne Authentifizierung ist `403 Forbidden` normal. Bei einem lokalen Erfolg und einem HACS-Platzhalter liegt der Fehler im alten HACS-Bildpfad. Ein Browser-Cache-Refresh oder erneutes Hinzufuegen unseres Repositorys korrigiert diese fest codierte Quelle nicht.
+
+[Frenck bestaetigt die Korrektur im Marketplace ab Home Assistant 2026.11](https://github.com/hacs/integration/issues/5223#issuecomment-6222989180). Dessen [Update-Entity verwendet den lokalen Brands-Endpunkt](https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/marketplace/update.py#L94-L104). Ein Update bzw. eine Migration sollte nach der [offiziellen Marketplace-Ankuendigung](https://github.com/hacs/integration/issues/5590) geplant werden; die Integration patched oder aktualisiert HACS/Home Assistant nicht selbst.
 
 ---
 
@@ -268,7 +298,7 @@ Wenn Home Assistant selbst das Icon korrekt zeigt, HACS in der Download-Liste ab
 3. Home Assistant neu starten
 4. Integration hinzufügen wie oben
 
-Manuell installierte Versionen erhalten keine automatische Update-Anzeige in HACS. Fuer automatische Update-Hinweise bitte die Installation ueber HACS als Custom Repository verwenden.
+Manuell installierte Versionen erhalten keine automatische Update-Anzeige in HACS. Fuer automatische Update-Hinweise bitte die Installation ueber HACS verwalten.
 
 ---
 
@@ -389,6 +419,8 @@ Bitte bei Beta-Feedback keine Tokens, privaten IPs, Seriennummern, Drucker-IDs o
 
 ### Maintainer-Hinweis
 
+**Bereinigung ab 0.4.5-beta.1:** Die nicht zur Laufzeit benoetigten Diagnose-, Loesch-, Upload-/Druck-Helfer und ihre Token-Beispieldatei liegen unter [`scripts/anycubic_helpers/`](scripts/anycubic_helpers/README.md), der Uebersetzungsgenerator unter `scripts/build_translations.py`. Sie werden dadurch nicht mit der Integration installiert. Modulimporte starten keine Aktionen; alte Aufrufe unter `custom_components/.../scripts/` sind durch die dokumentierten Repository-Modulaufrufe zu ersetzen. CI und Entwickleranleitung verwenden den neuen Generatorpfad. Dies setzt den [Review-Hinweis von Frenck](https://github.com/hacs/default/pull/8869#pullrequestreview-5735268964) um.
+
 Die Projektversion wird zentral in `Version` gepflegt. Vor einem Release:
 
 ```powershell
@@ -436,4 +468,4 @@ GNU General Public License v3.0. Siehe [LICENSE](LICENSE).
 ## ✅ Kompatibilität
 
 - Home Assistant 2025.10.0 oder neuer
-- Getestet mit Home Assistant 2026.8.3
+- Home Assistant 2026.11.0 / Marketplace: Laden von Integration und Card sowie Kobra-X-Druckablauf mit der Beta geprueft

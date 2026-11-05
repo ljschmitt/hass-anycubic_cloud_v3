@@ -48,7 +48,7 @@ custom_components/anycubic_ha_integration/translations/input_translation_files/
 
 Aus diesen Quellen werden die endgültigen JSON-Dateien generiert mit:
 ```bash
-python custom_components/anycubic_ha_integration/scripts/build_translations.py
+python scripts/build_translations.py
 ```
 
 > Alle Service-Texte werden aus dem Abschnitt `common` erzeugt.
@@ -88,6 +88,8 @@ npm run build
 ---
 
 ## 🧰 Hinweise
+
+Entwickler-Helfer fuer Diagnose, Dateiaktionen und Metadaten liegen unter `scripts/anycubic_helpers/`, ausserhalb der installierten Integration. Aufruf und Abhaengigkeiten stehen in der [Helfer-Anleitung](scripts/anycubic_helpers/README.md). `--help` und Modulimporte fuehren keine Cloud- oder Druckeraktionen aus.
 
 - Prüfe vor dem Commit, dass keine temporären Build-Dateien (`node_modules`, `.cache`, `dist/`) eingecheckt werden.  
 - Änderungen an `manifest.json`, `translations`, oder dem Panel erfordern einen **Neustart von Home Assistant**.  
