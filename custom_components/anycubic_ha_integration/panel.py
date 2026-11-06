@@ -23,6 +23,7 @@ from .const import (
 from .helpers import extract_panel_card_config
 
 PANEL_URL = "/anycubic-cloud-panel-static"
+HARDWARE_IMAGES_URL = "/anycubic-cloud-hardware"
 
 
 def process_card_config(
@@ -62,12 +63,16 @@ async def async_register_panel(
     """Register the Anycubic Cloud frontend panel."""
     if DOMAIN not in hass.data.get("frontend_panels", {}):
         root_dir = os.path.join(hass.config.path(CUSTOM_COMPONENTS), INTEGRATION_FOLDER)
-        panel_dir = os.path.join(root_dir, PANEL_FOLDER)
-        view_url = os.path.join(panel_dir, PANEL_FILENAME)
         module_url = await hass.async_add_executor_job(get_panel_module_url, root_dir)
+        domain_data = hass.data.setdefault(DOMAIN, {})
+        if not domain_data.get("hardware_images_registered"):
+            await hass.http.async_register_static_paths(
+                [StaticPathConfig(HARDWARE_IMAGES_URL, os.path.join(root_dir, "hardware_images"), cache_headers=False)]
+            )
+            domain_data["hardware_images_registered"] = True
         try:
             await hass.http.async_register_static_paths(
-                [StaticPathConfig(PANEL_URL, view_url, cache_headers=False)]
+                [StaticPathConfig(PANEL_URL, os.path.join(root_dir, PANEL_FOLDER, PANEL_FILENAME), cache_headers=False)]
             )
         except RuntimeError as e:
             if "already registered" not in str(e):

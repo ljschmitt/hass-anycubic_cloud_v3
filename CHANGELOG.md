@@ -2,7 +2,7 @@
 
 ## 0.4.6-beta.4
 
-- Center the hardware previews and use the standard spool diameter for their size. Load optional local hardware images in the Anycubic Cloud sidebar panel as well as the dashboard card.
+- Center hardware previews at the standard spool diameter. Serve the original Slicer Next plate and nozzle artwork from the integration for both the sidebar panel and dashboard card. Existing dashboard image overrides take precedence.
 
 ## 0.4.6-beta.3
 

@@ -60,6 +60,7 @@ const buildPlateTypes = [
   "low_temperature_plate",
 ];
 const nozzleMaterials = ["brass", "hardened_steel"];
+const bundledHardwareImagePath = "/anycubic-cloud-hardware";
 const nozzleOptions: Record<string, [material: string, diameter: number]> = {
   steel_04: ["hardened_steel", 0.4],
   steel_06: ["hardened_steel", 0.6],
@@ -730,17 +731,19 @@ export class AnycubicPrintercardCard extends LitElement {
       typeof this.hardwareImagePath === "string"
         ? this.hardwareImagePath.replace(/\/$/, "")
         : "";
-    if (
-      !/^\/local(?:\/[a-z0-9_-]+)+$/i.test(folder) ||
-      !knownStates.includes(hardwareState)
-    ) {
+    if (!knownStates.includes(hardwareState)) {
       return nothing;
     }
-    const source = `${folder}/${hardwareState}.png`;
+    const bundled = `${bundledHardwareImagePath}/${hardwareState}.png`;
+    const local = /^\/local(?:\/[a-z0-9_-]+)+$/i.test(folder)
+      ? `${folder}/${hardwareState}.png`
+      : "";
+    const source = local || bundled;
     return html`${keyed(
       source,
       html`<img
         src=${source}
+        data-bundled-src=${bundled}
         alt=${alt}
         width="44"
         height="44"
@@ -752,7 +755,17 @@ export class AnycubicPrintercardCard extends LitElement {
   }
 
   private _updateHardwareImage = (event: Event): void => {
-    (event.currentTarget as HTMLImageElement).hidden = event.type === "error";
+    const image = event.currentTarget as HTMLImageElement;
+    const bundled = image.dataset.bundledSrc;
+    if (
+      event.type === "error" &&
+      bundled &&
+      image.getAttribute("src") !== bundled
+    ) {
+      image.src = bundled;
+      return;
+    }
+    image.hidden = event.type === "error";
   };
 
   private _toggleVideo = (): void => {
