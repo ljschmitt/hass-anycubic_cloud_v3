@@ -4,6 +4,7 @@ from math import isfinite
 from typing import TYPE_CHECKING, Any
 
 from ..const.enums import (
+    KOBRA_X_BUILD_PLATE_TYPES,
     AnycubicFunctionID,
     AnycubicPrinterMaterialType,
     AnycubicPrintStatus,
@@ -1513,6 +1514,21 @@ class AnycubicPrinter:
     @property
     def hardware_settings(self) -> dict[str, int | float]:
         return self._hardware_settings.copy()
+
+    def apply_hardware_properties(self, properties: dict[str, Any]) -> None:
+        """Apply a readback from the printer properties endpoint."""
+        data = {key: properties[key] for key in ("head_channel_count", "hotbed_settings", "hardware_settings") if key in properties}
+        self._process_mqtt_update_properties(AnycubicConsumableData(data))
+
+    @property
+    def build_plate_type(self) -> str | None:
+        """Return the last plate type reported by the printer."""
+        material = self._hardware_settings.get("build_plate_material_code")
+        if material is None:
+            return None
+        if self.is_kobra_x and isinstance(material, int):
+            return KOBRA_X_BUILD_PLATE_TYPES.get(material, "unmapped")
+        return "unmapped"
 
     @property
     def calibration_snapshot(self) -> dict[str, int | str]:

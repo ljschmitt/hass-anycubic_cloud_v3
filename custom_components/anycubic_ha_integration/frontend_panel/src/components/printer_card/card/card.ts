@@ -29,6 +29,7 @@ import {
   getPrinterEntities,
   getPrinterEntityIdPart,
   getPrinterSensorStateObj,
+  getStrictMatchingEntity,
   isPrintStatePrinting,
   printStateStatusColor,
   undefinedDefault,
@@ -454,6 +455,7 @@ export class AnycubicPrintercardCard extends LitElement {
     const plateLabel = hasValue(plate)
       ? translate(buildPlateTypes.includes(plate) ? plate : "unmapped")
       : "";
+    const plateSelect = this._buildPlateSelect();
 
     return plateLabel || nozzle
       ? html`
@@ -463,7 +465,19 @@ export class AnycubicPrintercardCard extends LitElement {
                   ${this._renderHardwareImage(plate, buildPlateTypes)}
                   <dl>
                     <dt>${translate("build_plate")}</dt>
-                    <dd>${plateLabel}</dd>
+                    <dd>
+                      ${plateSelect && hasValue(plateSelect.state)
+                        ? html`<button
+                            type="button"
+                            class="ac-hardware-select"
+                            aria-label=${translate("change_plate")}
+                            title=${translate("change_plate")}
+                            @click=${this._openBuildPlateSelect}
+                          >
+                            ${plateLabel}
+                          </button>`
+                        : plateLabel}
+                    </dd>
                   </dl>
                 </div>`
               : nothing}
@@ -480,6 +494,25 @@ export class AnycubicPrintercardCard extends LitElement {
         `
       : nothing;
   }
+
+  private _buildPlateSelect(): HassEntity | undefined {
+    return getEntityState(
+      this.hass,
+      getStrictMatchingEntity(
+        this.printerEntities,
+        this.printerEntityIdPart,
+        "select",
+        "build_plate_selection",
+      ),
+    );
+  }
+
+  private _openBuildPlateSelect = (): void => {
+    const entity = this._buildPlateSelect();
+    if (entity && entity.state !== "unavailable") {
+      fireEvent(this, "hass-more-info", { entityId: entity.entity_id });
+    }
+  };
 
   private _renderHardwareImage(
     hardwareState: string,
@@ -916,6 +949,17 @@ export class AnycubicPrintercardCard extends LitElement {
         margin: 0;
         color: var(--primary-text-color);
         overflow-wrap: anywhere;
+      }
+
+      .ac-hardware-select {
+        background: none;
+        border: 0;
+        padding: 0;
+        color: var(--primary-color);
+        cursor: pointer;
+        font: inherit;
+        text-align: start;
+        text-decoration: underline;
       }
 
       .ac-printer-card-mcbsection {

@@ -27,6 +27,7 @@ from ..data_models.orders import (
     AnycubicBaseStartPrintRequest,
     AnycubicCameraSession,
     AnycubicCameraToken,
+    AnycubicDataOrderRequest,
     AnycubicProjectCtrlOrderRequest,
     AnycubicProjectOrderRequest,
     AnycubicStartPrintRequestCloud,
@@ -434,6 +435,35 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             self._log_to_error(f"Empty reply when sending order to Anycubic Cloud, message: {error_message}")
 
         return data
+
+    async def query_printer_hardware(self, printer: AnycubicPrinter) -> dict[str, Any]:
+        """Read the hardware fields reported through the cloud workbench."""
+        keys = ("head_channel_count", "hotbed_settings", "hardware_settings", "device_state", "device_status")
+        response = await self._fetch_api_resp(
+            endpoint=API_ENDPOINT.printer_properties,
+            params={"printer_id": printer.id, "properties": list(keys)},
+        )
+        if not isinstance(response, dict) or response.get("code") != 1 or not isinstance(properties := response.get("data"), dict):
+            raise AnycubicAPIError("Anycubic did not return printer hardware settings.")
+        return {
+            key: field["value"]
+            for key in keys
+            if isinstance(field := properties.get(key), dict) and "value" in field
+        }
+
+    async def send_build_plate_order(
+        self, printer: AnycubicPrinter, material_code: int, head_channel_count: int
+    ) -> bool:
+        """Submit the Slicer workbench's build plate order."""
+        result = await self._send_anycubic_order(
+            AnycubicDataOrderRequest(
+                order_id=AnycubicOrderID.WRITE_PRINTER_PROPERTIES,
+                printer_id=printer.id,
+                data={"hotbed_settings": {"material": material_code}, "head_channel_count": head_channel_count},
+            ),
+            raw_data=True,
+        )
+        return isinstance(result, dict) and result.get("code") == 1
 
     async def _send_order_multi_color_box_set_slot(
         self,

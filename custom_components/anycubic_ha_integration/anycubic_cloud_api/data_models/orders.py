@@ -41,6 +41,20 @@ class AnycubicBaseOrderRequest:
         )
 
 
+class AnycubicDataOrderRequest(AnycubicBaseOrderRequest):
+    """An order with data and no print project."""
+
+    __slots__ = ("_data",)
+
+    def __init__(self, order_id: int, printer_id: int, data: dict[str, Any]) -> None:
+        super().__init__(order_id, printer_id)
+        self._data = data
+
+    @property
+    def order_request_data(self) -> dict[str, Any]:
+        return {**super().order_request_data, "data": self._data}
+
+
 class AnycubicBaseProjectOrderRequest(AnycubicBaseOrderRequest):
     __slots__ = (
         "_project_id",

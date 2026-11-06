@@ -65,6 +65,14 @@ class AnycubicOrderID(IntEnum):
     QUERY_PERIPHERALS = 1231
     GET_LIGHT_STATUS = 1232
     SET_LIGHT_STATUS = 1233
+    WRITE_PRINTER_PROPERTIES = 1253
+
+
+KOBRA_X_BUILD_PLATE_TYPES = {
+    1: "textured_pei_plate",
+    2: "smooth_transfer_plate",
+    3: "low_temperature_plate",
+}
 
 
 class AnycubicFunctionID(IntEnum):

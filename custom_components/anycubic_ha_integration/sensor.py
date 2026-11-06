@@ -23,6 +23,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
+from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES
 from .const import (
     COORDINATOR,
     DOMAIN,
@@ -235,7 +236,7 @@ SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
         key="build_plate_type",
         translation_key="build_plate_type",
         device_class=SensorDeviceClass.ENUM,
-        options=["textured_pei_plate", "smooth_transfer_plate", "low_temperature_plate", "unmapped"],
+        options=[*KOBRA_X_BUILD_PLATE_TYPES.values(), "unmapped"],
         entity_category=EntityCategory.DIAGNOSTIC,
         printer_entity_type=PrinterEntityType.PRINTER,
         create_when_available=True,

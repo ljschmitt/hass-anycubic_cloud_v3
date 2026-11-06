@@ -96,6 +96,7 @@ PLATFORMS = [
     Platform.BUTTON,
     Platform.IMAGE,
     Platform.LIGHT,
+    Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.UPDATE,

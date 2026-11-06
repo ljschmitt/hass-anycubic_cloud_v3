@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6-beta.2
+
+- Read Kobra X hardware settings through the cloud and expose a build plate selector for supported printers. Confirm the selected plate through a fresh readback and reject writes while printing or offline.
+- Open the Home Assistant plate selector from the displayed plate type in the panel and dashboard card.
+
 ## 0.4.6-beta.1
 
 - Process the Kobra X 2.0.2.8 temperature query, firmware completion and update step reports in the existing entities. Keep calibration query data as a diagnostic snapshot and recognize the observed successful file and empty material acknowledgements.

@@ -69,6 +69,7 @@
   "card": {
     "hardware": {
       "build_plate": "Druckplatte",
+      "change_plate": "Druckplattentyp ändern",
       "nozzle": "Düse",
       "textured_pei_plate": "Texturierte PEI-Druckplatte",
       "smooth_transfer_plate": "Glatte / Transfer-Platte",

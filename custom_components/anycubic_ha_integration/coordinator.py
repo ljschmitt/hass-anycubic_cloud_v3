@@ -28,6 +28,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .anycubic_cloud_api.anycubic_api import AnycubicMQTTAPI as AnycubicAPI
+from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES
 from .anycubic_cloud_api.exceptions.exceptions import AnycubicAPIError, AnycubicAPIParsingError
 from .const import (
     API_SETUP_RETRIES,
@@ -103,6 +104,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._mqtt_file_list_check_lock = asyncio.Lock()
         self._mqtt_last_refresh: int | None = None
         self._mqtt_last_multi_color_info_request: dict[int, int] = dict()
+        self._hardware_properties_loaded: set[int] = set()
+        self._build_plate_write_lock = asyncio.Lock()
         self._printer_device_map: dict[str, int] | None = None
         mqtt_connect_mode = self.entry.options.get(CONF_MQTT_CONNECT_MODE)
         self._mqtt_connection_mode = (
@@ -234,15 +237,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         calibration = printer.calibration_snapshot
         plate_code = hardware.get('build_plate_material_code')
         nozzle_material_code = hardware.get('nozzle_material_code')
-        build_plate_type = None
-        if plate_code is not None:
-            build_plate_type = 'unmapped'
-            if printer.is_kobra_x and isinstance(plate_code, int):
-                build_plate_type = {
-                    1: 'textured_pei_plate',
-                    2: 'smooth_transfer_plate',
-                    3: 'low_temperature_plate',
-                }.get(plate_code, 'unmapped')
+        build_plate_type = printer.build_plate_type
         nozzle_material = None
         if nozzle_material_code is not None:
             nozzle_material = 'unmapped'
@@ -260,6 +255,11 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "is_available": printer.is_available,
             "current_status": printer.current_status,
             "build_plate_type": build_plate_type,
+            "build_plate_selection": (
+                build_plate_type
+                if printer.is_kobra_x and build_plate_type != "unmapped" and hardware.get("head_channel_count", 0) > 0
+                else None
+            ),
             "nozzle_diameter": hardware.get('nozzle_diameter'),
             "nozzle_material": nozzle_material,
             "curr_nozzle_temp": printer.curr_nozzle_temp,
@@ -955,6 +955,8 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             for printer_id, printer in self._anycubic_printers.items():
                 await printer.update_info_from_api(True)
+                if printer.is_kobra_x and printer.printer_online and printer_id not in self._hardware_properties_loaded:
+                    await self._read_initial_hardware_properties(printer)
 
             self._failed_updates = 0
 
@@ -981,6 +983,64 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._last_state_update = int(time.time())
 
         return True
+
+    async def _read_initial_hardware_properties(self, printer: AnycubicPrinter) -> None:
+        previous = printer.hardware_settings
+        try:
+            async with asyncio.timeout(6):
+                properties = await self.anycubic_api.query_printer_hardware(printer)
+            if printer.hardware_settings == previous:
+                printer.apply_hardware_properties(properties)
+            self._hardware_properties_loaded.add(printer.id)
+        except (AnycubicAPIError, TimeoutError, ValueError, TypeError):
+            LOGGER.debug("Could not read Kobra X hardware properties during refresh.")
+
+    async def async_select_build_plate(self, printer_id: int, option: str) -> None:
+        """Write the plate setting and wait for the cloud's printer readback."""
+        printer = self.get_printer_for_id(printer_id)
+        code = next((code for code, name in KOBRA_X_BUILD_PLATE_TYPES.items() if name == option), None)
+        if printer is None or not printer.is_kobra_x or code is None:
+            raise HomeAssistantError("This build plate selection is unsupported.")
+        if self._build_plate_write_lock.locked():
+            raise HomeAssistantError("A build plate change is already in progress.")
+
+        async with self._build_plate_write_lock:
+            try:
+                async with asyncio.timeout(18):
+                    properties = await self.anycubic_api.query_printer_hardware(printer)
+                    channels = properties.get("head_channel_count")
+                    plate = properties.get("hotbed_settings")
+                    if (
+                        not isinstance(channels, int) or isinstance(channels, bool) or channels <= 0
+                        or not isinstance(plate, dict) or type(plate.get("material")) is not int
+                        or plate["material"] not in KOBRA_X_BUILD_PLATE_TYPES
+                    ):
+                        raise HomeAssistantError("The printer did not report a supported build plate configuration.")
+                    if (
+                        properties.get("device_status") != "online"
+                        or type(properties.get("device_state")) is not int
+                        or properties["device_state"] != 0
+                        or not printer.is_available
+                        or printer.latest_project_print_in_progress
+                    ):
+                        raise HomeAssistantError("The printer must be online and idle to change the build plate type.")
+                    if plate["material"] != code:
+                        if not await self.anycubic_api.send_build_plate_order(printer, code, channels):
+                            raise HomeAssistantError("Anycubic did not acknowledge the build plate request.")
+                        while True:
+                            await asyncio.sleep(1.5)
+                            reported = await self.anycubic_api.query_printer_hardware(printer)
+                            readback = reported.get("hotbed_settings")
+                            if isinstance(readback, dict) and type(readback.get("material")) is int and readback["material"] == code:
+                                break
+                    printer.apply_hardware_properties({
+                        "hotbed_settings": {"material": code}, "head_channel_count": channels,
+                    })
+                    await self._async_force_data_refresh()
+            except (AnycubicAPIError, TimeoutError) as error:
+                raise HomeAssistantError(
+                    "Could not confirm the build plate type. Check the printer before trying again."
+                ) from error
 
     def get_printer_for_id(
         self,

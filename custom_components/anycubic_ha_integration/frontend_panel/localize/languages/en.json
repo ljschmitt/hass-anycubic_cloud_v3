@@ -69,6 +69,7 @@
   "card": {
     "hardware": {
       "build_plate": "Build plate",
+      "change_plate": "Change build plate type",
       "nozzle": "Nozzle",
       "textured_pei_plate": "Textured PEI plate",
       "smooth_transfer_plate": "Smooth / transfer plate",

@@ -200,6 +200,16 @@
         "name": "Camera Light"
       }
     },
+    "select": {
+      "build_plate_selection": {
+        "name": "Build Plate Selection",
+        "state": {
+          "textured_pei_plate": "Texturierte PEI-Druckplatte",
+          "smooth_transfer_plate": "Glatte / Transfer-Platte",
+          "low_temperature_plate": "Niedertemperatur-Platte"
+        }
+      }
+    },
     "sensor": {
       "current_status": {
         "name": "Current Status"
