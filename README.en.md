@@ -69,6 +69,14 @@ Fan `query` responses update the existing fan fields. Known informational `extru
 
 The Kobra X completed a print through cooldown on the beta and acknowledged an ACE stop from Home Assistant. The observed leveling, filament change and drying messages were replayed against the fixes. Hardware feedback on preset visibility, start, status and stop remains open for the S1 Max and Kobra 3 Max. On dual ACEs, verify that stopping one leaves the other running.
 
+### Kobra X hardware diagnostics and firmware reports
+
+Starting with **0.4.6-beta.1**, **Build Plate Type**, **Nozzle Diameter**, and **Nozzle Material** appear as diagnostic entities after the corresponding MQTT reports arrive. On the Kobra X, build plate codes `1`, `2`, and `3` identify textured PEI, smooth / transfer, and low-temperature plates. Nozzle material codes `1` and `2` identify brass and hardened steel. These mappings are specific to the Kobra X. Unmapped codes remain visible in the `material_code` attribute. The nozzle diameter is shown in millimeters, including values such as 0.25 mm.
+
+The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. The display is read-only and omits entries without reported values.
+
+**Current Status** includes the last reported calibration snapshot. Firmware and temperature reports update the existing entities. Successful file and preview acknowledgements leave file lists intact.
+
 ## Screenshots
 
 <img width="420" alt="Anycubic Kobra 3 status panel" src="screenshots/kobra3-1.png">

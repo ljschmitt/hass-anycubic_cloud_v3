@@ -67,6 +67,16 @@
     }
   },
   "card": {
+    "hardware": {
+      "build_plate": "Druckplatte",
+      "nozzle": "Düse",
+      "textured_pei_plate": "Texturierte PEI-Druckplatte",
+      "smooth_transfer_plate": "Glatte / Transfer-Platte",
+      "low_temperature_plate": "Niedertemperatur-Platte",
+      "brass": "Messing",
+      "hardened_steel": "Gehärteter Stahl",
+      "unmapped": "Ohne Zuordnung"
+    },
     "buttons": {
       "print_settings": "Druckeinstellungen",
       "dry": "Trocknen",

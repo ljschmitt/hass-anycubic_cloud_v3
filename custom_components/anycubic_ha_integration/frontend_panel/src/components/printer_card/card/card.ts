@@ -52,6 +52,12 @@ const animOptionsCard: motionOptions = {
 };
 
 const defaultMonitoredStats: PrinterCardStatType[] = getDefaultMonitoredStats();
+const buildPlateTypes = [
+  "textured_pei_plate",
+  "smooth_transfer_plate",
+  "low_temperature_plate",
+];
+const nozzleMaterials = ["brass", "hardened_steel"];
 
 @customElementIfUndef("anycubic-printercard-card")
 export class AnycubicPrintercardCard extends LitElement {
@@ -410,11 +416,60 @@ export class AnycubicPrintercardCard extends LitElement {
           ></anycubic-printercard-stats-component>
         </div>
       </div>
+      ${this.isHidden ? nothing : this._renderHardwareSettings()}
       ${this._renderPrintSettingsContainer()}
       ${this._renderMaterialRackContainer()}
       ${this._renderMultiColorBoxContainer()}
       ${this._renderSecondaryMultiColorBoxContainer()}
     `;
+  }
+
+  private _renderHardwareSettings(): LitTemplateResult | typeof nothing {
+    const sensor = (suffix: string): HassEntity =>
+      getPrinterSensorStateObj(
+        this.hass,
+        this.printerEntities,
+        this.printerEntityIdPart,
+        suffix,
+      );
+    const translate = (key: string): string =>
+      localize(`card.hardware.${key}`, this.language);
+    const hasValue = (value: string): boolean =>
+      !["", "unknown", "unavailable"].includes(value);
+    const plate = sensor("build_plate_type").state;
+    const material = sensor("nozzle_material").state;
+    const diameterSensor = sensor("nozzle_diameter");
+    const diameter = Number(diameterSensor.state);
+    const diameterLabel =
+      Number.isFinite(diameter) && diameter > 0
+        ? `${new Intl.NumberFormat(this.language, { maximumFractionDigits: 2 }).format(diameter)} ${diameterSensor.attributes.unit_of_measurement ?? "mm"}`
+        : "";
+    const materialLabel = hasValue(material)
+      ? translate(nozzleMaterials.includes(material) ? material : "unmapped")
+      : "";
+    const nozzle = [materialLabel, diameterLabel].filter(Boolean).join(" · ");
+    const plateLabel = hasValue(plate)
+      ? translate(buildPlateTypes.includes(plate) ? plate : "unmapped")
+      : "";
+
+    return plateLabel || nozzle
+      ? html`
+          <dl class="ac-printer-card-hardware">
+            ${plateLabel
+              ? html`<div>
+                  <dt>${translate("build_plate")}</dt>
+                  <dd>${plateLabel}</dd>
+                </div>`
+              : nothing}
+            ${nozzle
+              ? html`<div>
+                  <dt>${translate("nozzle")}</dt>
+                  <dd>${nozzle}</dd>
+                </div>`
+              : nothing}
+          </dl>
+        `
+      : nothing;
   }
 
   private _toggleVideo = (): void => {
@@ -783,6 +838,32 @@ export class AnycubicPrintercardCard extends LitElement {
         padding-right: 32px;
         width: 100%;
         height: auto;
+      }
+
+      .ac-printer-card-hardware {
+        align-self: stretch;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin: 0 16px 12px;
+        padding: 8px 0 0;
+        border-top: 1px solid var(--divider-color);
+      }
+
+      .ac-printer-card-hardware > div {
+        flex: 1 1 10rem;
+        min-width: 0;
+      }
+
+      .ac-printer-card-hardware dt {
+        color: var(--secondary-text-color);
+        font-size: 0.875rem;
+      }
+
+      .ac-printer-card-hardware dd {
+        margin: 0;
+        color: var(--primary-text-color);
+        overflow-wrap: anywhere;
       }
 
       .ac-printer-card-mcbsection {

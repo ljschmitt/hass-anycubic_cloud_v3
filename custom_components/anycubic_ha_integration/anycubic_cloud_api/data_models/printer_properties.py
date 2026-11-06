@@ -837,6 +837,7 @@ class AnycubicMachineFirmwareInfo:
         "_download_progress",
         "_is_downloading",
         "_is_updating",
+        "_update_steps",
     )
 
     def __init__(
@@ -866,6 +867,7 @@ class AnycubicMachineFirmwareInfo:
         self._download_progress: int = 0
         self._is_downloading: bool = False
         self._is_updating: bool = False
+        self._update_steps: tuple[int, int] | None = None
 
     @property
     def firmware_version(self) -> str:
@@ -890,8 +892,12 @@ class AnycubicMachineFirmwareInfo:
                 return min(self._download_progress / 2, 100)
             elif self._update_progress > 0:
                 return min(self._update_progress / 2 + 50, 100)
-            return 1
+            return True
         return False
+
+    @property
+    def update_steps(self) -> tuple[int, int] | None:
+        return self._update_steps
 
     @property
     def available_version(self) -> str | None:
@@ -944,16 +950,19 @@ class AnycubicMachineFirmwareInfo:
     def update_version(self, new_version: str) -> None:
         if self._firmware_version != str(new_version):
             self.set_firmware_version(new_version)
-
-            if self._is_updating:
-                self.set_is_updating(False)
-
-            if self._is_downloading:
-                self.set_is_downloading(False)
-
-            self.set_download_progress(0)
-            self.set_update_progress(0)
+            self.finish_update()
             self.set_need_update(0)
+
+    def finish_update(self) -> None:
+        self.set_is_updating(False)
+        self.set_is_downloading(False)
+        self.set_download_progress(0)
+        self.set_update_progress(0)
+        self._update_steps = None
+
+    def set_update_steps(self, current: int | None, total: int | None) -> None:
+        if current is not None and total is not None and 0 <= current <= total and total > 0:
+            self._update_steps = (current, total)
 
     def set_need_update(self, need_update: int) -> None:
         self._need_update = int(need_update)

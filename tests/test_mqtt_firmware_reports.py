@@ -211,6 +211,122 @@ class FirmwareMQTTTests(unittest.TestCase):
                 **properties, "hardware_settings": {**properties["hardware_settings"], "future_field": 1},
             })
 
+    def test_firmware_properties_update_only_the_reported_settings(self):
+        device = printer(model=20030)
+        self.assertIsNone(build_sensor_data(device)["states"]["build_plate_type"])
+        self.assertIsNone(build_sensor_data(device)["states"]["nozzle_material"])
+        report(device, "properties", "report", "done", {
+            "hardware_settings": {"diameter": "0.4", "material": 2}, "hotbed_settings": {"material": 1},
+        })
+        self.assertEqual(build_sensor_data(device)["states"]["build_plate_type"], "textured_pei_plate")
+        report(device, "properties", "write", "done", {"head_channel_count": 4, "hotbed_settings": {"material": 3}})
+        result = build_sensor_data(device)
+        self.assertEqual(result["states"]["build_plate_type"], "low_temperature_plate")
+        self.assertEqual(result["attributes"]["build_plate_type"]["material_code"], 3)
+        self.assertEqual(result["states"]["nozzle_diameter"], 0.4)
+        self.assertEqual(result["attributes"]["nozzle_diameter"]["material_code"], 2)
+        self.assertEqual(result["states"]["nozzle_material"], "hardened_steel")
+        self.assertEqual(result["attributes"]["current_status"]["hardware_settings"]["head_channel_count"], 4)
+
+        report(device, "properties", "write", "done", {"hotbed_settings": {"material": 2}})
+        self.assertEqual(build_sensor_data(device)["states"]["build_plate_type"], "smooth_transfer_plate")
+
+        report(device, "properties", "write", "done", {"hotbed_settings": {"material": 99}})
+        result = build_sensor_data(device)
+        self.assertEqual(result["states"]["build_plate_type"], "unmapped")
+        self.assertEqual(result["attributes"]["build_plate_type"]["material_code"], 99)
+
+        other = printer(model=20029)
+        report(other, "properties", "report", "done", {"hotbed_settings": {"material": 3}})
+        self.assertEqual(build_sensor_data(other)["states"]["build_plate_type"], "unmapped")
+
+    def test_nozzle_write_keeps_reported_precision_and_model_specific_material(self):
+        device = printer(model=20030)
+        report(device, "properties", "write", "done", {
+            "hardware_settings": {"diameter": "0.25", "material": 1},
+        })
+        result = build_sensor_data(device)
+        self.assertEqual(result["states"]["nozzle_diameter"], 0.25)
+        self.assertEqual(result["states"]["nozzle_material"], "brass")
+        self.assertEqual(result["attributes"]["nozzle_material"]["material_code"], 1)
+
+        report(device, "properties", "write", "done", {
+            "hardware_settings": {"diameter": "0.4", "material": 2},
+        })
+        result = build_sensor_data(device)
+        self.assertEqual(result["states"]["nozzle_diameter"], 0.4)
+        self.assertEqual(result["states"]["nozzle_material"], "hardened_steel")
+
+        report(device, "properties", "write", "done", {"hardware_settings": {"material": 99}})
+        result = build_sensor_data(device)
+        self.assertEqual(result["states"]["nozzle_diameter"], 0.4)
+        self.assertEqual(result["states"]["nozzle_material"], "unmapped")
+        self.assertEqual(result["attributes"]["nozzle_material"]["material_code"], 99)
+
+        other = printer(model=20029)
+        report(other, "properties", "report", "done", {"hardware_settings": {"diameter": "0.4", "material": 2}})
+        result = build_sensor_data(other)
+        self.assertEqual(result["states"]["nozzle_diameter"], 0.4)
+        self.assertEqual(result["states"]["nozzle_material"], "unmapped")
+        self.assertEqual(result["attributes"]["nozzle_material"]["material_code"], 2)
+
+    def test_temperature_queries_update_existing_temperature_entities(self):
+        device = printer(model=20030, project=cloud_project(model=20030))
+        device._set_parameter({"curr_hotbed_temp": 20, "curr_nozzle_temp": 20})
+        data = {"curr_hotbed_temp": 22, "curr_nozzle_temp": 27, "target_hotbed_temp": 0, "target_nozzle_temp": 0}
+        report(device, "tempature", "query", "done", data)
+        states = build_sensor_data(device)["states"]
+        for key, value in data.items():
+            self.assertEqual(states[key], value)
+        with self.assertRaises(AnycubicMQTTUnknownUpdate):
+            report(device, "tempature", "query", "done", data, code=500)
+
+    def test_ota_steps_and_completion_update_existing_firmware_state(self):
+        device = printer(model=20030)
+        device._set_fw_version({"need_update": 1, "firmware_version": "2.0.2.2", "target_version": "2.0.2.8"})
+        report(device, "ota", "update", "start", None)
+        self.assertIs(device.fw_version.total_progress, True)
+        report(device, "ota", "update", "updating", {"current_progress": 80, "current_step": 1, "total_step": 1})
+        attributes = build_sensor_data(device)["attributes"]["fw_version"]
+        self.assertEqual(attributes["in_progress"], 90)
+        self.assertEqual(attributes["update_steps"], (1, 1))
+        with self.assertRaises(AnycubicMQTTUnknownUpdate):
+            report(device, "ota", "update", "update-success", None, code=500)
+        report(device, "ota", "update", "update-success", None)
+        self.assertFalse(device.fw_version.is_updating)
+        self.assertIsNone(device.fw_version.update_steps)
+        self.assertEqual(device.fw_version.firmware_version, "2.0.2.2")
+        report(device, "ota", "reportVersion", "done", {"firmware_version": "2.0.2.8"})
+        self.assertEqual(device.fw_version.firmware_version, "2.0.2.8")
+
+    def test_calibration_snapshot_is_separate_from_the_print_job(self):
+        device = printer(model=20030, project=cloud_project(progress=48))
+        data = {"status": "idle", "current_item": "", "current_stage": "", "remain_time_s": 0}
+        report(device, "calibration", "getInfo", "done", {**data, "results": [], "stage_extra": None})
+        result = build_sensor_data(device)
+        self.assertEqual(result["attributes"]["current_status"]["calibration"], data)
+        self.assertEqual(result["states"]["job_state"], "printing")
+        self.assertEqual(result["states"]["job_progress"], 48)
+        with self.assertRaises(AnycubicMQTTUnhandledData):
+            report(device, "calibration", "getInfo", "done", {**data, "results": [{"future_result": 1}]})
+
+    def test_successful_file_acknowledgements_do_not_replace_file_lists(self):
+        device = printer(model=20030)
+        report(device, "file", "listLocal", "done", {"records": [], "path": "/test"})
+        request = {"fileSize": 123, "filename": "test.gcode", "path": "/test"}
+        report(device, "file", "getPreSignedUrl", "done", request)
+        report(device, "file", "saveFileThumbnail", "done", {
+            "fileKey": "synthetic", "filename": "test.gcode", "thumbnailUrl": "fthumb/synthetic.jpg",
+        })
+        report(device, "file", "fileThumbnailList", "done", None)
+        report(device, "material", "getCustomMaterials", "done", None)
+        self.assertEqual(device.local_file_list_object, [])
+        self.assertEqual(device.local_file_list_path, "/test")
+        with self.assertRaises(AnycubicMQTTUnhandledData):
+            report(device, "file", "getPreSignedUrl", "done", {**request, "future_field": True})
+        with self.assertRaises(AnycubicMQTTUnknownUpdate):
+            report(device, "file", "getPreSignedUrl", "done", request, code=500)
+
     def test_kobra_x_ace_drying_survives_empty_cloud_status(self):
         device = printer(model=20030)
         device._device_status = 1

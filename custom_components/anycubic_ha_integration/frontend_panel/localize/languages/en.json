@@ -67,6 +67,16 @@
     }
   },
   "card": {
+    "hardware": {
+      "build_plate": "Build plate",
+      "nozzle": "Nozzle",
+      "textured_pei_plate": "Textured PEI plate",
+      "smooth_transfer_plate": "Smooth / transfer plate",
+      "low_temperature_plate": "Low-temperature plate",
+      "brass": "Brass",
+      "hardened_steel": "Hardened steel",
+      "unmapped": "Unrecognized"
+    },
     "buttons": {
       "print_settings": "Print Settings",
       "dry": "Dry",

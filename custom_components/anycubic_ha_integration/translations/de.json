@@ -204,6 +204,26 @@
       "current_status": {
         "name": "Current Status"
       },
+      "build_plate_type": {
+        "name": "Build Plate Type",
+        "state": {
+          "textured_pei_plate": "Texturierte PEI-Druckplatte",
+          "smooth_transfer_plate": "Glatte / Transfer-Platte",
+          "low_temperature_plate": "Niedertemperatur-Platte",
+          "unmapped": "Plattentyp ohne Zuordnung"
+        }
+      },
+      "nozzle_diameter": {
+        "name": "Nozzle Diameter"
+      },
+      "nozzle_material": {
+        "name": "Nozzle Material",
+        "state": {
+          "brass": "Messing",
+          "hardened_steel": "Gehärteter Stahl",
+          "unmapped": "Düsenmaterial ohne Zuordnung"
+        }
+      },
       "curr_nozzle_temp": {
         "name": "Nozzle Temperature"
       },

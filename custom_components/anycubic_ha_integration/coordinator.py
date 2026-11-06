@@ -230,6 +230,27 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         file_list_local = printer.local_file_list_object
         file_list_udisk = printer.udisk_file_list_object
         file_list_cloud = self._cloud_file_list
+        hardware = printer.hardware_settings
+        calibration = printer.calibration_snapshot
+        plate_code = hardware.get('build_plate_material_code')
+        nozzle_material_code = hardware.get('nozzle_material_code')
+        build_plate_type = None
+        if plate_code is not None:
+            build_plate_type = 'unmapped'
+            if printer.is_kobra_x and isinstance(plate_code, int):
+                build_plate_type = {
+                    1: 'textured_pei_plate',
+                    2: 'smooth_transfer_plate',
+                    3: 'low_temperature_plate',
+                }.get(plate_code, 'unmapped')
+        nozzle_material = None
+        if nozzle_material_code is not None:
+            nozzle_material = 'unmapped'
+            if printer.is_kobra_x and isinstance(nozzle_material_code, int):
+                nozzle_material = {
+                    1: 'brass',
+                    2: 'hardened_steel',
+                }.get(nozzle_material_code, 'unmapped')
 
         states = {
             "id": printer.id,
@@ -238,6 +259,9 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "is_busy": printer.is_busy,
             "is_available": printer.is_available,
             "current_status": printer.current_status,
+            "build_plate_type": build_plate_type,
+            "nozzle_diameter": hardware.get('nozzle_diameter'),
+            "nozzle_material": nozzle_material,
             "curr_nozzle_temp": printer.curr_nozzle_temp,
             "curr_hotbed_temp": printer.curr_hotbed_temp,
             "machine_mac": printer.machine_mac,
@@ -357,7 +381,12 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "total_print_time_hrs": printer.total_print_time_hrs,
                 "total_print_time_dhm": printer.total_print_time_dhm_str,
                 "job_download_progress": printer.latest_project_download_progress_percentage,
+                **({"hardware_settings": hardware} if hardware else {}),
+                **({"calibration": calibration} if calibration else {}),
             },
+            "build_plate_type": {"material_code": plate_code},
+            "nozzle_diameter": {"material_code": nozzle_material_code},
+            "nozzle_material": {"material_code": nozzle_material_code},
             "dry_status_is_drying": {
                 "dry_status_code": printer.primary_drying_status_raw_status_code,
             },
@@ -376,6 +405,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "fw_version": {
                 "latest_version": printer.fw_version.available_version if printer.fw_version else None,
                 "in_progress": printer.fw_version.total_progress if printer.fw_version else None,
+                "update_steps": printer.fw_version.update_steps if printer.fw_version else None,
             },
             "multi_color_box_fw_version": {
                 "latest_version": printer.primary_multi_color_box_fw_available_version,
