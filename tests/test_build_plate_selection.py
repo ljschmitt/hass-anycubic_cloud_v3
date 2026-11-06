@@ -1,4 +1,4 @@
-"""Verify plate commands without writing to a real printer."""
+"""Verify hardware settings without writing to a real printer."""
 from __future__ import annotations
 
 import ast
@@ -8,7 +8,9 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import test_loaded_slot
-from anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES, AnycubicOrderID
+from anycubic_cloud_api.const.enums import (
+    KOBRA_X_BUILD_PLATE_TYPES, KOBRA_X_NOZZLES, AnycubicOrderID, kobra_x_nozzle_option,
+)
 from anycubic_cloud_api.data_models.orders import AnycubicDataOrderRequest
 from anycubic_cloud_api.exceptions.exceptions import AnycubicAPIError
 from test_print_time_units import printer
@@ -31,9 +33,15 @@ select_plate = load_method(
     KOBRA_X_BUILD_PLATE_TYPES=KOBRA_X_BUILD_PLATE_TYPES, HomeAssistantError=HomeAssistantError,
     AnycubicAPIError=AnycubicAPIError, asyncio=SimpleNamespace(timeout=asyncio.timeout, sleep=AsyncMock()),
 )
+select_nozzle = load_method(
+    "coordinator.py", "AnycubicCloudDataUpdateCoordinator", "async_select_nozzle",
+    KOBRA_X_NOZZLES=KOBRA_X_NOZZLES, kobra_x_nozzle_option=kobra_x_nozzle_option,
+    HomeAssistantError=HomeAssistantError, AnycubicAPIError=AnycubicAPIError,
+    asyncio=SimpleNamespace(timeout=asyncio.timeout, sleep=AsyncMock()),
+)
 
 
-class BuildPlateSelectionTests(unittest.IsolatedAsyncioTestCase):
+class HardwareSelectionTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.device = printer(model=20030)
         self.device._device_status = 1
@@ -43,10 +51,11 @@ class BuildPlateSelectionTests(unittest.IsolatedAsyncioTestCase):
         }
         self.device.apply_hardware_properties(self.properties)
         self.api = SimpleNamespace(query_printer_hardware=AsyncMock(return_value=self.properties),
-                                   send_build_plate_order=AsyncMock(return_value=True))
+                                   send_build_plate_order=AsyncMock(return_value=True),
+                                   send_nozzle_order=AsyncMock(return_value=True))
         self.coordinator = SimpleNamespace(
             get_printer_for_id=lambda printer_id: self.device, anycubic_api=self.api,
-            _async_force_data_refresh=AsyncMock(), _build_plate_write_lock=asyncio.Lock(),
+            _async_force_data_refresh=AsyncMock(), _hardware_write_lock=asyncio.Lock(),
         )
 
     async def test_success_uses_readback_and_preserves_nozzle(self):
@@ -103,3 +112,75 @@ class BuildPlateSelectionTests(unittest.IsolatedAsyncioTestCase):
         })
         api._send_anycubic_order.return_value = {"code": 0, "data": {"msgid": "ack"}}
         self.assertFalse(await send_order(api, self.device, 2, 4))
+
+    async def test_nozzle_waits_for_both_values_and_preserves_plate(self):
+        self.api.query_printer_hardware.side_effect = [
+            self.properties,
+            {"hardware_settings": {"diameter": "0.25", "material": 2}},
+            {"hardware_settings": {"diameter": "0.4", "material": 1}},
+            {"hardware_settings": {"diameter": 0.25, "material": 1}},
+        ]
+        await select_nozzle(self.coordinator, 1, "brass_025")
+        self.api.send_nozzle_order.assert_awaited_once_with(self.device, 1, "0.25", 4)
+        self.api.send_build_plate_order.assert_not_awaited()
+        self.assertEqual(self.api.query_printer_hardware.await_count, 4)
+        self.assertEqual(self.device.build_plate_type, "textured_pei_plate")
+        states = test_loaded_slot.build_sensor_data(self.device)["states"]
+        self.assertEqual(states["nozzle_selection"], "brass_025")
+        self.assertEqual(states["nozzle_diameter"], 0.25)
+        self.assertEqual(states["nozzle_material"], "brass")
+
+    async def test_same_nozzle_and_invalid_combinations_never_send(self):
+        await select_nozzle(self.coordinator, 1, "steel_04")
+        with self.assertRaisesRegex(HomeAssistantError, "unsupported"):
+            await select_nozzle(self.coordinator, 1, "steel_025")
+        self.api.send_nozzle_order.assert_not_awaited()
+
+    async def test_nozzle_rejects_busy_offline_and_unknown_settings(self):
+        for overrides in (
+            {"device_state": 2}, {"device_status": "offline"}, {"device_state": None},
+            {"hardware_settings": {"diameter": "0.2", "material": 2}}, {"head_channel_count": True},
+        ):
+            with self.subTest(overrides=overrides):
+                self.api.query_printer_hardware.return_value = {**self.properties, **overrides}
+                with self.assertRaises(HomeAssistantError):
+                    await select_nozzle(self.coordinator, 1, "brass_025")
+        self.api.send_nozzle_order.assert_not_awaited()
+
+    async def test_other_models_and_concurrent_changes_are_rejected(self):
+        async with self.coordinator._hardware_write_lock:
+            with self.assertRaisesRegex(HomeAssistantError, "already in progress"):
+                await select_nozzle(self.coordinator, 1, "brass_025")
+            with self.assertRaisesRegex(HomeAssistantError, "already in progress"):
+                await select_plate(self.coordinator, 1, "smooth_transfer_plate")
+        self.device = printer(model=20029)
+        self.device.apply_hardware_properties(self.properties)
+        self.assertIsNone(test_loaded_slot.build_sensor_data(self.device)["states"]["nozzle_selection"])
+        with self.assertRaisesRegex(HomeAssistantError, "unsupported"):
+            await select_nozzle(self.coordinator, 1, "brass_025")
+        self.api.query_printer_hardware.assert_not_awaited()
+        self.api.send_nozzle_order.assert_not_awaited()
+
+    async def test_missing_nozzle_readback_preserves_last_value(self):
+        self.api.query_printer_hardware.side_effect = [self.properties, TimeoutError()]
+        with self.assertRaisesRegex(HomeAssistantError, "Could not confirm the nozzle"):
+            await select_nozzle(self.coordinator, 1, "brass_025")
+        self.assertEqual(self.device.hardware_settings["nozzle_diameter"], 0.4)
+        self.assertEqual(self.device.hardware_settings["nozzle_material_code"], 2)
+        self.coordinator._async_force_data_refresh.assert_not_awaited()
+
+    async def test_nozzle_cloud_order_matches_slicer_and_omits_plate(self):
+        send_order = load_method(
+            "anycubic_cloud_api/api/functions.py", "AnycubicAPIFunctions", "send_nozzle_order",
+            AnycubicDataOrderRequest=AnycubicDataOrderRequest, AnycubicOrderID=AnycubicOrderID,
+            AnycubicPrinter=type(self.device),
+        )
+        api = SimpleNamespace(_send_anycubic_order=AsyncMock(return_value={"code": 1}))
+        self.assertTrue(await send_order(api, self.device, 1, "0.25", 4))
+        order = api._send_anycubic_order.await_args.args[0]
+        self.assertEqual(order.order_request_data, {
+            "order_id": 1253, "printer_id": 1,
+            "data": {"hardware_settings": {"diameter": "0.25", "material": 1}, "head_channel_count": 4},
+        })
+        api._send_anycubic_order.return_value = {"code": 0}
+        self.assertFalse(await send_order(api, self.device, 1, "0.25", 4))

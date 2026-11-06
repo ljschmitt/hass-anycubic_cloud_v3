@@ -201,6 +201,19 @@
       }
     },
     "select": {
+      "nozzle_selection": {
+        "name": "Nozzle Selection",
+        "state": {
+          "steel_04": "Hardened steel \u00b7 0.4 mm",
+          "steel_06": "Hardened steel \u00b7 0.6 mm",
+          "steel_08": "Hardened steel \u00b7 0.8 mm",
+          "brass_02": "Brass \u00b7 0.2 mm",
+          "brass_025": "Brass \u00b7 0.25 mm",
+          "brass_04": "Brass \u00b7 0.4 mm",
+          "brass_06": "Brass \u00b7 0.6 mm",
+          "brass_08": "Brass \u00b7 0.8 mm"
+        }
+      },
       "build_plate_selection": {
         "name": "Build Plate Selection",
         "state": {

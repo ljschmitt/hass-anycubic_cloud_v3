@@ -16,10 +16,10 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.6-beta.2**
+> 🗓️ **Aktuelles Release: 0.4.6-beta.3**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
-> - Neue Plattenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
+> - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
 > - Passende Dashboard-Card in derselben Beta-Version. Letzte stabile Version: 0.4.5.
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
@@ -102,11 +102,15 @@ Der Kobra X absolvierte mit der Beta einen vollstaendigen Druck bis zum Abkuehle
 
 Ab **0.4.6-beta.1** erscheinen **Build Plate Type**, **Nozzle Diameter** und **Nozzle Material** unter den Diagnose-Entitaeten, sobald der Drucker die jeweiligen MQTT-Werte meldet. Beim Kobra X stehen die Plattencodes `1`, `2` und `3` fuer texturierte PEI-, glatte Transfer- und Niedertemperatur-Platten. Die Duesenmaterial-Codes `1` und `2` stehen fuer Messing und gehaerteten Stahl. Die Zuordnungen gelten fuer den Kobra X. Unbekannte Codes bleiben im Attribut `material_code` sichtbar. Der Duesendurchmesser wird in Millimetern angezeigt, einschliesslich Werten wie 0,25 mm.
 
-In der ausgeklappten Druckeransicht unter den Statuswerten zeigen das integrierte Panel und die passende Dashboard-Card die gemeldete Druckplatte und Duese an. Die Anzeige ist schreibgeschuetzt. Eintraege ohne gemeldete Werte werden ausgeblendet.
+In der ausgeklappten Druckeransicht unter den Statuswerten zeigen das integrierte Panel und die passende Dashboard-Card die gemeldete Druckplatte und Duese an. Eintraege ohne gemeldete Werte werden ausgeblendet.
 
-Die [Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.2#optional-local-hardware-images) kann optional lokal abgelegte Bilder zum gemeldeten Plattentyp und Duesenmaterial anzeigen.
+Die [Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.3#optional-local-hardware-images) kann optional lokal abgelegte Slicer-Bilder zum gemeldeten Plattentyp und Duesenmaterial anzeigen.
 
 Ab **0.4.6-beta.2** liest die Integration die Hardwarewerte des erreichbaren Kobra X beim ersten Abruf ueber die Cloud. Tippe in der ausgeklappten Card auf den Plattentyp oder oeffne **Build Plate Selection** unter **Einstellungen → Geraete & Dienste → Anycubic Cloud → Kobra X → Konfiguration**. Die Auswahl erscheint fuer unterstuetzte Drucker und ist im Leerlauf bedienbar. Waehle die tatsaechlich montierte Platte. Nach einem Wechsel empfiehlt Anycubic eine Bettnivellierung. Die Anzeige uebernimmt den neuen Wert nach Bestaetigung durch den Cloud-Abruf.
+
+Ab **0.4.6-beta.3** gibt es zusaetzlich **Nozzle Selection** fuer den Kobra X. Verfuegbar sind Messing (0,2, 0,25, 0,4, 0,6 und 0,8 mm) und gehaerteter Stahl (0,4, 0,6 und 0,8 mm). Waehle die montierte Duese. Anycubic empfiehlt nach einem Duesenwechsel PID-Tuning und Bettnivellierung.
+
+Bei verfuegbaren Bildern zeigt die Uebersicht nur die Vorschaubilder. Ohne Bild bleibt die Bezeichnung sichtbar. Ein Klick auf die Druckplatte oder Duese oeffnet die Auswahl mit Namen und den vorhandenen Bildern. Erst **Uebernehmen** sendet die Aenderung. Die Integration liest den Wert zur Bestaetigung zurueck.
 
 Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattribut in **Current Status**. Firmware-Berichte aktualisieren die vorhandene Update-Entitaet, einschliesslich gemeldetem Schritt und Fortschritt. Temperaturantworten aktualisieren die vorhandenen Sensoren. Erfolgreiche Datei- und Vorschau-Antworten werden als Bestaetigungen verarbeitet und lassen die Dateiliste erhalten.
 

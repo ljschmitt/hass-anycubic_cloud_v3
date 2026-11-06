@@ -73,11 +73,15 @@ The Kobra X completed a print through cooldown on the beta and acknowledged an A
 
 Starting with **0.4.6-beta.1**, **Build Plate Type**, **Nozzle Diameter**, and **Nozzle Material** appear as diagnostic entities after the corresponding MQTT reports arrive. On the Kobra X, build plate codes `1`, `2`, and `3` identify textured PEI, smooth / transfer, and low-temperature plates. Nozzle material codes `1` and `2` identify brass and hardened steel. These mappings are specific to the Kobra X. Unmapped codes remain visible in the `material_code` attribute. The nozzle diameter is shown in millimeters, including values such as 0.25 mm.
 
-The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. The display is read-only and omits entries without reported values.
+The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. Entries without reported values stay hidden.
 
-The [dashboard card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.2#optional-local-hardware-images) can also display optional local images for the reported plate type and nozzle material.
+The [dashboard card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.3#optional-local-hardware-images) can also display optional local Slicer images for the reported plate type and nozzle material.
 
 From **0.4.6-beta.2**, the integration reads hardware settings when it first reaches a Kobra X. Open the plate type in the expanded card or use **Build Plate Selection** under the device's configuration entities. This control is available while a supported printer is online and idle. Select the plate physically installed and follow Anycubic's bed-leveling guidance after a change. The entity updates after the new value is reported by the cloud.
+
+Version **0.4.6-beta.3** adds **Nozzle Selection** for the Kobra X. The options are brass (0.2, 0.25, 0.4, 0.6, and 0.8 mm) and hardened steel (0.4, 0.6, and 0.8 mm). Select the installed nozzle. Anycubic recommends PID tuning and bed leveling after a nozzle change.
+
+The overview shows thumbnails when available and uses labels as a fallback. Selecting the plate or nozzle in the card opens a chooser with names and any available images. **Apply** sends the change. The integration then reads the setting back to confirm it.
 
 **Current Status** includes the last reported calibration snapshot. Firmware and temperature reports update the existing entities. Successful file and preview acknowledgements leave file lists intact.
 

@@ -14,6 +14,7 @@ sys.path.insert(0, str(INTEGRATION_ROOT))
 
 from anycubic_cloud_api.data_models.consumable import AnycubicConsumableData  # noqa: E402
 from anycubic_cloud_api.data_models.printer import AnycubicPrinter  # noqa: E402
+from anycubic_cloud_api.const.enums import kobra_x_nozzle_option  # noqa: E402
 
 
 def ace(box_id=0, loaded_slot=1):
@@ -45,6 +46,7 @@ def build_sensor_data(printer_object):
     method = next(node for node in coordinator.body if isinstance(node, ast.FunctionDef)
                   and node.name == "_build_printer_dict")
     namespace = {"Any": Any, "AnycubicPrinter": AnycubicPrinter,
+                 "kobra_x_nozzle_option": kobra_x_nozzle_option,
                  "state_string_active": lambda value: "active" if value is not None else "inactive",
                  "state_string_loaded": lambda value: "loaded" if value is not None else "not loaded",
                  "MAX_DRYING_PRESETS": 1, "ENTITY_ID_DRYING_START_PRESET_": "drying_start_preset_",

@@ -201,6 +201,19 @@
       }
     },
     "select": {
+      "nozzle_selection": {
+        "name": "Nozzle Selection",
+        "state": {
+          "steel_04": "Gehärteter Stahl · 0,4 mm",
+          "steel_06": "Gehärteter Stahl · 0,6 mm",
+          "steel_08": "Gehärteter Stahl · 0,8 mm",
+          "brass_02": "Messing · 0,2 mm",
+          "brass_025": "Messing · 0,25 mm",
+          "brass_04": "Messing · 0,4 mm",
+          "brass_06": "Messing · 0,6 mm",
+          "brass_08": "Messing · 0,8 mm"
+        }
+      },
       "build_plate_selection": {
         "name": "Build Plate Selection",
         "state": {

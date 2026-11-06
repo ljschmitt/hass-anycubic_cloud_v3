@@ -465,6 +465,23 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         )
         return isinstance(result, dict) and result.get("code") == 1
 
+    async def send_nozzle_order(
+        self, printer: AnycubicPrinter, material_code: int, diameter: str, head_channel_count: int
+    ) -> bool:
+        """Submit the Slicer workbench's nozzle order."""
+        result = await self._send_anycubic_order(
+            AnycubicDataOrderRequest(
+                order_id=AnycubicOrderID.WRITE_PRINTER_PROPERTIES,
+                printer_id=printer.id,
+                data={
+                    "hardware_settings": {"diameter": diameter, "material": material_code},
+                    "head_channel_count": head_channel_count,
+                },
+            ),
+            raw_data=True,
+        )
+        return isinstance(result, dict) and result.get("code") == 1
+
     async def _send_order_multi_color_box_set_slot(
         self,
         printer: AnycubicPrinter,

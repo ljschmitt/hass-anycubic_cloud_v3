@@ -28,7 +28,11 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .anycubic_cloud_api.anycubic_api import AnycubicMQTTAPI as AnycubicAPI
-from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES
+from .anycubic_cloud_api.const.enums import (
+    KOBRA_X_BUILD_PLATE_TYPES,
+    KOBRA_X_NOZZLES,
+    kobra_x_nozzle_option,
+)
 from .anycubic_cloud_api.exceptions.exceptions import AnycubicAPIError, AnycubicAPIParsingError
 from .const import (
     API_SETUP_RETRIES,
@@ -105,7 +109,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._mqtt_last_refresh: int | None = None
         self._mqtt_last_multi_color_info_request: dict[int, int] = dict()
         self._hardware_properties_loaded: set[int] = set()
-        self._build_plate_write_lock = asyncio.Lock()
+        self._hardware_write_lock = asyncio.Lock()
         self._printer_device_map: dict[str, int] | None = None
         mqtt_connect_mode = self.entry.options.get(CONF_MQTT_CONNECT_MODE)
         self._mqtt_connection_mode = (
@@ -262,6 +266,11 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ),
             "nozzle_diameter": hardware.get('nozzle_diameter'),
             "nozzle_material": nozzle_material,
+            "nozzle_selection": (
+                kobra_x_nozzle_option(nozzle_material_code, hardware.get("nozzle_diameter"))
+                if printer.is_kobra_x and hardware.get("head_channel_count", 0) > 0
+                else None
+            ),
             "curr_nozzle_temp": printer.curr_nozzle_temp,
             "curr_hotbed_temp": printer.curr_hotbed_temp,
             "machine_mac": printer.machine_mac,
@@ -1001,10 +1010,10 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         code = next((code for code, name in KOBRA_X_BUILD_PLATE_TYPES.items() if name == option), None)
         if printer is None or not printer.is_kobra_x or code is None:
             raise HomeAssistantError("This build plate selection is unsupported.")
-        if self._build_plate_write_lock.locked():
-            raise HomeAssistantError("A build plate change is already in progress.")
+        if self._hardware_write_lock.locked():
+            raise HomeAssistantError("A printer hardware change is already in progress.")
 
-        async with self._build_plate_write_lock:
+        async with self._hardware_write_lock:
             try:
                 async with asyncio.timeout(18):
                     properties = await self.anycubic_api.query_printer_hardware(printer)
@@ -1040,6 +1049,58 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             except (AnycubicAPIError, TimeoutError) as error:
                 raise HomeAssistantError(
                     "Could not confirm the build plate type. Check the printer before trying again."
+                ) from error
+
+    async def async_select_nozzle(self, printer_id: int, option: str) -> None:
+        """Write the nozzle profile and wait for both values to be confirmed."""
+        printer = self.get_printer_for_id(printer_id)
+        nozzle = KOBRA_X_NOZZLES.get(option)
+        if printer is None or not printer.is_kobra_x or nozzle is None:
+            raise HomeAssistantError("This nozzle selection is unsupported.")
+        if self._hardware_write_lock.locked():
+            raise HomeAssistantError("A printer hardware change is already in progress.")
+
+        async with self._hardware_write_lock:
+            try:
+                async with asyncio.timeout(18):
+                    properties = await self.anycubic_api.query_printer_hardware(printer)
+                    channels = properties.get("head_channel_count")
+                    current = properties.get("hardware_settings")
+                    if (
+                        type(channels) is not int or channels <= 0
+                        or not isinstance(current, dict)
+                        or (current_option := kobra_x_nozzle_option(current.get("material"), current.get("diameter"))) is None
+                    ):
+                        raise HomeAssistantError("The printer did not report a supported nozzle configuration.")
+                    if (
+                        properties.get("device_status") != "online"
+                        or type(properties.get("device_state")) is not int
+                        or properties["device_state"] != 0
+                        or not printer.is_available
+                        or printer.latest_project_print_in_progress
+                    ):
+                        raise HomeAssistantError("The printer must be online and idle to change the nozzle.")
+                    material, diameter = nozzle
+                    if current_option != option:
+                        if not await self.anycubic_api.send_nozzle_order(printer, material, diameter, channels):
+                            raise HomeAssistantError("Anycubic did not acknowledge the nozzle request.")
+                        while True:
+                            await asyncio.sleep(1.5)
+                            reported = await self.anycubic_api.query_printer_hardware(printer)
+                            readback = reported.get("hardware_settings")
+                            if (
+                                isinstance(readback, dict)
+                                and kobra_x_nozzle_option(readback.get("material"), readback.get("diameter")) == option
+                            ):
+                                break
+                    printer.apply_hardware_properties({
+                        "hardware_settings": {"diameter": diameter, "material": material},
+                        "head_channel_count": channels,
+                    })
+                    await self._async_force_data_refresh()
+            except (AnycubicAPIError, TimeoutError) as error:
+                raise HomeAssistantError(
+                    "Could not confirm the nozzle. Check the printer before trying again."
                 ) from error
 
     def get_printer_for_id(

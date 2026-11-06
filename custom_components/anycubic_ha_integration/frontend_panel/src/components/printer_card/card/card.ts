@@ -3,6 +3,7 @@ import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { query } from "lit/decorators/query.js";
 import { classMap } from "lit/directives/class-map.js";
+import { keyed } from "lit/directives/keyed.js";
 import { styleMap } from "lit/directives/style-map.js";
 import { animate, Options as motionOptions } from "@lit-labs/motion";
 
@@ -59,11 +60,37 @@ const buildPlateTypes = [
   "low_temperature_plate",
 ];
 const nozzleMaterials = ["brass", "hardened_steel"];
+const nozzleOptions: Record<string, [material: string, diameter: number]> = {
+  steel_04: ["hardened_steel", 0.4],
+  steel_06: ["hardened_steel", 0.6],
+  steel_08: ["hardened_steel", 0.8],
+  brass_02: ["brass", 0.2],
+  brass_025: ["brass", 0.25],
+  brass_04: ["brass", 0.4],
+  brass_06: ["brass", 0.6],
+  brass_08: ["brass", 0.8],
+};
+type HardwareKind = "build_plate" | "nozzle";
 
 @customElementIfUndef("anycubic-printercard-card")
 export class AnycubicPrintercardCard extends LitElement {
   @query(".ac-printer-card")
   private _printerCardContainer!: HTMLElement | Window;
+
+  @query(".ac-hardware-dialog")
+  private _hardwareDialog!: HTMLDialogElement;
+
+  @state()
+  private _hardwareDraft = "";
+
+  @state()
+  private _hardwareTarget?: { kind: HardwareKind; entityId: string };
+
+  @state()
+  private _hardwareSaving = false;
+
+  @state()
+  private _hardwareError = false;
 
   @property()
   public hass!: HomeAssistant;
@@ -266,6 +293,7 @@ export class AnycubicPrintercardCard extends LitElement {
         <div class="ac-printer-card-mainview">
           ${this._renderHeader()} ${this._renderPrinterContainer()}
         </div>
+        ${this._renderHardwareDialog()}
         <anycubic-printercard-camera_view
           class=${classMap(classesCam)}
           .hass=${this.hass}
@@ -436,8 +464,7 @@ export class AnycubicPrintercardCard extends LitElement {
         this.printerEntityIdPart,
         suffix,
       );
-    const translate = (key: string): string =>
-      localize(`card.hardware.${key}`, this.language);
+    const translate = this._hardwareText;
     const hasValue = (value: string): boolean =>
       !["", "unknown", "unavailable"].includes(value);
     const plate = sensor("build_plate_type").state;
@@ -455,68 +482,249 @@ export class AnycubicPrintercardCard extends LitElement {
     const plateLabel = hasValue(plate)
       ? translate(buildPlateTypes.includes(plate) ? plate : "unmapped")
       : "";
-    const plateSelect = this._buildPlateSelect();
-
     return plateLabel || nozzle
       ? html`
           <div class="ac-printer-card-hardware">
-            ${plateLabel
-              ? html`<div>
-                  ${this._renderHardwareImage(plate, buildPlateTypes)}
-                  <dl>
-                    <dt>${translate("build_plate")}</dt>
-                    <dd>
-                      ${plateSelect && hasValue(plateSelect.state)
-                        ? html`<button
-                            type="button"
-                            class="ac-hardware-select"
-                            aria-label=${translate("change_plate")}
-                            title=${translate("change_plate")}
-                            @click=${this._openBuildPlateSelect}
-                          >
-                            ${plateLabel}
-                          </button>`
-                        : plateLabel}
-                    </dd>
-                  </dl>
-                </div>`
-              : nothing}
-            ${nozzle
-              ? html`<div>
-                  ${this._renderHardwareImage(material, nozzleMaterials)}
-                  <dl>
-                    <dt>${translate("nozzle")}</dt>
-                    <dd>${nozzle}</dd>
-                  </dl>
-                </div>`
-              : nothing}
+            ${this._renderHardwareItem(
+              "build_plate",
+              plateLabel,
+              plate,
+              buildPlateTypes,
+            )}
+            ${this._renderHardwareItem(
+              "nozzle",
+              nozzle,
+              material,
+              nozzleMaterials,
+            )}
           </div>
         `
       : nothing;
   }
 
-  private _buildPlateSelect(): HassEntity | undefined {
-    return getEntityState(
+  private _renderHardwareItem(
+    kind: HardwareKind,
+    label: string,
+    image: string,
+    knownImages: string[],
+  ): LitTemplateResult | typeof nothing {
+    if (!label) {
+      return nothing;
+    }
+    const title = `${this._hardwareText(kind)} · ${label}`;
+    const fallback = html`<span class="ac-hardware-fallback">${label}</span>`;
+    return this._hardwareSelect(kind)
+      ? html`<button
+          type="button"
+          class="ac-hardware-select"
+          data-kind=${kind}
+          aria-haspopup="dialog"
+          aria-label=${`${this._hardwareText(`change_${kind}`)} · ${label}`}
+          title=${title}
+          @click=${this._openHardwareSelect}
+        >
+          ${this._renderHardwareImage(image, knownImages)} ${fallback}
+        </button>`
+      : html`<div title=${title}>
+          ${this._renderHardwareImage(image, knownImages, label)} ${fallback}
+        </div>`;
+  }
+
+  private _hardwareText = (key: string): string =>
+    localize(`card.hardware.${key}`, this.language);
+
+  private _hardwareSelect(kind: HardwareKind): HassEntity | undefined {
+    const entity = getEntityState(
       this.hass,
       getStrictMatchingEntity(
         this.printerEntities,
         this.printerEntityIdPart,
         "select",
-        "build_plate_selection",
+        `${kind}_selection`,
       ),
     );
+    return entity && this._hardwareOptions(kind, entity).includes(entity.state)
+      ? entity
+      : undefined;
   }
 
-  private _openBuildPlateSelect = (): void => {
-    const entity = this._buildPlateSelect();
-    if (entity && entity.state !== "unavailable") {
-      fireEvent(this, "hass-more-info", { entityId: entity.entity_id });
+  private _hardwareOptions(
+    kind: HardwareKind,
+    entity: HassEntity | undefined,
+  ): string[] {
+    const options: unknown = entity?.attributes.options;
+    const supported =
+      kind === "nozzle" ? Object.keys(nozzleOptions) : buildPlateTypes;
+    return Array.isArray(options)
+      ? supported.filter((option) => options.includes(option))
+      : [];
+  }
+
+  private _openHardwareSelect = async (event: Event): Promise<void> => {
+    const kind = (event.currentTarget as HTMLButtonElement).dataset.kind;
+    if (kind !== "nozzle" && kind !== "build_plate") {
+      return;
+    }
+    const entity = this._hardwareSelect(kind);
+    if (!entity || this._hardwareSaving || this._hardwareDialog.open) {
+      return;
+    }
+    this._hardwareTarget = { kind, entityId: entity.entity_id };
+    this._hardwareDraft = entity.state;
+    this._hardwareError = false;
+    await this.updateComplete;
+    if (this.isConnected) {
+      this._hardwareDialog.showModal();
+    }
+  };
+
+  private _renderHardwareDialog(): LitTemplateResult {
+    const target = this._hardwareTarget;
+    const kind = target?.kind ?? "build_plate";
+    const entity = target ? this._hardwareSelect(kind) : undefined;
+    const active = !!entity && entity.entity_id === target?.entityId;
+    const options = this._hardwareOptions(kind, entity);
+    const choices = options.map((option) => {
+      const [image, diameter] =
+        kind === "nozzle" ? nozzleOptions[option] : [option];
+      const size =
+        diameter === undefined
+          ? ""
+          : `${new Intl.NumberFormat(this.language).format(diameter)} mm`;
+      return html`
+        <label>
+          <input
+            type="radio"
+            name="hardware-option"
+            .value=${option}
+            .checked=${this._hardwareDraft === option}
+          />
+          ${this._renderHardwareImage(
+            image,
+            kind === "nozzle" ? nozzleMaterials : buildPlateTypes,
+          )}
+          <span>
+            ${size ? html`<strong>${size}</strong>` : nothing}
+            ${this._hardwareText(image)}
+          </span>
+        </label>
+      `;
+    });
+    return html`
+      <dialog
+        class="ac-hardware-dialog"
+        data-kind=${kind}
+        aria-labelledby="ac-hardware-dialog-title"
+        aria-describedby="ac-hardware-dialog-help"
+        @cancel=${this._cancelHardwareDialog}
+        @close=${this._resetHardwareDialog}
+      >
+        <form @submit=${this._submitHardware}>
+          <h2 id="ac-hardware-dialog-title">
+            ${this._hardwareText(`change_${kind}`)}
+          </h2>
+          <p id="ac-hardware-dialog-help">
+            ${this._hardwareText(`${kind}_help`)}
+          </p>
+          <div class="ac-hardware-dialog-scroll">
+            <fieldset
+              class="ac-hardware-dialog-options"
+              aria-labelledby="ac-hardware-dialog-title"
+              ?disabled=${!active || this._hardwareSaving}
+              @change=${this._selectHardwareDraft}
+            >
+              ${choices}
+            </fieldset>
+          </div>
+          ${!active || this._hardwareError
+            ? html`<p role="alert" class="ac-hardware-dialog-error">
+                ${this._hardwareText(!active ? "unavailable" : `${kind}_error`)}
+              </p>`
+            : nothing}
+          <div class="ac-hardware-dialog-actions">
+            <button
+              type="button"
+              ?disabled=${this._hardwareSaving}
+              @click=${this._closeHardwareDialog}
+            >
+              ${localize("common.actions.cancel", this.language)}
+            </button>
+            <button
+              type="submit"
+              ?disabled=${!active ||
+              this._hardwareSaving ||
+              !options.includes(this._hardwareDraft) ||
+              this._hardwareDraft === entity.state}
+            >
+              ${this._hardwareText(this._hardwareSaving ? "saving" : "apply")}
+            </button>
+          </div>
+        </form>
+      </dialog>
+    `;
+  }
+
+  private _selectHardwareDraft = (event: Event): void => {
+    this._hardwareDraft = (event.target as HTMLInputElement).value;
+    this._hardwareError = false;
+  };
+
+  private _cancelHardwareDialog = (event: Event): void => {
+    if (this._hardwareSaving) {
+      event.preventDefault();
+    }
+  };
+
+  private _closeHardwareDialog = (): void => {
+    if (!this._hardwareSaving) {
+      this._hardwareDialog.close();
+    }
+  };
+
+  private _resetHardwareDialog = (): void => {
+    if (!this._hardwareDialog.open) {
+      this._hardwareTarget = undefined;
+    }
+  };
+
+  private _submitHardware = async (event: Event): Promise<void> => {
+    event.preventDefault();
+    const target = this._hardwareTarget;
+    if (!target) {
+      return;
+    }
+    const entity = this._hardwareSelect(target.kind);
+    const option = this._hardwareDraft;
+    if (
+      this._hardwareSaving ||
+      !entity ||
+      entity.entity_id !== target.entityId ||
+      !this._hardwareOptions(target.kind, entity).includes(option) ||
+      entity.state === option
+    ) {
+      return;
+    }
+    this._hardwareSaving = true;
+    this._hardwareError = false;
+    try {
+      await this.hass.callService(
+        "select",
+        "select_option",
+        { option },
+        { entity_id: entity.entity_id },
+      );
+      this._hardwareDialog.close();
+    } catch {
+      this._hardwareError = true;
+    } finally {
+      this._hardwareSaving = false;
     }
   };
 
   private _renderHardwareImage(
     hardwareState: string,
     knownStates: string[],
+    alt = "",
   ): LitTemplateResult | typeof nothing {
     const folder =
       typeof this.hardwareImagePath === "string"
@@ -528,15 +736,19 @@ export class AnycubicPrintercardCard extends LitElement {
     ) {
       return nothing;
     }
-    return html`<img
-      src=${`${folder}/${hardwareState}.png`}
-      alt=""
-      width="44"
-      height="44"
-      hidden
-      @load=${this._updateHardwareImage}
-      @error=${this._updateHardwareImage}
-    />`;
+    const source = `${folder}/${hardwareState}.png`;
+    return html`${keyed(
+      source,
+      html`<img
+        src=${source}
+        alt=${alt}
+        width="44"
+        height="44"
+        hidden
+        @load=${this._updateHardwareImage}
+        @error=${this._updateHardwareImage}
+      />`,
+    )}`;
   }
 
   private _updateHardwareImage = (event: Event): void => {
@@ -914,52 +1126,189 @@ export class AnycubicPrintercardCard extends LitElement {
       .ac-printer-card-hardware {
         align-self: stretch;
         display: flex;
+        align-items: center;
         flex-wrap: wrap;
-        gap: 8px 16px;
+        gap: 8px 12px;
         margin: 0 16px 12px;
         padding: 8px 0 0;
         border-top: 1px solid var(--divider-color);
       }
 
-      .ac-printer-card-hardware > div {
-        display: flex;
+      .ac-printer-card-hardware > * {
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        flex: 1 1 10rem;
-        min-width: 0;
-      }
-
-      .ac-printer-card-hardware dl {
-        margin: 0;
         min-width: 0;
       }
 
       .ac-printer-card-hardware img {
-        flex: 0 0 auto;
         object-fit: contain;
         border-radius: 6px;
       }
 
-      .ac-printer-card-hardware dt {
-        color: var(--secondary-text-color);
-        font-size: 0.875rem;
+      .ac-printer-card-hardware img:not([hidden]) + .ac-hardware-fallback {
+        display: none;
       }
 
-      .ac-printer-card-hardware dd {
-        margin: 0;
-        color: var(--primary-text-color);
+      .ac-hardware-fallback {
         overflow-wrap: anywhere;
       }
 
       .ac-hardware-select {
-        background: none;
-        border: 0;
-        padding: 0;
-        color: var(--primary-color);
+        background: transparent;
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+        padding: 2px;
+        min-height: 44px;
+        color: inherit;
         cursor: pointer;
         font: inherit;
-        text-align: start;
-        text-decoration: underline;
+      }
+
+      .ac-hardware-select:hover {
+        border-color: var(--primary-color);
+      }
+
+      .ac-hardware-select .ac-hardware-fallback {
+        padding: 0 6px;
+      }
+
+      .ac-hardware-dialog {
+        box-sizing: border-box;
+        width: min(calc(100% - 24px), 560px);
+        max-height: calc(100% - 24px);
+        border: 0;
+        border-radius: 16px;
+        padding: 20px;
+        background: var(
+          --ha-card-background,
+          var(--card-background-color, Canvas)
+        );
+        color: var(--primary-text-color);
+        box-shadow: 0 12px 36px rgb(0 0 0 / 28%);
+      }
+
+      .ac-hardware-dialog::backdrop {
+        background: rgb(0 0 0 / 42%);
+      }
+
+      .ac-hardware-dialog form {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - 64px);
+      }
+
+      .ac-hardware-dialog h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        line-height: 1.3;
+      }
+
+      .ac-hardware-dialog p {
+        margin: 8px 0 16px;
+        line-height: 1.45;
+      }
+
+      .ac-hardware-dialog-scroll {
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .ac-hardware-dialog-options {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(100%, 4.75rem), 1fr)
+        );
+        gap: 8px;
+        min-inline-size: 0;
+        margin: 0;
+        padding: 2px;
+        border: 0;
+      }
+
+      .ac-hardware-dialog-options label {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--divider-color);
+        border-radius: 12px;
+        padding: 12px 8px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        text-align: center;
+        overflow-wrap: anywhere;
+      }
+
+      .ac-hardware-dialog[data-kind="nozzle"] .ac-hardware-dialog-options {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+      }
+
+      .ac-hardware-dialog-options strong {
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .ac-hardware-dialog[data-kind="nozzle"] .ac-hardware-dialog-options img {
+        width: min(100%, 62px);
+      }
+
+      .ac-hardware-dialog-options:disabled label {
+        cursor: default;
+      }
+
+      .ac-hardware-dialog-options input {
+        margin: 0;
+        align-self: flex-end;
+        accent-color: var(--primary-color, Highlight);
+      }
+
+      .ac-hardware-dialog-options label:has(input:checked) {
+        border-color: var(--primary-color, Highlight);
+      }
+
+      .ac-hardware-dialog-options img {
+        width: min(100%, 88px);
+        height: auto;
+        aspect-ratio: 1;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+
+      .ac-hardware-dialog-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .ac-hardware-dialog-actions button {
+        min-height: 44px;
+        padding: 0 14px;
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .ac-hardware-dialog-actions button[type="submit"]:not(:disabled) {
+        border-color: transparent;
+        background: var(--primary-color, Highlight);
+        color: var(--text-primary-color, HighlightText);
+      }
+
+      .ac-hardware-dialog-actions button:disabled {
+        color: var(--disabled-text-color);
+        cursor: default;
+      }
+
+      .ac-hardware-dialog .ac-hardware-dialog-error {
+        margin-bottom: 0;
+        color: var(--error-color);
       }
 
       .ac-printer-card-mcbsection {

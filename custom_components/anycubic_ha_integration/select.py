@@ -9,7 +9,7 @@ from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES
+from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES, KOBRA_X_NOZZLES
 from .const import (
     COORDINATOR,
     DOMAIN,
@@ -33,6 +33,15 @@ BUILD_PLATE = AnycubicSelectEntityDescription(
     create_when_available=True,
 )
 
+NOZZLE = AnycubicSelectEntityDescription(
+    key="nozzle_selection",
+    translation_key="nozzle_selection",
+    options=list(KOBRA_X_NOZZLES),
+    entity_category=EntityCategory.CONFIG,
+    printer_entity_type=PrinterEntityType.PRINTER,
+    create_when_available=True,
+)
+
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
@@ -41,19 +50,19 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id][COORDINATOR]
     coordinator.add_entities_for_seen_printers(
         async_add_entities=async_add_entities,
-        entity_constructor=AnycubicBuildPlateSelect,
+        entity_constructor=AnycubicHardwareSelect,
         platform=Platform.SELECT,
-        available_descriptors=[BUILD_PLATE],
+        available_descriptors=[BUILD_PLATE, NOZZLE],
     )
 
 
-class AnycubicBuildPlateSelect(AnycubicCloudEntity, SelectEntity):
-    """Select the plate type configured on a supported printer."""
+class AnycubicHardwareSelect(AnycubicCloudEntity, SelectEntity):
+    """Select the installed hardware configured on a supported printer."""
 
     @property
     def current_option(self) -> str | None:
         """Return the confirmed option."""
-        option = printer_state_for_key(self.coordinator, self._printer_id, BUILD_PLATE.key)
+        option = printer_state_for_key(self.coordinator, self._printer_id, self.entity_description.key)
         return option if isinstance(option, str) else None
 
     @property
@@ -69,5 +78,8 @@ class AnycubicBuildPlateSelect(AnycubicCloudEntity, SelectEntity):
         )
 
     async def async_select_option(self, option: str) -> None:
-        """Send the selected plate and wait for confirmation."""
-        await self.coordinator.async_select_build_plate(self._printer_id, option)
+        """Send the selected option and wait for confirmation."""
+        if self.entity_description.key == NOZZLE.key:
+            await self.coordinator.async_select_nozzle(self._printer_id, option)
+        else:
+            await self.coordinator.async_select_build_plate(self._printer_id, option)

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6-beta.3
+
+- Show hardware thumbnails in the expanded printer overview, with labels when images are unavailable. Open an illustrated build plate chooser from the plate thumbnail and require confirmation before sending a change.
+- Add a Kobra X nozzle selector with the eight Slicer combinations, optional nozzle images, and guidance on PID tuning and bed leveling. Confirm both nozzle values through a fresh cloud readback. The nozzle and build plate use separate payloads and share a write lock.
+
 ## 0.4.6-beta.2
 
 - Read Kobra X hardware settings through the cloud and expose a build plate selector for supported printers. Confirm the selected plate through a fresh readback and reject writes while printing or offline.
