@@ -953,6 +953,7 @@ export class AnycubicPrintercardCard extends LitElement {
     return css`
       :host {
         display: block;
+        --ac-printer-card-preview-size: 60px;
       }
 
       .ac-printer-card {
@@ -1127,6 +1128,7 @@ export class AnycubicPrintercardCard extends LitElement {
         align-self: stretch;
         display: flex;
         align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 8px 12px;
         margin: 0 16px 12px;
@@ -1141,6 +1143,8 @@ export class AnycubicPrintercardCard extends LitElement {
       }
 
       .ac-printer-card-hardware img {
+        width: var(--ac-printer-card-preview-size);
+        height: var(--ac-printer-card-preview-size);
         object-fit: contain;
         border-radius: 6px;
       }

@@ -16,10 +16,11 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.6-beta.3**
+> 🗓️ **Aktuelles Release: 0.4.6-beta.4**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
+> - Zentrierte Vorschauen in Spulengroesse. Das Anycubic-Panel zeigt die vorhandenen lokalen Slicer-Bilder ebenfalls an.
 > - Passende Dashboard-Card in derselben Beta-Version. Letzte stabile Version: 0.4.5.
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
@@ -104,7 +105,9 @@ Ab **0.4.6-beta.1** erscheinen **Build Plate Type**, **Nozzle Diameter** und **N
 
 In der ausgeklappten Druckeransicht unter den Statuswerten zeigen das integrierte Panel und die passende Dashboard-Card die gemeldete Druckplatte und Duese an. Eintraege ohne gemeldete Werte werden ausgeblendet.
 
-Die [Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.3#optional-local-hardware-images) kann optional lokal abgelegte Slicer-Bilder zum gemeldeten Plattentyp und Duesenmaterial anzeigen.
+Die [Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.4#optional-local-hardware-images) kann optional lokal abgelegte Slicer-Bilder zum gemeldeten Plattentyp und Duesenmaterial anzeigen.
+
+Ab **0.4.6-beta.4** nutzt auch das Anycubic-Cloud-Panel die Bilder aus `/config/www/anycubic-hardware/`. Beide Ansichten zentrieren die Vorschaubilder in der Standardgroesse der Spulenanzeige. Die optionalen Bilder koennen einmal fuer beide Ansichten abgelegt werden.
 
 Ab **0.4.6-beta.2** liest die Integration die Hardwarewerte des erreichbaren Kobra X beim ersten Abruf ueber die Cloud. Tippe in der ausgeklappten Card auf den Plattentyp oder oeffne **Build Plate Selection** unter **Einstellungen → Geraete & Dienste → Anycubic Cloud → Kobra X → Konfiguration**. Die Auswahl erscheint fuer unterstuetzte Drucker und ist im Leerlauf bedienbar. Waehle die tatsaechlich montierte Platte. Nach einem Wechsel empfiehlt Anycubic eine Bettnivellierung. Die Anzeige uebernimmt den neuen Wert nach Bestaetigung durch den Cloud-Abruf.
 

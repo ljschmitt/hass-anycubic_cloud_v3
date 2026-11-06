@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.6-beta.4
+
+- Center the hardware previews and use the standard spool diameter for their size. Load optional local hardware images in the Anycubic Cloud sidebar panel as well as the dashboard card.
+
 ## 0.4.6-beta.3
 
 - Show hardware thumbnails in the expanded printer overview, with labels when images are unavailable. Open an illustrated build plate chooser from the plate thumbnail and require confirmation before sending a change.

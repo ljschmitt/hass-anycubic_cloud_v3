@@ -323,7 +323,7 @@
 
       .ac-spool-color-ring-cont {
         position: relative;
-        width: min(100%, 60px);
+        width: min(100%, var(--ac-printer-card-preview-size, 60px));
         box-sizing: border-box;
         flex: 0 0 auto;
       }
@@ -2337,6 +2337,7 @@
         `:Z;}_percentComplete(){return Number(si(this.hass,this.printerEntities,this.printerEntityIdPart,"job_progress",-1).state);}static get styles(){return h`
       :host {
         display: block;
+        --ac-printer-card-preview-size: 60px;
       }
 
       .ac-printer-card {
@@ -2511,6 +2512,7 @@
         align-self: stretch;
         display: flex;
         align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 8px 12px;
         margin: 0 16px 12px;
@@ -2525,6 +2527,8 @@
       }
 
       .ac-printer-card-hardware img {
+        width: var(--ac-printer-card-preview-size);
+        height: var(--ac-printer-card-preview-size);
         object-fit: contain;
         border-radius: 6px;
       }
@@ -2874,7 +2878,7 @@
         font-weight: bold;
         font-size: 14px;
       }
-    `;}};r([Ee()],gs.prototype,"hass",void 0),r([Ee()],gs.prototype,"language",void 0),r([Ee({attribute:"card-config"})],gs.prototype,"cardConfig",void 0),r([Ee()],gs.prototype,"printers",void 0),r([ge()],gs.prototype,"configPage",void 0),r([ge()],gs.prototype,"availableStats",void 0),r([ge()],gs.prototype,"formSchemaMain",void 0),r([ge()],gs.prototype,"formSchemaColours",void 0),r([ge()],gs.prototype,"printerEntities",void 0),r([ge()],gs.prototype,"printerEntityIdPart",void 0),r([ge()],gs.prototype,"hasColorbox",void 0),r([ge()],gs.prototype,"isLCD",void 0),r([ge()],gs.prototype,"_tabMain",void 0),r([ge()],gs.prototype,"_tabStats",void 0),r([ge()],gs.prototype,"_tabColours",void 0),r([ge()],gs.prototype,"_labelPrinter_id",void 0),r([ge()],gs.prototype,"_labelVertical",void 0),r([ge()],gs.prototype,"_labelRound",void 0),r([ge()],gs.prototype,"_labelUse_24hr",void 0),r([ge()],gs.prototype,"_labelShowSettingsButton",void 0),r([ge()],gs.prototype,"_labelAlwaysShow",void 0),r([ge()],gs.prototype,"_labelTemperatureUnit",void 0),r([ge()],gs.prototype,"_labelLightEntityId",void 0),r([ge()],gs.prototype,"_labelPowerEntityId",void 0),r([ge()],gs.prototype,"_labelCameraEntityId",void 0),r([ge()],gs.prototype,"_labelScaleFactor",void 0),r([ge()],gs.prototype,"_labelSlotColors",void 0),gs=r([Si("anycubic-printercard-configure")],gs),window.console.info("%c ANYCUBIC-CARD %c v0.4.6-beta.3 ","color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray");const Ss=mi();e.AnycubicPrintercardEditor=class extends pe{constructor(){super(...arguments),this.config={};}async firstUpdated(){this.printers=qt(this.hass);}willUpdate(e){super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language),e.has("config")&&(this.config.vertical=fi(this.config.vertical,Ss.vertical),this.config.round=fi(this.config.round,Ss.round),this.config.use_24hr=fi(this.config.use_24hr,Ss.use_24hr),this.config.alwaysShow=fi(this.config.alwaysShow,Ss.alwaysShow),this.config.showSettingsButton=fi(this.config.showSettingsButton,Ss.showSettingsButton),this.config.temperatureUnit=fi(this.config.temperatureUnit,Ss.temperatureUnit),this.config.monitoredStats=fi(this.config.monitoredStats,Ss.monitoredStats),this.config.slotColors=fi(this.config.slotColors,Ss.slotColors),this.config.scaleFactor=fi(this.config.scaleFactor,Ss.scaleFactor));}setConfig(e){this.config=e;}render(){return J`
+    `;}};r([Ee()],gs.prototype,"hass",void 0),r([Ee()],gs.prototype,"language",void 0),r([Ee({attribute:"card-config"})],gs.prototype,"cardConfig",void 0),r([Ee()],gs.prototype,"printers",void 0),r([ge()],gs.prototype,"configPage",void 0),r([ge()],gs.prototype,"availableStats",void 0),r([ge()],gs.prototype,"formSchemaMain",void 0),r([ge()],gs.prototype,"formSchemaColours",void 0),r([ge()],gs.prototype,"printerEntities",void 0),r([ge()],gs.prototype,"printerEntityIdPart",void 0),r([ge()],gs.prototype,"hasColorbox",void 0),r([ge()],gs.prototype,"isLCD",void 0),r([ge()],gs.prototype,"_tabMain",void 0),r([ge()],gs.prototype,"_tabStats",void 0),r([ge()],gs.prototype,"_tabColours",void 0),r([ge()],gs.prototype,"_labelPrinter_id",void 0),r([ge()],gs.prototype,"_labelVertical",void 0),r([ge()],gs.prototype,"_labelRound",void 0),r([ge()],gs.prototype,"_labelUse_24hr",void 0),r([ge()],gs.prototype,"_labelShowSettingsButton",void 0),r([ge()],gs.prototype,"_labelAlwaysShow",void 0),r([ge()],gs.prototype,"_labelTemperatureUnit",void 0),r([ge()],gs.prototype,"_labelLightEntityId",void 0),r([ge()],gs.prototype,"_labelPowerEntityId",void 0),r([ge()],gs.prototype,"_labelCameraEntityId",void 0),r([ge()],gs.prototype,"_labelScaleFactor",void 0),r([ge()],gs.prototype,"_labelSlotColors",void 0),gs=r([Si("anycubic-printercard-configure")],gs),window.console.info("%c ANYCUBIC-CARD %c v0.4.6-beta.4 ","color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray");const Ss=mi();e.AnycubicPrintercardEditor=class extends pe{constructor(){super(...arguments),this.config={};}async firstUpdated(){this.printers=qt(this.hass);}willUpdate(e){super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language),e.has("config")&&(this.config.vertical=fi(this.config.vertical,Ss.vertical),this.config.round=fi(this.config.round,Ss.round),this.config.use_24hr=fi(this.config.use_24hr,Ss.use_24hr),this.config.alwaysShow=fi(this.config.alwaysShow,Ss.alwaysShow),this.config.showSettingsButton=fi(this.config.showSettingsButton,Ss.showSettingsButton),this.config.temperatureUnit=fi(this.config.temperatureUnit,Ss.temperatureUnit),this.config.monitoredStats=fi(this.config.monitoredStats,Ss.monitoredStats),this.config.slotColors=fi(this.config.slotColors,Ss.slotColors),this.config.scaleFactor=fi(this.config.scaleFactor,Ss.scaleFactor));}setConfig(e){this.config=e;}render(){return J`
       <anycubic-printercard-configure
         .hass=${this.hass}
         .language=${this.language}

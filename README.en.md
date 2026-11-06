@@ -75,7 +75,9 @@ Starting with **0.4.6-beta.1**, **Build Plate Type**, **Nozzle Diameter**, and *
 
 The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. Entries without reported values stay hidden.
 
-The [dashboard card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.3#optional-local-hardware-images) can also display optional local Slicer images for the reported plate type and nozzle material.
+The [dashboard card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.4#optional-local-hardware-images) can also display optional local Slicer images for the reported plate type and nozzle material.
+
+From **0.4.6-beta.4**, the Anycubic Cloud sidebar panel also loads images from `/config/www/anycubic-hardware/`. Both views center the thumbnails and size them to match the standard spool diameter. The two views can share a single set of optional images.
 
 From **0.4.6-beta.2**, the integration reads hardware settings when it first reaches a Kobra X. Open the plate type in the expanded card or use **Build Plate Selection** under the device's configuration entities. This control is available while a supported printer is online and idle. Select the plate physically installed and follow Anycubic's bed-leveling guidance after a change. The entity updates after the new value is reported by the cloud.
 

@@ -328,6 +328,7 @@ export class AnycubicViewMain extends LitElement {
           .lightEntityId=${this.panel.config.lightEntityId}
           .powerEntityId=${this.panel.config.powerEntityId}
           .cameraEntityId=${this.panel.config.cameraEntityId}
+          .hardwareImagePath=${"/local/anycubic-hardware"}
           .monitoredStats=${this.panel.config.monitoredStats ??
           this.monitoredStats}
           .scaleFactor=${this.panel.config.scaleFactor}

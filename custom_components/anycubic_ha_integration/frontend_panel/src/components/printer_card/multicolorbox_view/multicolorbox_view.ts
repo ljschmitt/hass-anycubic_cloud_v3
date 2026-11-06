@@ -345,7 +345,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
 
       .ac-spool-color-ring-cont {
         position: relative;
-        width: min(100%, 60px);
+        width: min(100%, var(--ac-printer-card-preview-size, 60px));
         box-sizing: border-box;
         flex: 0 0 auto;
       }
