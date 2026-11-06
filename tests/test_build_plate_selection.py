@@ -9,7 +9,10 @@ from unittest.mock import AsyncMock
 
 import test_loaded_slot
 from anycubic_cloud_api.const.enums import (
-    KOBRA_X_BUILD_PLATE_TYPES, KOBRA_X_NOZZLES, AnycubicOrderID, kobra_x_nozzle_option,
+    KOBRA_X_BUILD_PLATE_TYPES,
+    KOBRA_X_NOZZLES,
+    AnycubicOrderID,
+    kobra_x_nozzle_option,
 )
 from anycubic_cloud_api.data_models.orders import AnycubicDataOrderRequest
 from anycubic_cloud_api.exceptions.exceptions import AnycubicAPIError

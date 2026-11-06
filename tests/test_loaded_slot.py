@@ -12,9 +12,9 @@ from typing import Any
 INTEGRATION_ROOT = Path(__file__).resolve().parents[1] / "custom_components/anycubic_ha_integration"
 sys.path.insert(0, str(INTEGRATION_ROOT))
 
+from anycubic_cloud_api.const.enums import kobra_x_nozzle_option  # noqa: E402
 from anycubic_cloud_api.data_models.consumable import AnycubicConsumableData  # noqa: E402
 from anycubic_cloud_api.data_models.printer import AnycubicPrinter  # noqa: E402
-from anycubic_cloud_api.const.enums import kobra_x_nozzle_option  # noqa: E402
 
 
 def ace(box_id=0, loaded_slot=1):
