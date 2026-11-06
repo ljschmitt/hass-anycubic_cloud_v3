@@ -73,6 +73,9 @@ export class AnycubicPrintercardCard extends LitElement {
   @property({ attribute: "monitored-stats" })
   public monitoredStats?: PrinterCardStatType[] = defaultMonitoredStats;
 
+  @property({ attribute: false })
+  public hardwareImagePath?: string;
+
   @property({ attribute: "selected-printer-id" })
   public selectedPrinterID: string | undefined;
 
@@ -454,23 +457,58 @@ export class AnycubicPrintercardCard extends LitElement {
 
     return plateLabel || nozzle
       ? html`
-          <dl class="ac-printer-card-hardware">
+          <div class="ac-printer-card-hardware">
             ${plateLabel
               ? html`<div>
-                  <dt>${translate("build_plate")}</dt>
-                  <dd>${plateLabel}</dd>
+                  ${this._renderHardwareImage(plate, buildPlateTypes)}
+                  <dl>
+                    <dt>${translate("build_plate")}</dt>
+                    <dd>${plateLabel}</dd>
+                  </dl>
                 </div>`
               : nothing}
             ${nozzle
               ? html`<div>
-                  <dt>${translate("nozzle")}</dt>
-                  <dd>${nozzle}</dd>
+                  ${this._renderHardwareImage(material, nozzleMaterials)}
+                  <dl>
+                    <dt>${translate("nozzle")}</dt>
+                    <dd>${nozzle}</dd>
+                  </dl>
                 </div>`
               : nothing}
-          </dl>
+          </div>
         `
       : nothing;
   }
+
+  private _renderHardwareImage(
+    hardwareState: string,
+    knownStates: string[],
+  ): LitTemplateResult | typeof nothing {
+    const folder =
+      typeof this.hardwareImagePath === "string"
+        ? this.hardwareImagePath.replace(/\/$/, "")
+        : "";
+    if (
+      !/^\/local(?:\/[a-z0-9_-]+)+$/i.test(folder) ||
+      !knownStates.includes(hardwareState)
+    ) {
+      return nothing;
+    }
+    return html`<img
+      src=${`${folder}/${hardwareState}.png`}
+      alt=""
+      width="44"
+      height="44"
+      hidden
+      @load=${this._updateHardwareImage}
+      @error=${this._updateHardwareImage}
+    />`;
+  }
+
+  private _updateHardwareImage = (event: Event): void => {
+    (event.currentTarget as HTMLImageElement).hidden = event.type === "error";
+  };
 
   private _toggleVideo = (): void => {
     const hasCloudCameraConfig = !!(
@@ -851,8 +889,22 @@ export class AnycubicPrintercardCard extends LitElement {
       }
 
       .ac-printer-card-hardware > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         flex: 1 1 10rem;
         min-width: 0;
+      }
+
+      .ac-printer-card-hardware dl {
+        margin: 0;
+        min-width: 0;
+      }
+
+      .ac-printer-card-hardware img {
+        flex: 0 0 auto;
+        object-fit: contain;
+        border-radius: 6px;
       }
 
       .ac-printer-card-hardware dt {

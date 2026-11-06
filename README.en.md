@@ -75,6 +75,8 @@ Starting with **0.4.6-beta.1**, **Build Plate Type**, **Nozzle Diameter**, and *
 
 The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. The display is read-only and omits entries without reported values.
 
+The [dashboard card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.1#optional-local-hardware-images) can also display optional local images for the reported plate type and nozzle material.
+
 **Current Status** includes the last reported calibration snapshot. Firmware and temperature reports update the existing entities. Successful file and preview acknowledgements leave file lists intact.
 
 ## Screenshots

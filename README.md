@@ -22,7 +22,7 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - Neue Diagnose-Entitaeten und Anzeige fuer gemeldete Druckplatte, Duesenmaterial und Duesendurchmesser.
 > - Passende Dashboard-Card in derselben Beta-Version. Letzte stabile Version: 0.4.5.
 >
-> **Home Assistant 2026.11.0 / Marketplace** mit der Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
+> **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
@@ -103,6 +103,8 @@ Der Kobra X absolvierte mit der Beta einen vollstaendigen Druck bis zum Abkuehle
 Ab **0.4.6-beta.1** erscheinen **Build Plate Type**, **Nozzle Diameter** und **Nozzle Material** unter den Diagnose-Entitaeten, sobald der Drucker die jeweiligen MQTT-Werte meldet. Beim Kobra X stehen die Plattencodes `1`, `2` und `3` fuer texturierte PEI-, glatte Transfer- und Niedertemperatur-Platten. Die Duesenmaterial-Codes `1` und `2` stehen fuer Messing und gehaerteten Stahl. Die Zuordnungen gelten fuer den Kobra X. Unbekannte Codes bleiben im Attribut `material_code` sichtbar. Der Duesendurchmesser wird in Millimetern angezeigt, einschliesslich Werten wie 0,25 mm.
 
 In der ausgeklappten Druckeransicht unter den Statuswerten zeigen das integrierte Panel und die passende Dashboard-Card die gemeldete Druckplatte und Duese an. Die Anzeige ist schreibgeschuetzt. Eintraege ohne gemeldete Werte werden ausgeblendet.
+
+Die [Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.1#optional-local-hardware-images) kann optional lokal abgelegte Bilder zum gemeldeten Plattentyp und Duesenmaterial anzeigen.
 
 Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattribut in **Current Status**. Firmware-Berichte aktualisieren die vorhandene Update-Entitaet, einschliesslich gemeldetem Schritt und Fortschritt. Temperaturantworten aktualisieren die vorhandenen Sensoren. Erfolgreiche Datei- und Vorschau-Antworten werden als Bestaetigungen verarbeitet und lassen die Dateiliste erhalten.
 

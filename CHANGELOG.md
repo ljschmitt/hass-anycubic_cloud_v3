@@ -5,6 +5,7 @@
 - Process the Kobra X 2.0.2.8 temperature query, firmware completion and update step reports in the existing entities. Keep calibration query data as a diagnostic snapshot and recognize the observed successful file and empty material acknowledgements.
 - Add read-only build plate type, nozzle diameter and nozzle material diagnostics from hardware reports. Map the three confirmed Kobra X plates and both confirmed nozzle materials, retain raw material codes, and display fractional nozzle diameters such as 0.25 mm.
 - Show the reported build plate and nozzle in the expanded printer card, shared by the integration panel and the optional dashboard card. Omit entries until their sensors have data.
+- Let the Lovelace card display optional local hardware thumbnails without packaging or fetching third-party images.
 
 ## 0.4.5
 
