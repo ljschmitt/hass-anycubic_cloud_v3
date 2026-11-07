@@ -79,6 +79,8 @@ The built-in panel and matching dashboard card show the reported build plate and
 
 From **0.4.6**, the integration includes the original Slicer plate and nozzle images. The Anycubic Cloud sidebar panel and matching dashboard card load them automatically and center the thumbnails at the standard spool diameter. The dashboard card can still prefer custom images via `hardwareImagePath`. [Dashboard card images](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6#optional-local-hardware-images)
 
+[Version 0.4.7](CHANGELOG.md#047) removes the shared actions and sidebar panel when the last Anycubic Cloud account unloads. Reloading an account registers them again. Use the [matching dashboard card 0.4.7](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.7).
+
 From **0.4.6-beta.2**, the integration reads hardware settings when it first reaches a Kobra X. Open the plate type in the expanded card or use **Build Plate Selection** under the device's configuration entities. This control is available while a supported printer is online and idle. Select the plate physically installed and follow Anycubic's bed-leveling guidance after a change. The entity updates after the new value is reported by the cloud.
 
 Version **0.4.6-beta.3** adds **Nozzle Selection** for the Kobra X. The options are brass (0.2, 0.25, 0.4, 0.6, and 0.8 mm) and hardened steel (0.4, 0.6, and 0.8 mm). Select the installed nozzle. Anycubic recommends PID tuning and bed leveling after a nozzle change.

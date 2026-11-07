@@ -63,25 +63,21 @@ async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, PLATFORMS
-    )
+    if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        return False
 
-    if unload_ok and entry.entry_id in hass.data[DOMAIN]:
-        host = hass.data[DOMAIN].pop(entry.entry_id)
-        await host[COORDINATOR].stop_anycubic_mqtt_connection_if_started()
+    domain_data = hass.data[DOMAIN]
+    host = domain_data.get(entry.entry_id)
+    if host is None:
+        return True
 
-    # unregister service calls
-    remaining_entries = [
-        key for key in hass.data[DOMAIN]
-        if key != WEBSOCKET_API_REGISTERED
-    ]
+    await host[COORDINATOR].stop_anycubic_mqtt_connection_if_started()
+    domain_data.pop(entry.entry_id)
 
-    if unload_ok and not remaining_entries:  # check if this is the last entry to unload
+    # The WebSocket and image routes stay registered for the HA process.
+    if not any(isinstance(data, dict) and COORDINATOR in data for data in domain_data.values()):
         for service_name, _ in SERVICES:
             hass.services.async_remove(DOMAIN, service_name)
+        async_unregister_panel(hass)
 
-    # unregister panel
-    async_unregister_panel(hass)
-
-    return unload_ok
+    return True
