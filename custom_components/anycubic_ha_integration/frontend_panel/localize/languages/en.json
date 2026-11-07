@@ -67,6 +67,12 @@
     }
   },
   "card": {
+    "power": {
+      "on": "Toggle power · On",
+      "off": "Toggle power · Off",
+      "unknown": "Toggle power · Unknown",
+      "unavailable": "Toggle power · Unavailable"
+    },
     "hardware": {
       "build_plate": "Build plate",
       "change_nozzle": "Change nozzle",

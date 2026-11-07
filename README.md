@@ -16,14 +16,15 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.7**
+> 🗓️ **Aktuelles Release: 0.4.8**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
 > - Zentrierte Vorschauen in Spulengroesse. Die Integration liefert die originalen Slicer-Bilder fuer Panel und Dashboard-Card mit.
 > - ACE 2 Pro zeigt bei manuell konfigurierten Spulen ohne verifizierten Fuellstand **Unbekannt** ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
 > - Beim Entladen des letzten Kontos werden Aktionen und Seitenleisten-Panel abgemeldet. Beim Neuladen werden sie wieder registriert.
-> - Verwende die [passende Dashboard-Card 0.4.7](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.7).
+> - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
+> - Verwende die [passende Dashboard-Card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -130,6 +131,8 @@ Empfohlen fuer diese Integration ist der passende Anycubic-Card-Fork:
 Die urspruengliche [Anycubic-Karte fuer Home Assistant](https://github.com/WaresWichall/hass-anycubic_card) ist eine separate Dashboard-/Lovelace-Card und wurde fuer die originale Anycubic-Integration gebaut. Dieser Fork bleibt naeher an den Entity-IDs und Zusatzfunktionen dieser Integration. Bitte fuer neue Setups bevorzugt den Fork verwenden, damit Dashboard-Card und Integration denselben Stand erwarten.
 
 Die Integration selbst bringt weiterhin ein eigenes Home-Assistant-Panel mit. Die externe Card ist optional und muss separat in HACS als Dashboard-/Frontend-Card installiert werden.
+
+Ab [0.4.8](CHANGELOG.md#048) zeigt das Power-Symbol den Zustand der ueber `powerEntityId` hinterlegten Entitaet. **An** verwendet die Erfolgsfarbe des Themes, **Aus** erscheint als Ring. **Unbekannt** und **Nicht verfuegbar** werden neutral dargestellt. Der Tooltip nennt den von Home Assistant gemeldeten Zustand.
 
 ### Entity-IDs und externe Karten
 

@@ -67,6 +67,12 @@
     }
   },
   "card": {
+    "power": {
+      "on": "Strom umschalten · An",
+      "off": "Strom umschalten · Aus",
+      "unknown": "Strom umschalten · Unbekannt",
+      "unavailable": "Strom umschalten · Nicht verfügbar"
+    },
     "hardware": {
       "build_plate": "Druckplatte",
       "change_nozzle": "Düse ändern",
