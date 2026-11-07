@@ -1,4 +1,10 @@
-import { mdiCog, mdiLightbulbOff, mdiLightbulbOn, mdiPower } from "@mdi/js";
+import {
+  mdiCog,
+  mdiLightbulbOff,
+  mdiLightbulbOn,
+  mdiPower,
+  mdiPowerOff,
+} from "@mdi/js";
 import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { query } from "lit/decorators/query.js";
@@ -339,16 +345,36 @@ export class AnycubicPrintercardCard extends LitElement {
       "background-color": this.statusColor,
     };
 
+    const powerState = getEntityState(
+      this.hass,
+      this.powerEntityId ? { entity_id: this.powerEntityId } : undefined,
+    )?.state;
+    const powerStatus =
+      powerState === "on" ||
+      powerState === "off" ||
+      powerState === "unavailable"
+        ? powerState
+        : "unknown";
+    const powerLabel = this.powerEntityId
+      ? localize(`card.power.${powerStatus}`, this.language)
+      : "";
+
     return html`
       <div class="ac-printer-card-header ${classMap(classesHeader)}">
         ${this.powerEntityId
           ? html`
               <button
-                class="ac-printer-card-button-small"
+                class="ac-printer-card-button-small ac-printer-card-button-power"
+                data-power-state=${powerStatus}
+                aria-label=${powerLabel}
+                title=${powerLabel}
                 .disabled=${this._togglingPower}
                 @click=${this._togglePowerEntity}
               >
-                <ha-svg-icon .path=${mdiPower}></ha-svg-icon>
+                <ha-svg-icon
+                  .path=${powerStatus === "off" ? mdiPowerOff : mdiPower}
+                  aria-hidden="true"
+                ></ha-svg-icon>
               </button>
             `
           : nothing}
@@ -1027,6 +1053,24 @@ export class AnycubicPrintercardCard extends LitElement {
         margin-left: 24px;
         cursor: pointer;
         color: var(--primary-text-color);
+      }
+
+      .ac-printer-card-button-power[data-power-state="on"] {
+        color: var(--success-color, #2e7d32);
+      }
+
+      .ac-printer-card-button-power ha-svg-icon {
+        --icon-primary-color: currentColor;
+      }
+
+      .ac-printer-card-button-power[data-power-state="unknown"],
+      .ac-printer-card-button-power[data-power-state="unavailable"] {
+        color: var(--secondary-text-color, var(--primary-text-color));
+      }
+
+      .ac-printer-card-button-power:focus-visible {
+        outline: 2px solid var(--primary-text-color);
+        outline-offset: 2px;
       }
 
       .ac-printer-card-button-settings {

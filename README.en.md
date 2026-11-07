@@ -176,6 +176,8 @@ With multiple ACE units, this attribute refers only to the primary ACE. The Kobr
 
 The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card). The integration also includes its own Home Assistant side panel, so the external card is optional.
 
+From [0.4.8](CHANGELOG.md#048), the power icon reflects the entity configured through `powerEntityId`. **On** uses the theme's success color, **Off** is a ring, and **Unknown** and **Unavailable** use a neutral icon. The tooltip shows the state reported by Home Assistant. Use the [matching dashboard card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
+
 ## Camera behavior
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.

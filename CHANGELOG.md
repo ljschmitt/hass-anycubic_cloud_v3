@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.8
+
+- Show the configured power entity state in the dashboard card and sidebar panel. A confirmed on state uses the theme's success color, off uses a ring, and unknown or unavailable states use a neutral icon. [Card #1](https://github.com/ljschmitt/hass-anycubic_card/issues/1)
+
 ## 0.4.7
 
 - Remove the shared Anycubic actions and sidebar panel when the last account unloads. Keep the Slicer image route available for reloading the integration. [#28](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/28#discussion_r4499270490)
