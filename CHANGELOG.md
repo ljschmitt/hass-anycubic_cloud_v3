@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7
+
+- Remove the shared Anycubic actions and sidebar panel when the last account unloads. Keep the Slicer image route available for reloading the integration. [#28](https://github.com/ljschmitt/hass-anycubic_cloud_v3/pull/28#discussion_r4499270490)
+
 ## 0.4.6
 
 - Bring the Kobra X firmware handling, plate and nozzle controls, and bundled Slicer previews from the 0.4.6 betas into the stable integration and dashboard card.
