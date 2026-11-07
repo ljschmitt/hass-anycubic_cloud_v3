@@ -1,5 +1,5 @@
 import { mdiRadiator } from "@mdi/js";
-import { CSSResult, LitElement, PropertyValues, css, html } from "lit";
+import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { styleMap } from "lit/directives/style-map.js";
@@ -194,6 +194,12 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
     void,
     LitTemplateResult
   > {
+    const fillLabel = localize("card.spools.fill_level", this.language);
+    const unknown = localize("card.spools.fill_unknown", this.language);
+    const percentFormat = new Intl.NumberFormat(this.language, {
+      style: "percent",
+      maximumFractionDigits: 1,
+    });
     return map(
       this.spoolList,
       (spool: AnycubicSpoolInfo, index: number): LitTemplateResult => {
@@ -211,6 +217,11 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
           : spool.spool_loaded
             ? spool.material_type
             : "---";
+        const percent = spool.consumables_percent;
+        const fill =
+          typeof percent === "number"
+            ? percentFormat.format(percent / 100)
+            : unknown;
         return html`
           <div
             class="ac-spool-info ${reservedByAce ? "ac-spool-reserved" : ""}"
@@ -231,7 +242,16 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
                 <div class="ac-spool-color-num">${displaySlot}</div>
               </div>
             </div>
-            <div class="ac-spool-material-type">${spoolLabel}</div>
+            <div class="ac-spool-material-type">
+              ${spoolLabel}
+              ${spool.spool_loaded && !reservedByAce && percent !== undefined
+                ? html`<span
+                    class="ac-spool-fill"
+                    title=${`${fillLabel} · ${fill}`}
+                    >${fill}</span
+                  >`
+                : nothing}
+            </div>
           </div>
         `;
       },
@@ -345,7 +365,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
 
       .ac-spool-color-ring-cont {
         position: relative;
-        width: min(100%, 60px);
+        width: min(100%, var(--ac-printer-card-preview-size, 60px));
         box-sizing: border-box;
         flex: 0 0 auto;
       }
@@ -396,6 +416,14 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         line-height: 1.15;
         overflow-wrap: anywhere;
         word-break: normal;
+      }
+
+      .ac-spool-fill {
+        display: block;
+        margin-top: 2px;
+        color: var(--secondary-text-color, var(--primary-text-color));
+        font-size: 0.75rem;
+        font-weight: 400;
       }
 
       .ac-printercard-mcbmenu ha-control-button {

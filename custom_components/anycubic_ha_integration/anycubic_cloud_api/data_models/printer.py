@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from math import isfinite
 from typing import TYPE_CHECKING, Any
 
 from ..const.enums import (
+    KOBRA_X_BUILD_PLATE_TYPES,
     AnycubicFunctionID,
     AnycubicPrinterMaterialType,
     AnycubicPrintStatus,
@@ -117,6 +119,8 @@ class AnycubicPrinter:
         "_camera_light_type",
         "_is_bound_to_user",
         "_job_download_progress",
+        "_hardware_settings",
+        "_calibration_snapshot",
     )
 
     def __init__(
@@ -213,6 +217,8 @@ class AnycubicPrinter:
 
         self._latest_project: AnycubicProject | None = None
         self._fan_speed: int = 0
+        self._hardware_settings: dict[str, int | float] = {}
+        self._calibration_snapshot: dict[str, int | str] = {}
         self._aux_fan_speed_pct: int | None = None
         self._box_fan_level: int | None = None
         self._print_speed_pct: int = 0
@@ -887,6 +893,11 @@ class AnycubicPrinter:
                 self.fw_version.set_is_updating(True)
                 self.fw_version.set_is_downloading(False)
                 self.fw_version.set_update_progress(data['current_progress'])
+                self.fw_version.set_update_steps(data.get('current_step'), data.get('total_step'))
+            return
+        elif action == 'update' and state == 'update-success' and payload.get('code') == 200:
+            if self.fw_version is not None:
+                self.fw_version.finish_update()
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.ota_printer)
@@ -897,7 +908,7 @@ class AnycubicPrinter:
         state: str,
         payload: AnycubicConsumableData,
     ) -> None:
-        if action == 'auto' and state == 'done':
+        if state == 'done' and (action == 'auto' or (action == 'query' and payload.get('code', 200) == 200)):
             data = payload['data']
 
             if self.parameter:
@@ -1262,8 +1273,21 @@ class AnycubicPrinter:
             # does not use video thumbnails.
             payload.force_empty()
             return
-        else:
-            raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.file)
+        elif state == 'done' and payload.get('code') == 200:
+            data = payload.get('data')
+            if action == 'fileThumbnailList' and data is None:
+                return
+            if isinstance(data, AnycubicConsumableData):
+                # These acknowledgements carry temporary upload and preview references.
+                if action == 'getPreSignedUrl':
+                    for key in ('fileSize', 'filename', 'path'):
+                        data.get(key)
+                    return
+                if action == 'saveFileThumbnail':
+                    for key in ('fileKey', 'filename', 'thumbnailUrl'):
+                        data.get(key)
+                    return
+        raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.file)
 
     def _process_mqtt_update_peripherals(
         self,
@@ -1343,6 +1367,40 @@ class AnycubicPrinter:
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.unknown.format('buried'))
 
+    def _process_mqtt_update_properties(self, data: AnycubicConsumableData) -> None:
+        data.get('assistant_settings')
+        data.get('option_settings')
+        if (channels := data.get('head_channel_count')) is not None:
+            self._hardware_settings['head_channel_count'] = int(channels)
+
+        if isinstance(hardware := data.get('hardware_settings'), AnycubicConsumableData):
+            if (diameter := hardware.get('diameter')) is not None:
+                diameter_mm = float(diameter)
+                if not isfinite(diameter_mm) or diameter_mm <= 0:
+                    raise ValueError('Invalid nozzle diameter in Anycubic hardware settings')
+                self._hardware_settings['nozzle_diameter'] = diameter_mm
+            if (material := hardware.get('material')) is not None:
+                self._hardware_settings['nozzle_material_code'] = int(material)
+            if hardware.is_empty:
+                data.get('hardware_settings')
+
+        if isinstance(hotbed := data.get('hotbed_settings'), AnycubicConsumableData):
+            if (material := hotbed.get('material')) is not None:
+                self._hardware_settings['build_plate_material_code'] = int(material)
+            if hotbed.is_empty:
+                data.get('hotbed_settings')
+
+    def _process_mqtt_update_calibration(self, data: AnycubicConsumableData) -> None:
+        self._calibration_snapshot = {
+            key: value
+            for key in ('status', 'current_item', 'current_stage', 'remain_time_s')
+            if isinstance(value := data.get(key), (str, int))
+        }
+        if data.remaining_data.get('results') == []:
+            data.get('results')
+        if data.remaining_data.get('stage_extra') is None:
+            data.get('stage_extra')
+
     def process_mqtt_update(
         self,
         topic: str,
@@ -1402,17 +1460,19 @@ class AnycubicPrinter:
             for key in ('current_status', 'filament_color', 'has_filaments', 'index', 'laps', 'move_type'):
                 data.get(key)
 
-        elif msg_type == 'properties' and action == 'report' and state == 'done':
-            data = payload['data']
-            for key in ('assistant_settings', 'head_channel_count', 'option_settings'):
-                data.get(key)
-            for key, fields in (('hardware_settings', ('diameter', 'material')), ('hotbed_settings', ('material',))):
-                settings = data.get(key)
-                if isinstance(settings, AnycubicConsumableData):
-                    for field in fields:
-                        settings.get(field)
-                    if settings.is_empty:
-                        data.get(key)
+        elif (msg_type == 'properties' and action in ('report', 'write') and state == 'done'
+              and payload.get('code', 200) == 200):
+            self._process_mqtt_update_properties(payload['data'])
+
+        elif msg_type == 'calibration' and action == 'getInfo' and state == 'done' and payload.get('code') == 200:
+            self._process_mqtt_update_calibration(payload['data'])
+
+        elif (
+            msg_type == 'material' and action == 'getCustomMaterials' and state == 'done'
+            and payload.get('code') == 200 and payload.get('data') is None
+        ):
+            # An empty custom-material reply has no slot or material assignment.
+            pass
 
         elif msg_type == 'buried':
             self._process_mqtt_update_buried(action, state, payload)
@@ -1450,6 +1510,29 @@ class AnycubicPrinter:
                 unhandled_mqtt_action=action,
                 unhandled_mqtt_state=state,
             )
+
+    @property
+    def hardware_settings(self) -> dict[str, int | float]:
+        return self._hardware_settings.copy()
+
+    def apply_hardware_properties(self, properties: dict[str, Any]) -> None:
+        """Apply a readback from the printer properties endpoint."""
+        data = {key: properties[key] for key in ("head_channel_count", "hotbed_settings", "hardware_settings") if key in properties}
+        self._process_mqtt_update_properties(AnycubicConsumableData(data))
+
+    @property
+    def build_plate_type(self) -> str | None:
+        """Return the last plate type reported by the printer."""
+        material = self._hardware_settings.get("build_plate_material_code")
+        if material is None:
+            return None
+        if self.is_kobra_x and isinstance(material, int):
+            return KOBRA_X_BUILD_PLATE_TYPES.get(material, "unmapped")
+        return "unmapped"
+
+    @property
+    def calibration_snapshot(self) -> dict[str, int | str]:
+        return self._calibration_snapshot.copy()
 
     @property
     def initialisation_error(self) -> bool:
@@ -1948,6 +2031,8 @@ class AnycubicPrinter:
                 slot["display_slot"] = slot_index
                 slot["source"] = "internal"
                 slot["reserved_by_ace"] = slot_index == 4 and self.connected_ace_units > 0
+                if slot["reserved_by_ace"] and "consumables_percent" in slot:
+                    slot["consumables_percent"] = None
                 kobra_x_spool_info.append(slot)
 
             return kobra_x_spool_info

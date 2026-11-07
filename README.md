@@ -16,14 +16,15 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.5**
+> 🗓️ **Aktuelles Release: 0.4.6**
 >
-> - ACE-Presets und Stop-Befehle fuer die ausgewaehlte ACE korrigiert.
-> - MQTT-Berichte fuer Nivellieren, Filamentwechsel und Trocknung verarbeitet. Druckfortschritt bleibt beim Filamentwechsel aktiv.
-> - Entwickler-Helfer aus dem installierten Integrationsordner entfernt; passende Card und einheitliche Anzeigenamen.
-> - Bestehende TLS-Zertifikatspruefung, Entity-IDs, Slotzuordnungen und Druckzeiteinheiten bleiben erhalten.
+> - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
+> - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
+> - Zentrierte Vorschauen in Spulengroesse. Die Integration liefert die originalen Slicer-Bilder fuer Panel und Dashboard-Card mit.
+> - ACE 2 Pro zeigt bei manuell konfigurierten Spulen ohne verifizierten Fuellstand **Unbekannt** ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
+> - Verwende die [passende Dashboard-Card 0.4.6](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.6).
 >
-> **Home Assistant 2026.11.0 / Marketplace** mit der Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
+> **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
 
 ➡️ Eigener Fork mit:
@@ -99,6 +100,22 @@ Luefterantworten mit `action: query` aktualisieren dieselben Werte wie bisherige
 
 Der Kobra X absolvierte mit der Beta einen vollstaendigen Druck bis zum Abkuehlen und bestaetigte einen aus Home Assistant ausgeloesten ACE-Stop. Die beobachteten Parserfehler wurden mit Regressionstests nachgestellt und behoben. Rueckmeldungen zu Preset-Anzeige, Start, Status und Stop am S1 Max und Kobra 3 Max sind weiterhin willkommen. Bei zwei ACEs bitte auch pruefen, ob die jeweils andere weiterlaeuft. Neue Meldungen vor dem Teilen bereinigen.
 
+### Hardware-Diagnose und Firmware-Meldungen beim Kobra X
+
+Ab **0.4.6-beta.1** erscheinen **Build Plate Type**, **Nozzle Diameter** und **Nozzle Material** unter den Diagnose-Entitaeten, sobald der Drucker die jeweiligen MQTT-Werte meldet. Beim Kobra X stehen die Plattencodes `1`, `2` und `3` fuer texturierte PEI-, glatte Transfer- und Niedertemperatur-Platten. Die Duesenmaterial-Codes `1` und `2` stehen fuer Messing und gehaerteten Stahl. Die Zuordnungen gelten fuer den Kobra X. Unbekannte Codes bleiben im Attribut `material_code` sichtbar. Der Duesendurchmesser wird in Millimetern angezeigt, einschliesslich Werten wie 0,25 mm.
+
+In der ausgeklappten Druckeransicht unter den Statuswerten zeigen das integrierte Panel und die passende Dashboard-Card die gemeldete Druckplatte und Duese an. Eintraege ohne gemeldete Werte werden ausgeblendet.
+
+Ab **0.4.6** liefert die Integration die originalen Slicer-Bilder fuer Druckplatte und Duese mit. Das Anycubic-Cloud-Panel und die passende Dashboard-Card zeigen sie automatisch und zentriert in Spulengroesse an. Die Card kann mit `hardwareImagePath` weiterhin eigene Bilder bevorzugen. [Bilder in der Dashboard-Card](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6#optional-local-hardware-images)
+
+Ab **0.4.6-beta.2** liest die Integration die Hardwarewerte des erreichbaren Kobra X beim ersten Abruf ueber die Cloud. Tippe in der ausgeklappten Card auf den Plattentyp oder oeffne **Build Plate Selection** unter **Einstellungen → Geraete & Dienste → Anycubic Cloud → Kobra X → Konfiguration**. Die Auswahl erscheint fuer unterstuetzte Drucker und ist im Leerlauf bedienbar. Waehle die tatsaechlich montierte Platte. Nach einem Wechsel empfiehlt Anycubic eine Bettnivellierung. Die Anzeige uebernimmt den neuen Wert nach Bestaetigung durch den Cloud-Abruf.
+
+Ab **0.4.6-beta.3** gibt es zusaetzlich **Nozzle Selection** fuer den Kobra X. Verfuegbar sind Messing (0,2, 0,25, 0,4, 0,6 und 0,8 mm) und gehaerteter Stahl (0,4, 0,6 und 0,8 mm). Waehle die montierte Duese. Anycubic empfiehlt nach einem Duesenwechsel PID-Tuning und Bettnivellierung.
+
+Bei verfuegbaren Bildern zeigt die Uebersicht nur die Vorschaubilder. Ohne Bild bleibt die Bezeichnung sichtbar. Ein Klick auf die Druckplatte oder Duese oeffnet die Auswahl mit Namen und den vorhandenen Bildern. Erst **Uebernehmen** sendet die Aenderung. Die Integration liest den Wert zur Bestaetigung zurueck.
+
+Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattribut in **Current Status**. Firmware-Berichte aktualisieren die vorhandene Update-Entitaet, einschliesslich gemeldetem Schritt und Fortschritt. Temperaturantworten aktualisieren die vorhandenen Sensoren. Erfolgreiche Datei- und Vorschau-Antworten werden als Bestaetigungen verarbeitet und lassen die Dateiliste erhalten.
+
 ---
 
 ## 🎨 Frontend-Card
@@ -134,6 +151,10 @@ Der Dienst benennt nur Entity-Registry-Eintraege dieser Integration um. Er legt 
 Der bestehende Sensor `sensor.anycubic_printer_ace_spools` erhaelt ab Version **0.4.3** das zusaetzliche Attribut `loaded_slot`. Es gibt den unveraenderten, **nullbasierten** Cloud-/MQTT-Wert der primaeren ACE zurueck: `0` ist ihr erster Slot, `1` ihr zweiter Slot und `-1` bedeutet, dass kein Slot geladen ist. Ohne primaere ACE ist der Wert `null`. Bei offline befindlichen Druckern kann der letzte bekannte Wert stehen bleiben; er bestaetigt keine aktuelle Filamentbewegung.
 
 Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere ACE. Beim Kobra X wird das interne Materialregal nicht als primaere ACE gewertet. Die vorhandenen Felder `local_slot`, `slot` und `display_slot` bleiben einsbasiert und unveraendert. Vor einem Zugriff auf `spool_info[loaded_slot]` immer pruefen, ob `loaded_slot` eine Zahl zwischen `0` und der Listenlaenge minus eins ist; insbesondere darf `-1` nicht als letzter Listeneintrag interpretiert werden. Das Attribut benoetigt keine neue Entity und aendert keine Druck-Slotzuordnung.
+
+### Fuellstand der ACE 2 Pro
+
+Ab **0.4.6** enthaelt `spool_info` bei der ACE 2 Pro das Feld `consumables_percent`. Der Wert wird fuer belegte, automatisch erkannte Spulen uebernommen. Manuell konfigurierte, leere oder reservierte Slots und fehlende oder ungueltige Werte ergeben `null`. Panel und passende Card zeigen bei einer belegten Spule ohne bestaetigten Wert **Unbekannt**. Das gilt auch fuer die pauschalen 100 Prozent, die der Kobra X bei manuell konfigurierten Slots melden kann. [Ruckmeldungen zu #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
 
 ---
 

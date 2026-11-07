@@ -246,6 +246,7 @@ export class AnycubicCard extends LitElement {
         .lightEntityId=${this.lightEntityId}
         .powerEntityId=${this.powerEntityId}
         .cameraEntityId=${this.cameraEntityId}
+        .hardwareImagePath=${this.config.hardwareImagePath}
         .scaleFactor=${this.scaleFactor}
         .slotColors=${this.slotColors}
       ></anycubic-printercard-card>

@@ -7,6 +7,8 @@ from typing import Any
 from ..exceptions.error_strings import ErrorsDataParsing
 from ..exceptions.exceptions import AnycubicDataParsingError
 
+ACE_2_PRO_MODEL_ID = 40002
+
 
 class AnycubicMaterialMapping:
     __slots__ = (
@@ -454,6 +456,7 @@ class AnycubicSpoolInfo:
         "_color",
         "_edit_status",
         "_status",
+        "_consumables_percent",
     )
 
     def __init__(
@@ -464,6 +467,7 @@ class AnycubicSpoolInfo:
         color: list[int],
         edit_status: int,
         status: int,
+        consumables_percent: object = None,
     ) -> None:
         self._index = int(index)
         self._sku = str(sku)
@@ -473,6 +477,13 @@ class AnycubicSpoolInfo:
         ])
         self._edit_status = int(edit_status)
         self._status = int(status)
+        self._consumables_percent = (
+            consumables_percent
+            if isinstance(consumables_percent, (int, float))
+            and not isinstance(consumables_percent, bool)
+            and 0 <= consumables_percent <= 100
+            else None
+        )
 
     @classmethod
     def from_json(cls, data: dict[str, Any] | None) -> AnycubicSpoolInfo | None:
@@ -486,6 +497,7 @@ class AnycubicSpoolInfo:
             color=data['color'],
             edit_status=data['edit_status'],
             status=data['status'],
+            consumables_percent=data.get('consumables_percent'),
         )
 
     @property
@@ -520,11 +532,17 @@ class AnycubicSpoolInfo:
     def spool_loaded(self) -> bool:
         return self._status == 5
 
+    @property
+    def consumables_percent(self) -> int | float | None:
+        """Return the estimate for an automatically recognized, loaded spool."""
+        return self._consumables_percent if self.spool_loaded and self._edit_status == 0 else None
+
     def set_spool_loaded(self, is_loaded: bool) -> None:
         if is_loaded:
             self._status = 5
         else:
             self._status = 4
+            self._consumables_percent = None
 
     def __repr__(self) -> str:
         return (
@@ -703,6 +721,7 @@ class AnycubicMultiColorBox:
                 "slot": slot.index + 1,
                 "display_slot": slot.index + 1,
                 "box_id": self.box_id,
+                **({"consumables_percent": slot.consumables_percent} if self._model_id == ACE_2_PRO_MODEL_ID else {}),
             } for slot in self._slots
         ])
         return spool_list
@@ -837,6 +856,7 @@ class AnycubicMachineFirmwareInfo:
         "_download_progress",
         "_is_downloading",
         "_is_updating",
+        "_update_steps",
     )
 
     def __init__(
@@ -866,6 +886,7 @@ class AnycubicMachineFirmwareInfo:
         self._download_progress: int = 0
         self._is_downloading: bool = False
         self._is_updating: bool = False
+        self._update_steps: tuple[int, int] | None = None
 
     @property
     def firmware_version(self) -> str:
@@ -890,8 +911,12 @@ class AnycubicMachineFirmwareInfo:
                 return min(self._download_progress / 2, 100)
             elif self._update_progress > 0:
                 return min(self._update_progress / 2 + 50, 100)
-            return 1
+            return True
         return False
+
+    @property
+    def update_steps(self) -> tuple[int, int] | None:
+        return self._update_steps
 
     @property
     def available_version(self) -> str | None:
@@ -944,16 +969,19 @@ class AnycubicMachineFirmwareInfo:
     def update_version(self, new_version: str) -> None:
         if self._firmware_version != str(new_version):
             self.set_firmware_version(new_version)
-
-            if self._is_updating:
-                self.set_is_updating(False)
-
-            if self._is_downloading:
-                self.set_is_downloading(False)
-
-            self.set_download_progress(0)
-            self.set_update_progress(0)
+            self.finish_update()
             self.set_need_update(0)
+
+    def finish_update(self) -> None:
+        self.set_is_updating(False)
+        self.set_is_downloading(False)
+        self.set_download_progress(0)
+        self.set_update_progress(0)
+        self._update_steps = None
+
+    def set_update_steps(self, current: int | None, total: int | None) -> None:
+        if current is not None and total is not None and 0 <= current <= total and total > 0:
+            self._update_steps = (current, total)
 
     def set_need_update(self, need_update: int) -> None:
         self._need_update = int(need_update)

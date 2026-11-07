@@ -371,9 +371,52 @@
         "name": "Camera Light"
       }
     },
+    "select": {
+      "nozzle_selection": {
+        "name": "Nozzle Selection",
+        "state": {
+          "steel_04": "Hardened steel · 0.4 mm",
+          "steel_06": "Hardened steel · 0.6 mm",
+          "steel_08": "Hardened steel · 0.8 mm",
+          "brass_02": "Brass · 0.2 mm",
+          "brass_025": "Brass · 0.25 mm",
+          "brass_04": "Brass · 0.4 mm",
+          "brass_06": "Brass · 0.6 mm",
+          "brass_08": "Brass · 0.8 mm"
+        }
+      },
+      "build_plate_selection": {
+        "name": "Build Plate Selection",
+        "state": {
+          "textured_pei_plate": "Textured PEI plate",
+          "smooth_transfer_plate": "Smooth / transfer plate",
+          "low_temperature_plate": "Low-temperature plate"
+        }
+      }
+    },
     "sensor": {
       "current_status": {
         "name": "Current Status"
+      },
+      "build_plate_type": {
+        "name": "Build Plate Type",
+        "state": {
+          "textured_pei_plate": "Textured PEI plate",
+          "smooth_transfer_plate": "Smooth / transfer plate",
+          "low_temperature_plate": "Low-temperature plate",
+          "unmapped": "Unmapped plate type"
+        }
+      },
+      "nozzle_diameter": {
+        "name": "Nozzle Diameter"
+      },
+      "nozzle_material": {
+        "name": "Nozzle Material",
+        "state": {
+          "brass": "Brass",
+          "hardened_steel": "Hardened steel",
+          "unmapped": "Unmapped nozzle material"
+        }
       },
       "curr_nozzle_temp": {
         "name": "[%key:common::nozzle_temperature%]"

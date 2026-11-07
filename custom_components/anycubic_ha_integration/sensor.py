@@ -13,6 +13,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
+    EntityCategory,
     Platform,
     UnitOfLength,
     UnitOfTemperature,
@@ -22,6 +23,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
+from .anycubic_cloud_api.const.enums import KOBRA_X_BUILD_PLATE_TYPES
 from .const import (
     COORDINATOR,
     DOMAIN,
@@ -228,6 +230,37 @@ SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
         key="current_status",
         translation_key="current_status",
         printer_entity_type=PrinterEntityType.PRINTER,
+        not_measured=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="build_plate_type",
+        translation_key="build_plate_type",
+        device_class=SensorDeviceClass.ENUM,
+        options=[*KOBRA_X_BUILD_PLATE_TYPES.values(), "unmapped"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
+        not_measured=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="nozzle_diameter",
+        translation_key="nozzle_diameter",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.MILLIMETERS,
+        suggested_display_precision=2,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
+        not_measured=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="nozzle_material",
+        translation_key="nozzle_material",
+        device_class=SensorDeviceClass.ENUM,
+        options=["brass", "hardened_steel", "unmapped"],
+        entity_category=EntityCategory.DIAGNOSTIC,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
         not_measured=True,
     ),
     AnycubicSensorEntityDescription(

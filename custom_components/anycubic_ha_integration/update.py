@@ -124,6 +124,20 @@ class AnycubicUpdateEntity(AnycubicCloudEntity, UpdateEntity):
         fw_attr = printer_attributes_for_key(self.coordinator, self._printer_id, self.entity_description.key)
         return bool(fw_attr['in_progress']) if fw_attr else False
 
+    @property
+    def update_percentage(self) -> int | float | None:
+        """Return the existing download/install progress calculation."""
+        fw_attr = printer_attributes_for_key(self.coordinator, self._printer_id, self.entity_description.key)
+        progress = fw_attr['in_progress'] if fw_attr else None
+        return progress if isinstance(progress, (int, float)) and not isinstance(progress, bool) else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        fw_attr = printer_attributes_for_key(self.coordinator, self._printer_id, self.entity_description.key)
+        if fw_attr and (steps := fw_attr.get('update_steps')):
+            return {'current_step': steps[0], 'total_steps': steps[1]}
+        return None
+
     async def async_install(
         self, version: str | None, backup: bool, **kwargs: Any
     ) -> None:

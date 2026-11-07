@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.6
+
+- Bring the Kobra X firmware handling, plate and nozzle controls, and bundled Slicer previews from the 0.4.6 betas into the stable integration and dashboard card.
+
+- Show the reported ACE 2 Pro fill estimate for automatically recognized, loaded spools. Display unknown for unverified readings such as the Kobra X's default 100% in manually configured slots. [#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
+
+## 0.4.6-beta.4
+
+- Center hardware previews at the standard spool diameter. Serve the original Slicer Next plate and nozzle artwork from the integration for both the sidebar panel and dashboard card. Existing dashboard image overrides take precedence.
+
+## 0.4.6-beta.3
+
+- Show hardware thumbnails in the expanded printer overview, with labels when images are unavailable. Open an illustrated build plate chooser from the plate thumbnail and require confirmation before sending a change.
+- Add a Kobra X nozzle selector with the eight Slicer combinations, optional nozzle images, and guidance on PID tuning and bed leveling. Confirm both nozzle values through a fresh cloud readback. The nozzle and build plate use separate payloads and share a write lock.
+
+## 0.4.6-beta.2
+
+- Read Kobra X hardware settings through the cloud and expose a build plate selector for supported printers. Confirm the selected plate through a fresh readback and reject writes while printing or offline.
+- Open the Home Assistant plate selector from the displayed plate type in the panel and dashboard card.
+
+## 0.4.6-beta.1
+
+- Process the Kobra X 2.0.2.8 temperature query, firmware completion and update step reports in the existing entities. Keep calibration query data as a diagnostic snapshot and recognize the observed successful file and empty material acknowledgements.
+- Add read-only build plate type, nozzle diameter and nozzle material diagnostics from hardware reports. Map the three confirmed Kobra X plates and both confirmed nozzle materials, retain raw material codes, and display fractional nozzle diameters such as 0.25 mm.
+- Show the reported build plate and nozzle in the expanded printer card, shared by the integration panel and the optional dashboard card. Omit entries until their sensors have data.
+- Let the Lovelace card display optional local hardware thumbnails without packaging or fetching third-party images.
+
 ## 0.4.5
 
 Promote the changes from 0.4.5-beta.1 with matching panel and dashboard-card bundles. Reproduce the Kobra X MQTT errors in a full print and an ACE drying start and stop, then replay the captured messages against the fixes. Hardware feedback on the S1 Max and Kobra 3 Max remains open.

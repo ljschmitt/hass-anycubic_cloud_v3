@@ -65,6 +65,40 @@ class AnycubicOrderID(IntEnum):
     QUERY_PERIPHERALS = 1231
     GET_LIGHT_STATUS = 1232
     SET_LIGHT_STATUS = 1233
+    WRITE_PRINTER_PROPERTIES = 1253
+
+
+KOBRA_X_BUILD_PLATE_TYPES = {
+    1: "textured_pei_plate",
+    2: "smooth_transfer_plate",
+    3: "low_temperature_plate",
+}
+
+KOBRA_X_NOZZLES = {
+    "steel_04": (2, "0.4"),
+    "steel_06": (2, "0.6"),
+    "steel_08": (2, "0.8"),
+    "brass_02": (1, "0.2"),
+    "brass_025": (1, "0.25"),
+    "brass_04": (1, "0.4"),
+    "brass_06": (1, "0.6"),
+    "brass_08": (1, "0.8"),
+}
+
+
+def kobra_x_nozzle_option(material: object, diameter: object) -> str | None:
+    """Match a reported nozzle to a supported Slicer combination."""
+    if type(material) is not int or isinstance(diameter, bool) or not isinstance(diameter, (str, int, float)):
+        return None
+    try:
+        diameter_mm = float(diameter)
+    except (ValueError, OverflowError):
+        return None
+    return next(
+        (option for option, (code, size) in KOBRA_X_NOZZLES.items()
+         if material == code and diameter_mm == float(size)),
+        None,
+    )
 
 
 class AnycubicFunctionID(IntEnum):

@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-token-macos:
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     name: "Test: macOS token instructions"
     steps:
       - uses: actions/checkout@v4

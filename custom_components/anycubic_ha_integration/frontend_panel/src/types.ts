@@ -278,6 +278,7 @@ export interface AnycubicSpoolInfo {
   color: number[];
   status: number;
   spool_loaded: boolean;
+  consumables_percent?: number | null;
   local_slot?: number;
   slot?: number;
   display_slot?: number;
@@ -309,6 +310,7 @@ export interface AnycubicCardConfig {
   powerEntityId?: string;
   cameraEntityId?: string;
   cameraEntityIds?: Record<string, string>;
+  hardwareImagePath?: string;
   monitoredStats?: PrinterCardStatType[];
   scaleFactor?: number;
   slotColors?: string[];

@@ -67,13 +67,34 @@
     }
   },
   "card": {
+    "hardware": {
+      "build_plate": "Druckplatte",
+      "change_nozzle": "Düse ändern",
+      "nozzle_help": "Wähle die montierte Düse. Anycubic empfiehlt nach einem Düsenwechsel PID-Tuning und Bettnivellierung.",
+      "nozzle_error": "Die Düsenauswahl konnte nicht bestätigt werden. Prüfe die Einstellung am Drucker.",
+      "unavailable": "Diese Einstellung ist gerade nicht verfügbar.",
+      "change_build_plate": "Druckplattentyp ändern",
+      "build_plate_help": "Wähle die montierte Platte. Anycubic empfiehlt nach einem Wechsel eine Bettnivellierung.",
+      "apply": "Übernehmen",
+      "saving": "Wird übernommen…",
+      "build_plate_error": "Die Auswahl konnte nicht bestätigt werden. Prüfe den Plattentyp am Drucker.",
+      "nozzle": "Düse",
+      "textured_pei_plate": "Texturierte PEI-Druckplatte",
+      "smooth_transfer_plate": "Glatte / Transfer-Platte",
+      "low_temperature_plate": "Niedertemperatur-Platte",
+      "brass": "Messing",
+      "hardened_steel": "Gehärteter Stahl",
+      "unmapped": "Ohne Zuordnung"
+    },
     "buttons": {
       "print_settings": "Druckeinstellungen",
       "dry": "Trocknen",
       "runout_refill": "Nachfüllen"
     },
     "spools": {
-      "ace_feed": "ACE-Zuleitung"
+      "ace_feed": "ACE-Zuleitung",
+      "fill_level": "Füllstand",
+      "fill_unknown": "Unbe\u00adkannt"
     },
     "configure": {
       "tabs": {

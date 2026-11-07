@@ -12,6 +12,7 @@ from typing import Any
 INTEGRATION_ROOT = Path(__file__).resolve().parents[1] / "custom_components/anycubic_ha_integration"
 sys.path.insert(0, str(INTEGRATION_ROOT))
 
+from anycubic_cloud_api.const.enums import kobra_x_nozzle_option  # noqa: E402
 from anycubic_cloud_api.data_models.consumable import AnycubicConsumableData  # noqa: E402
 from anycubic_cloud_api.data_models.printer import AnycubicPrinter  # noqa: E402
 
@@ -45,6 +46,7 @@ def build_sensor_data(printer_object):
     method = next(node for node in coordinator.body if isinstance(node, ast.FunctionDef)
                   and node.name == "_build_printer_dict")
     namespace = {"Any": Any, "AnycubicPrinter": AnycubicPrinter,
+                 "kobra_x_nozzle_option": kobra_x_nozzle_option,
                  "state_string_active": lambda value: "active" if value is not None else "inactive",
                  "state_string_loaded": lambda value: "loaded" if value is not None else "not loaded",
                  "MAX_DRYING_PRESETS": 1, "ENTITY_ID_DRYING_START_PRESET_": "drying_start_preset_",
@@ -57,6 +59,57 @@ def build_sensor_data(printer_object):
 
 
 class LoadedSlotTests(unittest.TestCase):
+    def test_ace_2_pro_exposes_recognized_fill_levels_without_requiring_sku(self):
+        box = ace()
+        box["model_id"] = 40002
+        for slot, percent in zip(box["slots"], (50, 87, 87, 93), strict=True):
+            slot["consumables_percent"] = percent
+
+        device = printer([box], machine_type=20029)
+        slots = build_sensor_data(device)["attributes"]["ace_spools"]["spool_info"]
+        self.assertEqual([slot["consumables_percent"] for slot in slots], [50, 87, 87, 93])
+
+    def test_kobra_x_defaults_and_reserved_slot_have_unknown_fill_levels(self):
+        rack = ace(box_id=-1)
+        external = ace(box_id=0)
+        for box in (rack, external):
+            box["model_id"] = 40002
+            for slot in box["slots"]:
+                slot.update(edit_status=1, consumables_percent=100)
+        rack["slots"][2].update(status=4, edit_status=0)
+        rack["slots"][3].update(edit_status=0, consumables_percent=87)
+
+        device = printer([rack, external], machine_type=20030)
+        attributes = build_sensor_data(device)["attributes"]
+        slots = attributes["ace_spools"]["spool_info"]
+        self.assertEqual([slot["display_slot"] for slot in slots], [4, 5, 6, 7])
+        self.assertTrue(all(slot["consumables_percent"] is None for slot in slots))
+        self.assertTrue(all(slot["consumables_percent"] is None for slot in attributes["material_rack_spools"]["spool_info"]))
+
+    def test_fill_levels_validate_missing_invalid_and_zero_values(self):
+        box = ace()
+        box["model_id"] = 40002
+        self.assertIsNone(printer([box]).primary_multi_color_box_spool_info_object[0]["consumables_percent"])
+        for value, expected in ((None, None), (True, None), ("100", None), (-1, None),
+                                (101, None), (float("nan"), None), (0, 0), (100, 100)):
+            with self.subTest(value=value):
+                box["slots"][0]["consumables_percent"] = value
+                slot = printer([box]).primary_multi_color_box_spool_info_object[0]
+                self.assertEqual(slot["consumables_percent"], expected)
+        self.assertNotIn("consumables_percent", printer([ace()]).primary_multi_color_box_spool_info_object[0])
+
+    def test_mqtt_slot_refresh_replaces_fill_level_when_spool_changes(self):
+        box = ace()
+        box["model_id"] = 40002
+        device = printer([box])
+        for edit_status, percent, expected in ((0, 42, 42), (1, 100, None)):
+            slot = {**box["slots"][0], "edit_status": edit_status, "consumables_percent": percent}
+            device.process_mqtt_update("anycubic/test/multiColorBox/report", AnycubicConsumableData({
+                "type": "multiColorBox", "action": "refresh", "state": "success",
+                "data": {"multi_color_box": [{"id": box["id"], "slots": [slot]}]},
+            }))
+            self.assertEqual(device.primary_multi_color_box_spool_info_object[0]["consumables_percent"], expected)
+
     def test_cloud_value_is_zero_based_and_preserves_no_slot_sentinel(self):
         for value in (0, 1, 3, -1):
             with self.subTest(value=value):

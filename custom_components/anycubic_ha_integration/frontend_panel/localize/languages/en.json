@@ -67,13 +67,34 @@
     }
   },
   "card": {
+    "hardware": {
+      "build_plate": "Build plate",
+      "change_nozzle": "Change nozzle",
+      "nozzle_help": "Select the installed nozzle. Anycubic recommends PID tuning and bed leveling after a nozzle change.",
+      "nozzle_error": "Could not confirm the selected nozzle. Check the printer before trying again.",
+      "unavailable": "This setting is currently unavailable.",
+      "change_build_plate": "Change build plate type",
+      "build_plate_help": "Select the installed plate. Anycubic recommends leveling the bed after a change.",
+      "apply": "Apply",
+      "saving": "Applying…",
+      "build_plate_error": "Could not confirm the selected plate. Check the printer before trying again.",
+      "nozzle": "Nozzle",
+      "textured_pei_plate": "Textured PEI plate",
+      "smooth_transfer_plate": "Smooth / transfer plate",
+      "low_temperature_plate": "Low-temperature plate",
+      "brass": "Brass",
+      "hardened_steel": "Hardened steel",
+      "unmapped": "Unrecognized"
+    },
     "buttons": {
       "print_settings": "Print Settings",
       "dry": "Dry",
       "runout_refill": "Refill"
     },
     "spools": {
-      "ace_feed": "ACE Feed"
+      "ace_feed": "ACE Feed",
+      "fill_level": "Remaining filament",
+      "fill_unknown": "Unknown"
     },
     "configure": {
       "tabs": {

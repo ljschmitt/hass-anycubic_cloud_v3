@@ -92,6 +92,10 @@ class API_ENDPOINT:
         HTTP_METHODS.POST,
         '/work/operation/sendOrder',
     )
+    printer_properties = AnycubicAPIEndpoint(
+        HTTP_METHODS.POST,
+        '/v5/printer/properties/query',
+    )
     printer_update_name = AnycubicAPIEndpoint(
         HTTP_METHODS.POST,
         '/work/printer/Info',
