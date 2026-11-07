@@ -14,6 +14,8 @@ From **0.4.5-beta.1**, the display names are **Anycubic Cloud** and **Anycubic C
 
 **0.4.5** combines the ACE drying fix, repository-helper cleanup and MQTT fixes from the Kobra X print and drying test. Use matching integration and dashboard-card versions. The beta was tested on Home Assistant 2026.11.0 with Marketplace.
 
+**0.4.6** adds Kobra X plate and nozzle controls with bundled Slicer images, plus the ACE 2 Pro fill estimate handling. Use the [matching dashboard card 0.4.6](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.6).
+
 The integration was [added to the default HACS catalog](https://github.com/hacs/default/pull/8869) on November 2, 2026. Existing custom-repository installations remain usable.
 
 ## Highlights
@@ -75,7 +77,7 @@ Starting with **0.4.6-beta.1**, **Build Plate Type**, **Nozzle Diameter**, and *
 
 The built-in panel and matching dashboard card show the reported build plate and nozzle below the printer statistics when expanded. Entries without reported values stay hidden.
 
-From **0.4.6-beta.4**, the integration includes the original Slicer plate and nozzle images. The Anycubic Cloud sidebar panel and matching dashboard card load them automatically and center the thumbnails at the standard spool diameter. The dashboard card can still prefer custom images via `hardwareImagePath`. [Dashboard card images](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6-beta.4#optional-local-hardware-images)
+From **0.4.6**, the integration includes the original Slicer plate and nozzle images. The Anycubic Cloud sidebar panel and matching dashboard card load them automatically and center the thumbnails at the standard spool diameter. The dashboard card can still prefer custom images via `hardwareImagePath`. [Dashboard card images](https://github.com/ljschmitt/hass-anycubic_card/tree/v0.4.6#optional-local-hardware-images)
 
 From **0.4.6-beta.2**, the integration reads hardware settings when it first reaches a Kobra X. Open the plate type in the expanded card or use **Build Plate Selection** under the device's configuration entities. This control is available while a supported printer is online and idle. Select the plate physically installed and follow Anycubic's bed-leveling guidance after a change. The entity updates after the new value is reported by the cloud.
 
@@ -84,6 +86,10 @@ Version **0.4.6-beta.3** adds **Nozzle Selection** for the Kobra X. The options 
 The overview shows thumbnails when available and uses labels as a fallback. Selecting the plate or nozzle in the card opens a chooser with names and any available images. **Apply** sends the change. The integration then reads the setting back to confirm it.
 
 **Current Status** includes the last reported calibration snapshot. Firmware and temperature reports update the existing entities. Successful file and preview acknowledgements leave file lists intact.
+
+### ACE 2 Pro remaining filament
+
+From **0.4.6**, `spool_info` includes `consumables_percent` for ACE 2 Pro slots. A reported estimate is used for loaded, automatically recognized spools. Manually configured, empty or reserved slots and missing or invalid estimates return `null`. The panel and matching card show **Unknown** for an occupied spool without a verified estimate, including the Kobra X's default 100% on manually configured slots. [Feedback in #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
 
 ## Screenshots
 

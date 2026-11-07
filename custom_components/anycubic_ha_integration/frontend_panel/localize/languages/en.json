@@ -92,7 +92,9 @@
       "runout_refill": "Refill"
     },
     "spools": {
-      "ace_feed": "ACE Feed"
+      "ace_feed": "ACE Feed",
+      "fill_level": "Remaining filament",
+      "fill_unknown": "Unknown"
     },
     "configure": {
       "tabs": {

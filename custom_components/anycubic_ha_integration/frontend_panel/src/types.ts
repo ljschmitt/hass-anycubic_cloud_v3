@@ -278,6 +278,7 @@ export interface AnycubicSpoolInfo {
   color: number[];
   status: number;
   spool_loaded: boolean;
+  consumables_percent?: number | null;
   local_slot?: number;
   slot?: number;
   display_slot?: number;

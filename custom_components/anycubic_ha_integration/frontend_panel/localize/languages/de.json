@@ -92,7 +92,9 @@
       "runout_refill": "Nachfüllen"
     },
     "spools": {
-      "ace_feed": "ACE-Zuleitung"
+      "ace_feed": "ACE-Zuleitung",
+      "fill_level": "Füllstand",
+      "fill_unknown": "Unbe\u00adkannt"
     },
     "configure": {
       "tabs": {

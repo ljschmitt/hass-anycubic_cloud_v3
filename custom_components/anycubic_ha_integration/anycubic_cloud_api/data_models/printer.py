@@ -2031,6 +2031,8 @@ class AnycubicPrinter:
                 slot["display_slot"] = slot_index
                 slot["source"] = "internal"
                 slot["reserved_by_ace"] = slot_index == 4 and self.connected_ace_units > 0
+                if slot["reserved_by_ace"] and "consumables_percent" in slot:
+                    slot["consumables_percent"] = None
                 kobra_x_spool_info.append(slot)
 
             return kobra_x_spool_info

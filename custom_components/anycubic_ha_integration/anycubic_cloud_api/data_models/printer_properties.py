@@ -7,6 +7,8 @@ from typing import Any
 from ..exceptions.error_strings import ErrorsDataParsing
 from ..exceptions.exceptions import AnycubicDataParsingError
 
+ACE_2_PRO_MODEL_ID = 40002
+
 
 class AnycubicMaterialMapping:
     __slots__ = (
@@ -454,6 +456,7 @@ class AnycubicSpoolInfo:
         "_color",
         "_edit_status",
         "_status",
+        "_consumables_percent",
     )
 
     def __init__(
@@ -464,6 +467,7 @@ class AnycubicSpoolInfo:
         color: list[int],
         edit_status: int,
         status: int,
+        consumables_percent: object = None,
     ) -> None:
         self._index = int(index)
         self._sku = str(sku)
@@ -473,6 +477,13 @@ class AnycubicSpoolInfo:
         ])
         self._edit_status = int(edit_status)
         self._status = int(status)
+        self._consumables_percent = (
+            consumables_percent
+            if isinstance(consumables_percent, (int, float))
+            and not isinstance(consumables_percent, bool)
+            and 0 <= consumables_percent <= 100
+            else None
+        )
 
     @classmethod
     def from_json(cls, data: dict[str, Any] | None) -> AnycubicSpoolInfo | None:
@@ -486,6 +497,7 @@ class AnycubicSpoolInfo:
             color=data['color'],
             edit_status=data['edit_status'],
             status=data['status'],
+            consumables_percent=data.get('consumables_percent'),
         )
 
     @property
@@ -520,11 +532,17 @@ class AnycubicSpoolInfo:
     def spool_loaded(self) -> bool:
         return self._status == 5
 
+    @property
+    def consumables_percent(self) -> int | float | None:
+        """Return the estimate for an automatically recognized, loaded spool."""
+        return self._consumables_percent if self.spool_loaded and self._edit_status == 0 else None
+
     def set_spool_loaded(self, is_loaded: bool) -> None:
         if is_loaded:
             self._status = 5
         else:
             self._status = 4
+            self._consumables_percent = None
 
     def __repr__(self) -> str:
         return (
@@ -703,6 +721,7 @@ class AnycubicMultiColorBox:
                 "slot": slot.index + 1,
                 "display_slot": slot.index + 1,
                 "box_id": self.box_id,
+                **({"consumables_percent": slot.consumables_percent} if self._model_id == ACE_2_PRO_MODEL_ID else {}),
             } for slot in self._slots
         ])
         return spool_list

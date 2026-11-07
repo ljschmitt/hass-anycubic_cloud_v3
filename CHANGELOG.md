@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.6
+
+- Bring the Kobra X firmware handling, plate and nozzle controls, and bundled Slicer previews from the 0.4.6 betas into the stable integration and dashboard card.
+
+- Show the reported ACE 2 Pro fill estimate for automatically recognized, loaded spools. Display unknown for unverified readings such as the Kobra X's default 100% in manually configured slots. [#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
+
 ## 0.4.6-beta.4
 
 - Center hardware previews at the standard spool diameter. Serve the original Slicer Next plate and nozzle artwork from the integration for both the sidebar panel and dashboard card. Existing dashboard image overrides take precedence.
