@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9-beta.1
+
+- Probe the older camera request on the Kobra 2 Max when the Agora request succeeds without session credentials. Log the vendor code and known field names to diagnose the response. Playback still uses Agora/WebRTC. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
 ## 0.4.8
 
 - Show the configured power entity state in the dashboard card and sidebar panel. A confirmed on state uses the theme's success color, off uses a ring, and unknown or unavailable states use a neutral icon. [Card #1](https://github.com/ljschmitt/hass-anycubic_card/issues/1)

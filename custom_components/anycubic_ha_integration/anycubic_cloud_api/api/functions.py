@@ -58,6 +58,11 @@ from ..exceptions.exceptions import (
 from ..models.cloud_upload import AnycubicCloudUpload
 from .base import AnycubicAPIBase
 
+_AGORA_CAMERA_FIELDS = (
+    "appid", "channel", "rtc_token", "client_uid",
+    "encryption_kdf_salt", "encryption_key", "encryption_mode",
+)
+
 
 class AnycubicAPIFunctions(AnycubicAPIBase):
 
@@ -879,7 +884,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
 
     #
     #
-    # WIP Unused ORDER Functions
+    # Camera Orders
     # ------------------------------------------
 
     async def _send_anycubic_camera_open_order(
@@ -936,6 +941,9 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if raw_data:
             return resp
 
+        if str(printer.machine_type) == "20023":
+            resp = await self._probe_kobra_2_max_camera(printer, resp)
+
         data = resp.get("data") if resp is not None else None
         shengwang = data.get("shengwang") if isinstance(data, dict) else None
         if not isinstance(shengwang, dict):
@@ -952,6 +960,49 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             encryption_kdf_salt=shengwang["encryption_kdf_salt"],
             encryption_key=shengwang["encryption_key"],
             encryption_mode=shengwang["encryption_mode"],
+        )
+
+    async def _probe_kobra_2_max_camera(
+        self, printer: AnycubicPrinter, response: dict[Any, Any],
+    ) -> dict[Any, Any]:
+        """Try the legacy camera order once when a successful reply has no credentials."""
+        data = response.get("data") if isinstance(response, dict) else None
+        agora = data.get("shengwang") if isinstance(data, dict) else None
+        if isinstance(agora, dict):
+            if not all(key in agora for key in _AGORA_CAMERA_FIELDS):
+                self._log_camera_probe("Agora incomplete", response)
+            return response
+
+        self._log_camera_probe("Agora", response)
+        if not isinstance(response, dict) or response.get("code") not in (0, 200, "0", "200"):
+            return response
+        if isinstance(data, dict) and isinstance(data.get("token"), dict):
+            return response
+
+        legacy = await self._send_anycubic_camera_open_order(printer, raw_data=True)
+        self._log_camera_probe("legacy", legacy)
+        # Only Agora credentials are supported by the current player.
+        return legacy if isinstance(legacy, dict) else response
+
+    def _log_camera_probe(self, path: str, response: Any) -> None:
+        """Record only a bounded status code and known schema keys."""
+        response = response if isinstance(response, dict) else {}
+        code = response.get("code")
+        if isinstance(code, str) and len(code) <= 6 and code.isascii() and code.isdecimal():
+            code = int(code)
+        code = code if type(code) is int and 0 <= code <= 999999 else None
+        data = response.get("data")
+        data = data if isinstance(data, dict) else {}
+        agora = data.get("shengwang")
+        token = data.get("token")
+        data_fields = [key for key in ("msgid", "shengwang", "shengwang_device", "token", "video_taskid")
+                       if key in data]
+        agora_fields = [key for key in _AGORA_CAMERA_FIELDS if isinstance(agora, dict) and key in agora]
+        token_fields = [key for key in ("tmpSecretId", "tmpSecretKey", "sessionToken", "region")
+                        if isinstance(token, dict) and key in token]
+        self._log_to_warn(
+            f"Kobra 2 Max camera probe ({path}): code={code}, data_fields={data_fields}, "
+            f"agora_fields={agora_fields}, token_fields={token_fields}"
         )
 
     async def _send_order_multi_color_box_get_info(
