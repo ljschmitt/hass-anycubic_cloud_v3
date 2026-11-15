@@ -10,6 +10,8 @@
 
 A Home Assistant integration for Anycubic cloud printers with status sensors, MQTT real-time updates, print and file actions, ACE/material management, and an optional camera view.
 
+**Help us support more printers and firmware versions.** Install the [0.4.9-beta.2 diagnostics beta](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.2) and restart Home Assistant. Open **Developer tools → Actions** in Home Assistant. Run **Start printer diagnostics**, use the selected printer as usual for about five minutes, then run **Export printer diagnostics**. Review the filtered MQTT and cloud report and share it with your printer model, accessories, and a short note about what you did in [issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33).
+
 From **0.4.5-beta.1**, the display names are **Anycubic Cloud** and **Anycubic Cloud Card**, previously **Anycubic HA Integration** and **Anycubic Frontend Card**. Repository URLs, the `anycubic_ha_integration` domain, existing entity IDs and `custom:anycubic-card` remain unchanged.
 
 **0.4.5** combines the ACE drying fix, repository-helper cleanup and MQTT fixes from the Kobra X print and drying test. Use matching integration and dashboard-card versions. The beta was tested on Home Assistant 2026.11.0 with Marketplace.
