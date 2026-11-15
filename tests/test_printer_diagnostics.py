@@ -77,3 +77,13 @@ class PrinterDiagnosticsTests(unittest.TestCase):
     def test_metadata_does_not_copy_custom_device_names(self):
         self.assertEqual(printer_metadata(20030, "v2.0.2.8"), {"model_code": "20030", "firmware": "v2.0.2.8"})
         self.assertEqual(printer_metadata("My printer", "custom"), {"model_code": None, "firmware": None})
+
+    def test_cloud_capture_keeps_later_fields_in_larger_printer_details(self):
+        capture = PrinterCapture()
+        capture.start(1)
+        payload = {"data": {**{f"field{i}": i for i in range(230)}, "humidity": 45}}
+        capture.record(1, "cloud", "printer_info", payload)
+        capture.record(1, "mqtt", "printer_report", payload)
+        samples = capture.export(1)["samples"]
+        self.assertEqual(samples["cloud"][0]["fields"]["data.humidity"], {"type": "int", "value": 45})
+        self.assertLess(len(samples["mqtt"][0]["fields"]), len(samples["cloud"][0]["fields"]))

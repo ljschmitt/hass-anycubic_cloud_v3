@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 _CAPTURE_SECONDS = 300
 _DOWNLOAD_SECONDS = 1800
-_MAX_FIELDS = 120
+_MAX_FIELDS = {"mqtt": 120, "cloud": 320}
 _MAX_DEPTH = 8
 _KEY = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,39}", re.ASCII)
 _FIRMWARE = re.compile(r"[vV]?\d{1,4}(?:\.\d{1,4}){1,4}", re.ASCII)
@@ -47,12 +47,12 @@ def _field_name(key: str) -> bool:
     return bool(_KEY.fullmatch(key)) and key.lower() not in _PRIVATE_KEYS and not _PRIVATE.search(key)
 
 
-def _safe_payload(payload: object) -> dict[str, dict[str, object]]:
+def _safe_payload(payload: object, max_fields: int) -> dict[str, dict[str, object]]:
     """Keep field types, selected measurements and short protocol labels."""
     fields: dict[str, dict[str, object]] = {}
 
     def visit(value: object, path: tuple[str, ...], depth: int) -> None:
-        if len(fields) >= _MAX_FIELDS or depth > _MAX_DEPTH:
+        if len(fields) >= max_fields or depth > _MAX_DEPTH:
             return
         if path:
             key = path[-1]
@@ -74,7 +74,7 @@ def _safe_payload(payload: object) -> dict[str, dict[str, object]]:
             ):
                 entry["value"] = value
         if isinstance(value, dict):
-            for key, item in islice(value.items(), _MAX_FIELDS):
+            for key, item in islice(value.items(), max_fields):
                 if isinstance(key, str) and _field_name(key):
                     visit(item, (*path, key), depth + 1)
         elif isinstance(value, list):
@@ -113,7 +113,7 @@ class PrinterCapture:
                 return
             self._counts[source] += 1
             samples = self._samples[source]
-            fields = _safe_payload(payload)
+            fields = _safe_payload(payload, _MAX_FIELDS[source])
             if samples and samples[-1]["kind"] == kind and samples[-1]["fields"] == fields:
                 return
             samples.append({"seconds": round(elapsed, 1), "kind": kind, "fields": fields})
