@@ -20,7 +20,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.5.0**
+> 🗓️ **Aktuelles Release: 0.5.1-beta.1**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -252,9 +252,7 @@ Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Er
 
 Auch die optionale Dashboard-Card kann den Cloudstream nach einem Klick auf die Druckergrafik anzeigen. Dabei wird eine authentifizierte Agora-/WebRTC-Session im Browser gestartet; die Integration legt dafuer keine native Home-Assistant-`camera.*`-Entity an und stellt keine feste RTSP-/MJPEG-URL zum Kopieren bereit. Eine vorhandene lokale Kameraquelle kann dagegen ueber eine [Generic Camera](https://www.home-assistant.io/integrations/generic/)-Entity eingebunden und mit `cameraEntityId` bzw. `cameraEntityIds` zugeordnet werden. Eine alternative Firmware oder Kamera-Bruecke muss den jeweiligen Drucker tatsaechlich unterstuetzen; das ist fuer den Kobra 3 Max hier nicht bestaetigt.
 
-**Kobra 2 Max (20023)**: Die Diagnose-Beta 0.4.9-beta.1 prueft fuer [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) einmal den aelteren Kameraaufruf, wenn die Cloud den Agora-Aufruf als erfolgreich meldet, aber keine Sitzungsdaten liefert. Die Wiedergabe verwendet weiterhin Agora/WebRTC. Fuer den Test die Kamera einmal oeffnen und bei einem Fehler aus dem Home-Assistant-Systemprotokoll nur die Zeilen mit `Kobra 2 Max camera probe` teilen. Sie enthalten einen numerischen Hersteller-Code und bekannte Feldnamen.
-
-Beim Kobra 2 Max wurde inzwischen das ältere Kameraformat bestätigt. Für dieses Format fehlt die Wiedergabe in Home Assistant. [Testergebnis in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
+**Kobra 2 Max (20023)**: Beta **0.5.1-beta.1** unterstützt versuchsweise das ältere Cloud-Kameraformat über Amazon Kinesis Video Streams. Öffne die Kamera im Anycubic-Panel oder in der mitgelieferten Dashboard-Card. Das Livebild muss noch an diesem Modell bestätigt werden. Wenn der Test fehlschlägt, starte vor dem Öffnen eine Druckerdiagnose und teile den geprüften Export und die sichtbare Fehlermeldung. Die Aufzeichnung enthält den Antworttyp und Fehlercode, aber keine Kamera-Zugangsdaten oder Verbindungslinks. [Kameratest in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
 
 Die Card hat derzeit keine Option, die Kameraansicht automatisch als Startansicht zu oeffnen. `alwaysShow: true` zeigt Status und ACE-Bereich dauerhaft an, startet aber keine Kamera. Das automatische Oeffnen der Kamera waere eine eigene Erweiterung.
 

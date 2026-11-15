@@ -16,7 +16,7 @@ class AnycubicAPIParsingError(AnycubicAPIError):
 
 
 class AnycubicLegacyCameraError(AnycubicAPIParsingError):
-    """The camera session uses the older Anycubic format."""
+    """The older Anycubic camera session could not be prepared."""
 
 
 class AnycubicFileNotFoundError(AnycubicAPIError):

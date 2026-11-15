@@ -215,9 +215,7 @@ The response contains the model code, firmware version, registered entity keys, 
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
 
-**Kobra 2 Max (20023)**: Diagnostic beta 0.4.9-beta.1 tries the older camera request once for [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) when the cloud reports success for the Agora request but supplies no session credentials. Playback still uses Agora/WebRTC. To test, open the camera once. If it fails, share only the `Kobra 2 Max camera probe` lines from the Home Assistant system log. They contain a numeric vendor code and known field names.
-
-Testing on the Kobra 2 Max confirmed the legacy camera format. Playback for this format is still pending. [Test result in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
+**Kobra 2 Max (20023)**: Beta **0.5.1-beta.1** adds experimental playback for the legacy cloud camera via Amazon Kinesis Video Streams. Open the camera in the Anycubic panel or bundled dashboard card. Live playback still needs confirmation on a Kobra 2 Max. If playback fails, start a printer diagnostics capture before opening the camera and share the reviewed export and the visible error. The capture includes the response type and vendor status code and omits camera credentials and signaling URLs. [Camera testing in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
 
 The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 
