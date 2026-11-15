@@ -11,7 +11,6 @@ import { customElementIfUndef } from "../../../internal/register-custom-element"
 import { fireEvent } from "../../../fire_event";
 
 import {
-  getPrinterEntityId,
   getPrinterSensorStateObj,
   getPrinterSwitchStateObj,
 } from "../../../helpers";
@@ -90,9 +89,6 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
   @state()
   private _labelAceFeed: string;
 
-  @state()
-  private _changingRunout: boolean = false;
-
   protected willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
 
@@ -109,21 +105,20 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       changedProperties.has("box_id") ||
       changedProperties.has("spoolsEntityId")
     ) {
-      if (this.spoolsEntityId) {
-        this._spoolsEntityId = this.spoolsEntityId;
-      } else if (this.box_id === 1) {
-        this._runoutRefillId = SECONDARY_ENTITY_ID_RUNOUT_REFILL;
-        this._spoolsEntityId = SECONDARY_ENTITY_ID_SPOOLS;
-      } else {
-        this._runoutRefillId = PRIMARY_ENTITY_ID_RUNOUT_REFILL;
-        this._spoolsEntityId = PRIMARY_ENTITY_ID_SPOOLS;
-      }
+      const secondary = this.box_id === 1;
+      this._runoutRefillId = secondary
+        ? SECONDARY_ENTITY_ID_RUNOUT_REFILL
+        : PRIMARY_ENTITY_ID_RUNOUT_REFILL;
+      this._spoolsEntityId =
+        this.spoolsEntityId ??
+        (secondary ? SECONDARY_ENTITY_ID_SPOOLS : PRIMARY_ENTITY_ID_SPOOLS);
     }
 
     if (
       changedProperties.has("hass") ||
       changedProperties.has("printerEntities") ||
       changedProperties.has("printerEntityIdPart") ||
+      changedProperties.has("box_id") ||
       changedProperties.has("spoolsEntityId")
     ) {
       this.spoolList = (
@@ -156,10 +151,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         ${this.showControls
           ? html`
               <div class="ac-printercard-mcbmenu ac-printercard-menuleft">
-                <div
-                  class="ac-switch"
-                  @click=${this._handleRunoutRefillChanged}
-                >
+                <div class="ac-switch">
                   <div class="ac-switch-label">${this._buttonRefill}</div>
                   <ha-entity-toggle
                     .hass=${this.hass}
@@ -263,28 +255,6 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       modalOpen: true,
       box_id: this.box_id,
     });
-  };
-
-  private _handleRunoutRefillChanged = (_ev: Event): void => {
-    // const refillActive = ev.target.checked;
-    if (this._changingRunout) {
-      return;
-    }
-    this._changingRunout = true;
-    this.hass
-      .callService("switch", "toggle", {
-        entity_id: getPrinterEntityId(
-          this.printerEntityIdPart,
-          "switch",
-          this._runoutRefillId,
-        ),
-      })
-      .then(() => {
-        this._changingRunout = false;
-      })
-      .catch((_e: unknown) => {
-        this._changingRunout = false;
-      });
   };
 
   private _editSpool = (ev: DomClickEvent<EvtTargSpoolEdit>): void => {
@@ -453,16 +423,11 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        cursor: pointer;
         box-sizing: border-box;
         padding: 4px 4px;
         justify-content: center;
         background-color: #8686862e;
         border-radius: 8px;
-      }
-
-      .ac-printercard-mcbmenu .ac-switch:hover {
-        background-color: #86868669;
       }
     `;
   }

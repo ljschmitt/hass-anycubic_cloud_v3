@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.9-beta.6
+
+- Resolve the registered ACE run-out refill switch in the panel and dashboard card, including renamed entities and a second ACE.
+- Keep the Kobra X refill state reported by the ACE over MQTT when the cloud still returns an older value.
+- Apply refill commands to the selected ACE, skipping the internal spool rack on Kobra X.
+- Explain how to configure drying presets when none are available and link to the integration settings.
+
 ## 0.4.9-beta.5
 
 - Start a printer diagnostics capture in the integration options and download the filtered report from the device menu.

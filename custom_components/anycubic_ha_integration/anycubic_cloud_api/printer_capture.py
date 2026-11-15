@@ -32,14 +32,14 @@ _MEASUREMENTS = {
     "curr_hotbed_temp", "target_nozzle_temp", "target_hotbed_temp", "target_temp",
     "print_time", "remain_time", "remaining_time", "elapsed_time", "progress", "layer",
     "current_layer", "total_layers", "fan_speed", "drying_status", "drying_time",
-    "time_left", "loaded_slot", "feed_status", "head_channel_count", "diameter", "material",
+    "time_left", "loaded_slot", "feed_status", "auto_feed", "head_channel_count", "diameter", "material",
     "device_state", "status", "code", "consumables_percent", "model_id", "machine_type",
 }
 _NUMERIC = re.compile(r"-?\d{1,7}(?:\.\d{1,3})?", re.ASCII)
 _PROTOCOL_LABELS = {
     "print", "properties", "multiColorBox", "calibration", "video", "fan", "extrudeControl",
     "report", "query", "auto", "write", "getInfo", "autoUpdateInfo", "feedFilament", "start", "stop",
-    "done", "reply", "failed", "success", "progress", "online", "offline",
+    "done", "reply", "failed", "success", "progress", "online", "offline", "setAutoFeed",
 }
 
 

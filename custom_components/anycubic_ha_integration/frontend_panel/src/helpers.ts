@@ -27,6 +27,7 @@ import {
 import { platform } from "./const";
 
 const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
+  ace_run_out_refill: ["multi_color_box_runout_refill"],
   ace_firmware: ["multi_color_box_fw_version"],
   drying_active: ["dry_status_is_drying"],
   drying_remaining_time: ["dry_status_remaining_time"],
@@ -46,6 +47,7 @@ const ENTITY_TRANSLATION_KEY_ALIASES: Record<string, string[]> = {
     "secondary_dry_status_target_temperature",
   ],
   secondary_drying_total_duration: ["secondary_dry_status_total_duration"],
+  secondary_ace_run_out_refill: ["secondary_multi_color_box_runout_refill"],
   secondary_multi_color_box_spools: ["secondary_ace_spools"],
   target_hotbed_temperature: ["target_hotbed_temp"],
   target_nozzle_temperature: ["target_nozzle_temp"],

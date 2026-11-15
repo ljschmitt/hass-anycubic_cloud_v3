@@ -14,7 +14,7 @@ const dialog = fs.readFileSync(path.join(frontend,
   "src/components/printer_card/multicolorbox_view/multicolorbox_modal_drying.ts"), "utf8");
 const helperNames = new Set(["ENTITY_TRANSLATION_KEY_ALIASES", "getEntityTranslationKeys", "getStrictMatchingEntity",
   "createEmptyEntity", "getEntityState", "getPrinterButtonStateObj", "getPrinterDryingButtonStateObj",
-  "isPrinterButtonStateAvailable"]);
+  "isPrinterButtonStateAvailable", "getPrinterSwitchStateObj"]);
 const ast = ts.createSourceFile("helpers.ts", helpers, ts.ScriptTarget.Latest, true);
 const selected = ast.statements.filter((s) =>
   (ts.isFunctionDeclaration(s) && helperNames.has(s.name?.text)) ||
@@ -104,4 +104,18 @@ assert.equal(calls.length, before, "Unavailable printers must never issue a serv
 modal.printerEntities = {};
 update(modal, ["printerEntities"]);
 assert.equal(modal._hasDryingStop, false);
-console.log("Panel/card ACE drying: canonical buttons, renamed IDs, primary/secondary switching, missing and unavailable entities passed.");
+assert.match(modal._renderCard(), /card\.drying_settings\.no_presets/);
+assert.match(modal._renderCard(), /\/config\/integrations\/integration\/anycubic_ha_integration/);
+
+const refillStates = {
+  "switch.renamed_primary": { entity_id: "switch.renamed_primary", state: "off" },
+  "switch.renamed_secondary": { entity_id: "switch.renamed_secondary", state: "on" },
+};
+const refillRegistry = {
+  "switch.renamed_primary": { translation_key: "multi_color_box_runout_refill", entity_id: "switch.renamed_primary" },
+  "switch.renamed_secondary": { translation_key: "secondary_multi_color_box_runout_refill", entity_id: "switch.renamed_secondary" },
+};
+const refillState = context.exports.getPrinterSwitchStateObj;
+assert.equal(refillState({ states: refillStates }, refillRegistry, "wrong_", "ace_run_out_refill"), refillStates["switch.renamed_primary"]);
+assert.equal(refillState({ states: refillStates }, refillRegistry, "wrong_", "secondary_ace_run_out_refill"), refillStates["switch.renamed_secondary"]);
+console.log("Panel/card ACE controls: canonical presets, missing presets, and renamed primary/secondary refill entities passed.");

@@ -16,7 +16,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9-beta.5**
+> 🗓️ **Aktuelles Release: 0.4.9-beta.6**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -25,7 +25,8 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - Beim Entladen des letzten Kontos werden Aktionen und Seitenleisten-Panel abgemeldet. Beim Neuladen werden sie wieder registriert.
 > - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
 > - Das Anycubic-Cloud-Panel zeigt Druckanzahl, Gesamtdruckzeit und Filamentverbrauch im Reiter **Druckstatistik**.
-> - Die [optionale Dashboard-Card 0.4.9-beta.3](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.3) kann mit dieser Beta weiterverwendet werden.
+> - Nachfüllen verwendet den registrierten ACE-Schalter. Beim Kobra X hat die MQTT-Rückmeldung der ACE Vorrang vor dem älteren Cloud-Wert. Der Trocknungsdialog verweist bei fehlenden Vorgaben auf die Integrationsoptionen.
+> - Für das eigene Dashboard gibt es die [passende optionale Card 0.4.9-beta.6](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.6). Das Seitenleisten-Panel ist bereits in der Integration enthalten.
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -232,6 +233,8 @@ Ab **0.4.6** enthaelt `spool_info` bei der ACE 2 Pro das Feld `consumables_perce
 Die ACE-Steuerung befindet sich in der **Hauptansicht** unter den Materialspulen; die **Nebenansicht** ist fuer die Kamera vorgesehen. In den Integrationsoptionen unter **Trocknungsvorgaben** zuerst Dauer in Minuten und Temperatur in °C speichern. Nur vollstaendig konfigurierte Presets bekommen einen Start-Button. Bei inaktiven Druckern kann die Card eingeklappt sein; `alwaysShow: true` haelt Status und ACE-Steuerung sichtbar.
 
 Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4`. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Bestehende Entity-IDs bleiben gueltig.
+
+Sind keine Startvorgaben verfügbar, verlinkt der Dialog zu den Integrationsoptionen. Unter **Trocknungsvorgaben** legst du Dauer und Temperatur an. **Nachfüllen** schaltet die automatische Filamentfortsetzung bei leerer Spule über die registrierte ACE-Entität. Beim Kobra X richtet sich der Befehl an die externe ACE. Home Assistant übernimmt deren MQTT-Rückmeldung auch dann, wenn die Cloud noch den vorherigen Zustand meldet.
 
 Der Stop-Button betrifft jeweils nur die ausgewaehlte ACE. Zuvor konnte der sekundaere Stop-Befehl seine Box-ID verlieren und stattdessen die primaere ACE ansprechen; der primaere Stop-Button konnte beide ACEs stoppen. Der interne API-Aufruf ohne Box-Auswahl behaelt seine Stop-alle-Funktion. Automatisierte Tests pruefen Einzel- und Doppel-ACE sowie Kobra X mit internem Materialregal; eine Funktionsbestaetigung am betroffenen Kobra 3 Max steht noch aus. Panel und separate Dashboard-Card benoetigen fuer den Dialogfix jeweils ein neu gebautes Bundle.
 

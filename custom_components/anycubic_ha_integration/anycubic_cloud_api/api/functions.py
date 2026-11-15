@@ -1409,62 +1409,34 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         printer: AnycubicPrinter,
         box_id: int = -1,
     ) -> str | None:
-        if not printer:
-            return None
-
-        if not printer.primary_multi_color_box:
-            return None
-
-        if box_id < 0:
-            box_id = 0
-
-        assert printer.multi_color_box
-
-        current_auto_feed = bool(printer.multi_color_box[box_id].auto_feed)
-
-        if current_auto_feed:
-            return None
-
-        printer.multi_color_box[box_id].set_auto_feed(True)
-
-        resp = await self._send_order_multi_color_auto_feed(
-            printer,
-            True,
-            box_id,
-        )
-
-        return resp
+        return await self._set_multi_color_box_auto_feed(printer, True, box_id)
 
     async def multi_color_box_switch_off_auto_feed(
         self,
         printer: AnycubicPrinter,
         box_id: int = -1,
     ) -> str | None:
+        return await self._set_multi_color_box_auto_feed(printer, False, box_id)
+
+    async def _set_multi_color_box_auto_feed(
+        self,
+        printer: AnycubicPrinter,
+        enabled: bool,
+        box_id: int,
+    ) -> str | None:
         if not printer:
             return None
 
-        if not printer.primary_multi_color_box:
+        # The Kobra X rack precedes the external ACEs in the raw box list.
+        ace = printer.secondary_multi_color_box if box_id == 1 else printer.primary_multi_color_box
+        if ace is None:
             return None
 
-        if box_id < 0:
-            box_id = 0
-
-        assert printer.multi_color_box
-
-        current_auto_feed = bool(printer.multi_color_box[box_id].auto_feed)
-
-        if not current_auto_feed:
-            return None
-
-        printer.multi_color_box[box_id].set_auto_feed(False)
-
-        resp = await self._send_order_multi_color_auto_feed(
-            printer,
-            False,
-            box_id,
-        )
-
-        return resp
+        if not printer.is_kobra_x:
+            if bool(ace.auto_feed) == enabled:
+                return None
+            ace.set_auto_feed(int(enabled))
+        return await self._send_order_multi_color_auto_feed(printer, enabled, ace.box_id)
 
     async def multi_color_box_set_slot(
         self,

@@ -98,6 +98,7 @@ class AnycubicPrinter:
         "_multi_color_box_fw_version",
         "_external_shelves",
         "_multi_color_box",
+        "_mqtt_ace_auto_feed",
         "_mqtt_drying_statuses",
         "_latest_project",
         "_fan_speed",
@@ -213,6 +214,7 @@ class AnycubicPrinter:
         self._set_multi_color_box_fw_version(multi_color_box_fw_version)
         self._set_external_shelves(external_shelves)
         self._set_multi_color_box(multi_color_box)
+        self._mqtt_ace_auto_feed: dict[int, int] = {}
         self._mqtt_drying_statuses: dict[int, AnycubicDryingStatus] = {}
 
         self._latest_project: AnycubicProject | None = None
@@ -655,6 +657,7 @@ class AnycubicPrinter:
         self._device_status = data['device_status']
         self._is_printing = data['is_printing']
         if not self.printer_online:
+            self._mqtt_ace_auto_feed.clear()
             self._mqtt_drying_statuses.clear()
         self._material_used = extra_data.get('material_used')
         self._set_total_print_time(extra_data.get('print_totaltime'))
@@ -669,6 +672,11 @@ class AnycubicPrinter:
         self._update_multi_color_box_fw_version_from_json(data.get('multi_color_box_version'))
         self._set_external_shelves(data.get('external_shelves'))
         self._set_multi_color_box(data.get('multi_color_box'))
+        if self.is_kobra_x and self._multi_color_box:
+            # Cloud details can still contain the setting from before a device report.
+            for box in self._multi_color_box:
+                if box.box_id in self._mqtt_ace_auto_feed:
+                    box.set_auto_feed(self._mqtt_ace_auto_feed[box.box_id])
 
     def _check_latest_project_id_valid(
         self,
@@ -787,6 +795,7 @@ class AnycubicPrinter:
             return
         elif action == 'onlineReport' and state == 'offline':
             self._device_status = 2
+            self._mqtt_ace_auto_feed.clear()
             self._mqtt_drying_statuses.clear()
             return
         else:
@@ -1140,6 +1149,9 @@ class AnycubicPrinter:
                 # A fresh MQTT snapshot supersedes an earlier report for the same box.
                 for box in data if isinstance(data, list) else [data]:
                     box_index = self._multi_color_box_index_by_id(int(box['id']))
+                    if box_index is not None:
+                        ace = self._multi_color_box[box_index]
+                        self._mqtt_ace_auto_feed[ace.box_id] = ace.auto_feed
                     drying_status = box['drying_status']
                     if box_index is not None and drying_status is not None:
                         self._update_mqtt_drying_status(self._multi_color_box[box_index], drying_status, action)
@@ -1205,7 +1217,10 @@ class AnycubicPrinter:
                     continue
 
                 assert self._multi_color_box
-                self._multi_color_box[box_index].set_auto_feed(box['auto_feed'])
+                ace = self._multi_color_box[box_index]
+                ace.set_auto_feed(box['auto_feed'])
+                if self.is_kobra_x:
+                    self._mqtt_ace_auto_feed[box_id] = ace.auto_feed
             return
         else:
             raise AnycubicMQTTUnknownUpdate(ErrorsMQTTUpdate.ace)
