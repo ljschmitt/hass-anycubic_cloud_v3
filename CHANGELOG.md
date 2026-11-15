@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Show each ACE's temperature and reported relative humidity above its spools in the dashboard card and Anycubic Cloud panel.
+
 ## 0.4.9
 
 - Serve the bundled dashboard card at `/anycubic-cloud-card.js` for Lovelace. Existing cards can switch to this resource without changing their configuration.

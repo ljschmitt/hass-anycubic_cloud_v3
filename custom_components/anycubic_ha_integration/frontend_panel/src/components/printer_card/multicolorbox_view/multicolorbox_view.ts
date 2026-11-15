@@ -11,6 +11,7 @@ import { customElementIfUndef } from "../../../internal/register-custom-element"
 import { fireEvent } from "../../../fire_event";
 
 import {
+  getPrinterBinarySensorState,
   getPrinterSensorStateObj,
   getPrinterSwitchStateObj,
 } from "../../../helpers";
@@ -147,6 +148,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
     };
 
     return html`
+      ${this._renderAceMeasurements()}
       <div class="ac-printercard-mcbview">
         ${this.showControls
           ? html`
@@ -177,6 +179,73 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
               </div>
             `
           : html`<div class="ac-printercard-mcbmenu"></div>`}
+      </div>
+    `;
+  }
+
+  private _renderAceMeasurements(): LitTemplateResult | typeof nothing {
+    if (
+      !this.showControls ||
+      getPrinterBinarySensorState(
+        this.hass,
+        this.printerEntities,
+        this.printerEntityIdPart,
+        "printer_online",
+        true,
+        false,
+      ) === false
+    ) {
+      return nothing;
+    }
+
+    const prefix = this.box_id === 1 ? SECONDARY_PREFIX : "";
+    const getSensor = (key: string): HassEntity =>
+      getPrinterSensorStateObj(
+        this.hass,
+        this.printerEntities,
+        this.printerEntityIdPart,
+        prefix + key,
+      );
+    const temperature = getSensor("ace_current_temperature");
+    const humidity = getSensor("ace_humidity");
+    const temperatureValue = Number(temperature.state.trim() || NaN);
+    const humidityValue = Number(humidity.state.trim() || NaN);
+    const hasTemperature = Number.isFinite(temperatureValue);
+    const hasHumidity = humidityValue >= 0 && humidityValue <= 100;
+
+    if (!hasTemperature && !hasHumidity) {
+      return nothing;
+    }
+
+    const numberOptions = { maximumFractionDigits: 1 };
+    return html`
+      <div class="ac-ace-measurements">
+        ${hasTemperature
+          ? html`
+              <span>
+                ${localize("card.spools.ace_temperature", this.language)}:
+                <strong>
+                  ${new Intl.NumberFormat(this.language, numberOptions).format(
+                    temperatureValue,
+                  )}
+                  ${temperature.attributes.unit_of_measurement ?? ""}
+                </strong>
+              </span>
+            `
+          : nothing}
+        ${hasHumidity
+          ? html`
+              <span>
+                ${localize("card.spools.ace_humidity", this.language)}:
+                <strong>
+                  ${new Intl.NumberFormat(this.language, {
+                    ...numberOptions,
+                    style: "percent",
+                  }).format(humidityValue / 100)}
+                </strong>
+              </span>
+            `
+          : nothing}
       </div>
     `;
   }
@@ -286,6 +355,21 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
       :host {
         box-sizing: border-box;
         width: 100%;
+      }
+
+      .ac-ace-measurements {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2px 12px;
+        margin-bottom: 6px;
+        font-size: 0.8em;
+        color: var(--secondary-text-color);
+      }
+
+      .ac-ace-measurements strong {
+        color: var(--primary-text-color);
+        white-space: nowrap;
       }
 
       .ac-printercard-mcbview {

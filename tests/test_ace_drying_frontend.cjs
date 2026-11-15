@@ -12,17 +12,23 @@ const ts = createRequire(path.join(frontend, "package.json"))("typescript");
 const helpers = fs.readFileSync(path.join(frontend, "src/helpers.ts"), "utf8");
 const dialog = fs.readFileSync(path.join(frontend,
   "src/components/printer_card/multicolorbox_view/multicolorbox_modal_drying.ts"), "utf8");
+const boxView = fs.readFileSync(path.join(frontend,
+  "src/components/printer_card/multicolorbox_view/multicolorbox_view.ts"), "utf8");
 const helperNames = new Set(["ENTITY_TRANSLATION_KEY_ALIASES", "getEntityTranslationKeys", "getStrictMatchingEntity",
   "createEmptyEntity", "getEntityState", "getPrinterButtonStateObj", "getPrinterDryingButtonStateObj",
-  "isPrinterButtonStateAvailable", "getPrinterSwitchStateObj"]);
+  "isPrinterButtonStateAvailable", "getPrinterSwitchStateObj", "getPrinterSensorStateObj",
+  "getPrinterBinarySensorState", "getEntityStateBinary", "getEntityStateString"]);
 const ast = ts.createSourceFile("helpers.ts", helpers, ts.ScriptTarget.Latest, true);
 const selected = ast.statements.filter((s) =>
   (ts.isFunctionDeclaration(s) && helperNames.has(s.name?.text)) ||
   (ts.isVariableStatement(s) && s.declarationList.declarations.some((d) => helperNames.has(d.name.text))));
 assert.equal(selected.length, helperNames.size);
-const dialogAst = ts.createSourceFile("dialog.ts", dialog, ts.ScriptTarget.Latest, true);
-const dialogCode = dialogAst.statements.filter((s) => !ts.isImportDeclaration(s)).map((s) => s.getText(dialogAst)).join("\n");
-const { outputText } = ts.transpileModule(selected.map((s) => s.getText(ast)).join("\n") + "\n" + dialogCode, {
+function withoutImports(file, source) {
+  const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
+  return ast.statements.filter((s) => !ts.isImportDeclaration(s)).map((s) => s.getText(ast)).join("\n");
+}
+const { outputText } = ts.transpileModule([selected.map((s) => s.getText(ast)).join("\n"),
+  withoutImports("dialog.ts", dialog), "{\n" + withoutImports("box-view.ts", boxView) + "\n}"].join("\n"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   transformers: { before: [(context) => {
     const visit = (node) => ts.isDecorator(node) ? undefined : ts.visitEachChild(node, visit, context);
@@ -33,10 +39,38 @@ const html = (strings, ...values) => strings.reduce((out, s, i) => out + s + Str
 const context = { exports: {}, LitElement: class { willUpdate() {} }, css: html, html, nothing: "", localize: (key) => key };
 vm.runInNewContext(outputText, context);
 const Dialog = context.exports.AnycubicPrintercardMulticolorboxModalDrying;
+const BoxView = context.exports.AnycubicPrintercardMulticolorboxview;
 const canonicalPrefix = fs.readFileSync(path.join(integration, "const.py"), "utf8")
   .match(/ENTITY_ID_DRYING_START_PRESET_ = "([^"]+)"/)[1];
 
 const calls = [];
+const box = Object.assign(new BoxView(), {
+  hass: { states: {} }, printerEntities: {}, printerEntityIdPart: "test_", language: "en",
+});
+function setState(domain, suffix, state, attributes = {}) {
+  const id = `${domain}.renamed_${suffix}`;
+  box.printerEntities[id] = { entity_id: id, translation_key: suffix, device_id: "test-device" };
+  box.hass.states[id] = { entity_id: id, state, attributes };
+}
+setState("binary_sensor", "printer_online", "on");
+setState("sensor", "ace_current_temperature", "22.5", { unit_of_measurement: "°C" });
+setState("sensor", "ace_humidity", "31");
+assert.match(box._renderAceMeasurements(), /22\.5\s+°C.*31%/s);
+box.box_id = 1;
+assert.equal(box._renderAceMeasurements(), "", "Secondary ACE must not reuse primary measurements");
+setState("sensor", "secondary_ace_humidity", "0");
+assert.match(box._renderAceMeasurements(), /0%/);
+for (const invalid of ["unknown", "unavailable", "", "-1", "101"]) {
+  setState("sensor", "secondary_ace_humidity", invalid);
+  assert.equal(box._renderAceMeasurements(), "", "Invalid humidity must remain hidden");
+}
+box.box_id = 0;
+box.showControls = false;
+assert.equal(box._renderAceMeasurements(), "", "Internal rack must not show ACE measurements");
+box.showControls = true;
+setState("binary_sensor", "printer_online", "off");
+assert.equal(box._renderAceMeasurements(), "", "Offline printer must not show stale measurements");
+
 function fixture(prefix = "test_", primary = true, secondary = true) {
   const hass = { states: {}, callService: (...args) => { calls.push(args); return Promise.resolve(); } };
   const entities = {};
@@ -118,4 +152,4 @@ const refillRegistry = {
 const refillState = context.exports.getPrinterSwitchStateObj;
 assert.equal(refillState({ states: refillStates }, refillRegistry, "wrong_", "ace_run_out_refill"), refillStates["switch.renamed_primary"]);
 assert.equal(refillState({ states: refillStates }, refillRegistry, "wrong_", "secondary_ace_run_out_refill"), refillStates["switch.renamed_secondary"]);
-console.log("Panel/card ACE controls: canonical presets, missing presets, and renamed primary/secondary refill entities passed.");
+console.log("Panel/card ACE controls and per-box temperature/humidity checks passed.");

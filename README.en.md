@@ -180,6 +180,8 @@ The integration serves the dashboard card at `/anycubic-cloud-card.js`. Add it a
 
 For an existing dashboard, edit the resource for `anycubic-card.js` and change its URL to `/anycubic-cloud-card.js`. Remove duplicate resources for this card and reload the dashboard. Existing cards use the same `custom:anycubic-card` type and retain their settings. Once they load through the bundled resource, you can uninstall the separate card package in HACS. For YAML resources, update the URL under `lovelace.resources` and keep `type: module`.
 
+Starting with the next release, the dashboard card and panel show each ACE's temperature and reported humidity directly above its spools. If the ACE does not report humidity, the card and panel hide that reading.
+
 From **0.4.9**, each ACE 2 Pro that reports a valid reading gets a relative humidity sensor. Use **ACE Humidity** and **Secondary ACE Humidity** in Home Assistant automations. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
 
 ### Loaded slot of the primary ACE

@@ -163,6 +163,8 @@ Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattri
 
 Die Integration stellt die Dashboard-Card unter `/anycubic-cloud-card.js` bereit. Unter **Einstellungen → Dashboards → ⋮ → Ressourcen** kannst du sie als **JavaScript-Modul** hinzufügen. Das Seitenleisten-Panel **Anycubic Cloud** ist ebenfalls Teil der Integration.
 
+Ab der nächsten Version stehen die ACE-Temperatur und die gemeldete Luftfeuchtigkeit in der Dashboard-Card und im Panel direkt über den Spulen der jeweiligen ACE. Meldet die ACE keine Luftfeuchtigkeit, bleibt dieser Wert ausgeblendet.
+
 Bei einem bestehenden Dashboard öffne die Ressource für `anycubic-card.js` und ersetze ihre URL durch `/anycubic-cloud-card.js`. Entferne gegebenenfalls weitere Einträge für dieselbe Card und lade das Dashboard neu. Die Karten verwenden weiterhin `custom:anycubic-card` und ihre gespeicherten Einstellungen. Sobald sie über die integrierte Ressource laden, kannst du das separate Card-Paket in HACS entfernen. Bei YAML-Ressourcen ändere die URL unter `lovelace.resources` und behalte `type: module` bei.
 
 Ab [0.4.8](CHANGELOG.md#048) zeigt das Power-Symbol den Zustand der ueber `powerEntityId` hinterlegten Entitaet. **An** verwendet die Erfolgsfarbe des Themes, **Aus** erscheint als Ring. **Unbekannt** und **Nicht verfuegbar** werden neutral dargestellt. Der Tooltip nennt den von Home Assistant gemeldeten Zustand.
