@@ -16,6 +16,7 @@ from homeassistant.const import (
     EntityCategory,
     Platform,
     UnitOfLength,
+    UnitOfMass,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -233,6 +234,32 @@ SENSOR_TYPES: list[AnycubicSensorEntityDescription] = list([
         not_measured=True,
     ),
     AnycubicSensorEntityDescription(
+        key="print_count",
+        translation_key="print_count",
+        state_class=SensorStateClass.TOTAL,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="total_print_time",
+        translation_key="total_print_time",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        suggested_unit_of_measurement=UnitOfTime.HOURS,
+        state_class=SensorStateClass.TOTAL,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
+    ),
+    AnycubicSensorEntityDescription(
+        key="total_material_used",
+        translation_key="total_material_used",
+        device_class=SensorDeviceClass.WEIGHT,
+        native_unit_of_measurement=UnitOfMass.KILOGRAMS,
+        state_class=SensorStateClass.TOTAL,
+        printer_entity_type=PrinterEntityType.PRINTER,
+        create_when_available=True,
+    ),
+    AnycubicSensorEntityDescription(
         key="build_plate_type",
         translation_key="build_plate_type",
         device_class=SensorDeviceClass.ENUM,
@@ -389,7 +416,7 @@ class AnycubicSensor(AnycubicCloudEntity, SensorEntity):
         if self.entity_description.not_measured:
             self._attr_state_class = None
         else:
-            self._attr_state_class = SensorStateClass.MEASUREMENT
+            self._attr_state_class = self.entity_description.state_class or SensorStateClass.MEASUREMENT
 
     @property
     def available(self) -> bool:

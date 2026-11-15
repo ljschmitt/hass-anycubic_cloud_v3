@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.9-beta.4
+
+- Add numeric print count, total print time, and total material used sensors for printers that report those totals.
+- Show available totals and the matching printer image in the Anycubic Cloud panel's Print statistics tab.
+- Read the print count from the Anycubic printer list. On Kobra X and Kobra 3 Combo V2, this matches the counts shown in Anycubic Slicer Next.
+
 ## 0.4.9-beta.3
 
 - Exclude file entries from Home Assistant history while retaining complete live local, USB and cloud file lists. This avoids Recorder size warnings on large directories.

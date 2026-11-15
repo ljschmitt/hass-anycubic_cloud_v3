@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+from datetime import timedelta
 from math import isfinite
 from typing import TYPE_CHECKING, Any
 
@@ -22,7 +24,7 @@ from ..exceptions.exceptions import (
 )
 from ..helpers.helpers import (
     get_part_from_mqtt_topic,
-    time_duration_string_to_delta,
+    parse_time_duration_string,
     timedelta_to_dhm_string,
     timedelta_to_total_hours,
 )
@@ -42,8 +44,6 @@ from .printing_settings import AnycubicPrintingSettings
 from .project import AnycubicProject
 
 if TYPE_CHECKING:
-    from datetime import timedelta
-
     from ..anycubic_api import AnycubicAPI
     from .orders import AnycubicCameraSession
     from .print_response import AnycubicPrintResponse
@@ -245,9 +245,10 @@ class AnycubicPrinter:
 
     def _set_total_print_time(self, print_totaltime: str | None) -> None:
         self._total_print_time: str | None = print_totaltime
-        self._total_print_time_delta: timedelta = time_duration_string_to_delta(print_totaltime)
-        self._total_print_time_hrs: int = int(timedelta_to_total_hours(self._total_print_time_delta))
-        self._total_print_time_dhm_str: str = timedelta_to_dhm_string(self._total_print_time_delta)
+        self._total_print_time_delta = parse_time_duration_string(print_totaltime)
+        duration = self.total_print_time_delta
+        self._total_print_time_hrs: int = int(timedelta_to_total_hours(duration))
+        self._total_print_time_dhm_str: str = timedelta_to_dhm_string(duration)
 
     def set_has_peripheral_camera(self, has_peripheral: bool) -> None:
         self._has_peripheral_camera = bool(has_peripheral)
@@ -580,6 +581,7 @@ class AnycubicPrinter:
             msg=data.get('msg'),
             material_used=data.get('material_used'),
             print_totaltime=data.get('print_totaltime'),
+            print_count=data.get('print_count'),
             status=data['status'],
             machine_mac=data.get('machine_mac'),
             delete=data['delete'],
@@ -618,7 +620,6 @@ class AnycubicPrinter:
                 is_printing=data['is_printing'],
                 material_used=extra_data.get('material_used'),
                 print_totaltime=extra_data.get('print_totaltime'),
-                print_count=extra_data.get('print_count'),
                 machine_mac=extra_data.get('machine_mac'),
                 create_time=extra_data.get('create_time'),
                 machine_data=data.get('machine_data'),
@@ -657,7 +658,6 @@ class AnycubicPrinter:
             self._mqtt_drying_statuses.clear()
         self._material_used = extra_data.get('material_used')
         self._set_total_print_time(extra_data.get('print_totaltime'))
-        self._print_count = extra_data.get('print_count')
         self._machine_mac = extra_data.get('machine_mac')
         self._create_time = extra_data.get('create_time')
         self._set_machine_data(data.get('machine_data'))
@@ -1646,12 +1646,32 @@ class AnycubicPrinter:
         return self._material_used
 
     @property
+    def total_material_used_kg(self) -> float | None:
+        """Read the cloud's material total as kilograms."""
+        if not isinstance(self._material_used, str):
+            return None
+        match = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*(kg|g)\s*", self._material_used, re.IGNORECASE)
+        if match is None:
+            return None
+        value = float(match[1])
+        if not isfinite(value):
+            return None
+        return value / 1000 if match[2].lower() == "g" else value
+
+    @property
     def total_print_time(self) -> str | None:
         return self._total_print_time
 
     @property
     def total_print_time_delta(self) -> timedelta:
-        return self._total_print_time_delta
+        return self._total_print_time_delta or timedelta()
+
+    @property
+    def total_print_time_seconds(self) -> int | None:
+        """Return the exact reported total without using a fallback for missing data."""
+        if self._total_print_time_delta is None or self._total_print_time_delta < timedelta():
+            return None
+        return int(self._total_print_time_delta.total_seconds())
 
     @property
     def total_print_time_hrs(self) -> int:
@@ -1664,6 +1684,11 @@ class AnycubicPrinter:
     @property
     def print_count(self) -> int | None:
         return self._print_count
+
+    def update_print_count_from_list(self, count: object) -> None:
+        """Keep the last valid count reported by the account's printer list."""
+        if type(count) is int and count >= 0:
+            self._print_count = count
 
     @property
     def status(self) -> int | None:

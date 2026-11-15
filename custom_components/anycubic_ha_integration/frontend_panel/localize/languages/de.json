@@ -179,6 +179,12 @@
     }
   },
   "panels": {
+    "statistics": {
+      "title": "Druckstatistik",
+      "print_count": "Druckanzahl",
+      "total_print_time": "Gesamtdruckzeit",
+      "total_material_used": "Verbrauchtes Filament"
+    },
     "initial": {
       "printer_select": "Drucker auswählen."
     },

@@ -398,6 +398,15 @@
       "current_status": {
         "name": "Current Status"
       },
+      "print_count": {
+        "name": "Print Count"
+      },
+      "total_print_time": {
+        "name": "Total Print Time"
+      },
+      "total_material_used": {
+        "name": "Total Material Used"
+      },
       "build_plate_type": {
         "name": "Build Plate Type",
         "state": {

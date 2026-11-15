@@ -7,7 +7,7 @@ import traceback
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from aiohttp import CookieJar
+from aiohttp import ClientError, CookieJar
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import (
@@ -242,6 +242,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         plate_code = hardware.get('build_plate_material_code')
         nozzle_material_code = hardware.get('nozzle_material_code')
         build_plate_type = printer.build_plate_type
+        print_count = printer.print_count
         nozzle_material = None
         if nozzle_material_code is not None:
             nozzle_material = 'unmapped'
@@ -258,6 +259,9 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "is_busy": printer.is_busy,
             "is_available": printer.is_available,
             "current_status": printer.current_status,
+            "print_count": print_count if type(print_count) is int and print_count >= 0 else None,
+            "total_print_time": printer.total_print_time_seconds,
+            "total_material_used": printer.total_material_used_kg,
             "build_plate_type": build_plate_type,
             "build_plate_selection": (
                 build_plate_type
@@ -969,6 +973,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if printer.is_kobra_x and printer.printer_online and printer_id not in self._hardware_properties_loaded:
                     await self._read_initial_hardware_properties(printer)
 
+            await self._refresh_print_counts()
             self._failed_updates = 0
 
             await self._request_missing_multi_color_box_info()
@@ -994,6 +999,24 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._last_state_update = int(time.time())
 
         return True
+
+    async def _refresh_print_counts(self) -> None:
+        """Fetch the account-level print counts for all configured printers."""
+        try:
+            async with asyncio.timeout(6):
+                response = await self.anycubic_api.list_my_printers(raw_data=True)
+        except (AnycubicAPIError, ClientError, TimeoutError):
+            LOGGER.debug("Could not refresh the Anycubic printer list for print counts.")
+            return
+
+        printer_rows = response.get("data")
+        if not isinstance(printer_rows, list):
+            return
+
+        printers = {str(printer_id): printer for printer_id, printer in self._anycubic_printers.items()}
+        for row in printer_rows:
+            if isinstance(row, dict) and (printer := printers.get(str(row.get("id")))) is not None:
+                printer.update_print_count_from_list(row.get("print_count"))
 
     async def _read_initial_hardware_properties(self, printer: AnycubicPrinter) -> None:
         previous = printer.hardware_settings

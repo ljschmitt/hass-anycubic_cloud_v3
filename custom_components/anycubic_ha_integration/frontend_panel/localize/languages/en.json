@@ -181,6 +181,12 @@
     }
   },
   "panels": {
+    "statistics": {
+      "title": "Print statistics",
+      "print_count": "Print count",
+      "total_print_time": "Total print time",
+      "total_material_used": "Filament used"
+    },
     "initial": {
       "printer_select": "Select a printer."
     },

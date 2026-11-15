@@ -16,7 +16,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9-beta.3**
+> 🗓️ **Aktuelles Release: 0.4.9-beta.4**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -24,7 +24,8 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - ACE 2 Pro zeigt bei manuell konfigurierten Spulen ohne verifizierten Fuellstand **Unbekannt** ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
 > - Beim Entladen des letzten Kontos werden Aktionen und Seitenleisten-Panel abgemeldet. Beim Neuladen werden sie wieder registriert.
 > - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
-> - Die [passende Dashboard-Card 0.4.9-beta.3](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.3) zeigt die verständliche Kamerafehlermeldung aus #31.
+> - Das Anycubic-Cloud-Panel zeigt Druckanzahl, Gesamtdruckzeit und Filamentverbrauch im Reiter **Druckstatistik**.
+> - Die [optionale Dashboard-Card 0.4.9-beta.3](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.3) kann mit dieser Beta weiterverwendet werden.
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -93,6 +94,16 @@ Der Bericht enthält Firmware, Modellcode, registrierte Entitätsschlüssel, Fel
 - Cloud-Polling: alle **1 Minute**
 - MQTT (Echtzeit): **mehrfach pro Sekunde**
 - Erfordert **Slicer Next Token** für MQTT-Zugriff
+
+Unter **Einstellungen → Geräte & Dienste → Anycubic Cloud → Geräte** stehen **Print Count**, **Total Print Time**
+und **Total Material Used** bereit, sobald die Cloud für den jeweiligen Drucker einen gültigen Gesamtwert liefert.
+Der Druckzähler übernimmt den Wert aus der Anycubic-Druckerliste. Druckzeit und Materialverbrauch werden
+als numerische Sensoren aus den Gerätedetails gelesen.
+Öffne einen Drucker im Seitenleisten-Panel **Anycubic Cloud**. Oben neben **Hauptansicht** und **Nebenansicht**
+erscheint der Reiter **Druckstatistik**, sobald mindestens einer der drei Sensoren einen Wert liefert.
+Die Ansicht zeigt die verfügbaren Gesamtwerte und das vorhandene Druckerbild, sofern eines verfügbar ist.
+Getestet wurde der Reiter mit Kobra X und Kobra 3 Combo V2. Weitere Modelle können ihn nutzen, wenn Anycubic
+für sie gültige Gesamtwerte meldet.
 
 ### Druckzeit beim Kobra S1 Max
 
