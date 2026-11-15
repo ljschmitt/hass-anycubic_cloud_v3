@@ -9,7 +9,7 @@ Dieser Weg ist ab [Integration 0.4.9-beta.5](https://github.com/ljschmitt/hass-a
 1. Öffne **Einstellungen → Geräte & Dienste → Anycubic Cloud**. Das **Zahnrad** befindet sich rechts am Anycubic-Cloud-Kontoeintrag. Es öffnet die Integrationsoptionen.
 2. Wähle **Druckerdiagnose starten**, wähle den Drucker und bestätige mit **Aufzeichnung starten**. Home Assistant zeigt eine Bestätigung.
 3. Stelle das Problem einmal nach und warte möglichst fünf Minuten. Öffne unter **Geräte** den Drucker, für den du die Aufzeichnung gestartet hast.
-4. Öffne **⋮ → Diagnosedaten herunterladen** auf der **Geräteseite**. Du erhältst eine JSON-Datei. Wenn sie unter `data` nur `"status": "capture_unavailable"` enthält, prüfe die Druckerauswahl und starte bei abgelaufenem Bericht eine neue Aufnahme.
+4. Wähle **Diagnosedaten herunterladen** unter **Geräte-Informationen** auf der Geräteseite. Du erhältst eine JSON-Datei. Wenn sie unter `data` nur `"status": "capture_unavailable"` enthält, prüfe die Druckerauswahl und starte bei abgelaufenem Bericht eine neue Aufnahme.
 5. Öffne die JSON-Datei in einem Texteditor. Kopiere das Objekt, das direkt auf den Schlüssel `"data"` folgt, also alles von dessen öffnender bis zu dessen schließender geschweiften Klammer. Der Abschnitt enthält `printer`, `integration_entities` und `capture`. Prüfe ihn und speichere ihn bei Bedarf unter dem neutralen Namen `anycubic-diagnose.json`. Die restliche Download-Datei enthält Home-Assistant-Systeminformationen. Ihr automatisch erzeugter Dateiname enthält lokale IDs.
 6. Füge den geprüften Abschnitt als Kommentar ein oder hänge die umbenannte Datei an [Issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33) an.
 

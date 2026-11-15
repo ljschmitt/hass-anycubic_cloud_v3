@@ -83,7 +83,7 @@ Eine bebilderte Schritt-für-Schritt-Anleitung erklärt den Diagnoseexport und d
 [Textanleitung im Repository](docs/druckerdiagnose.md) · [Anleitung auf der Projektwebsite](https://apps.schmittit.de/anycubic_ha_cloud/#druckerdiagnose)
 
 Ab **0.4.9-beta.5**: Über das **Zahnrad** des Anycubic-Cloud-Eintrags kannst du **Druckerdiagnose starten** und einen Drucker auswählen.
-Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle im Gerätemenü
+Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle unter **Geräte-Informationen**
 **Diagnosedaten herunterladen**. Home Assistant ergänzt Systeminformationen und lokale IDs im Dateinamen.
 Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33).
 Bei längeren Berichten kannst du diesen Abschnitt als `anycubic-diagnose.json` anhängen.
