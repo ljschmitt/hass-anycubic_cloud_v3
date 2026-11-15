@@ -81,12 +81,12 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 ### Druckerdaten für neue Firmware und Entitäten beitragen
 
 Eine bebilderte Schritt-für-Schritt-Anleitung erklärt den Diagnoseexport und das Teilen des bereinigten Berichts.
-[Textanleitung im Repository](docs/druckerdiagnose.md) · [Anleitung auf der Projektwebsite](https://apps.schmittit.de/anycubic_ha_cloud/#druckerdiagnose)
+[Textanleitung im Repository](docs/druckerdiagnose.md) · [Anleitung auf der Projektwebsite](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html)
 
 Ab **0.4.9-beta.5**: Über das **Zahnrad** des Anycubic-Cloud-Eintrags kannst du **Druckerdiagnose starten** und einen Drucker auswählen.
 Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle unter **Geräte-Informationen**
 **Diagnosedaten herunterladen**. Home Assistant ergänzt Systeminformationen und lokale IDs im Dateinamen.
-Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33).
+Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37).
 Bei längeren Berichten kannst du diesen Abschnitt als `anycubic-diagnose.json` anhängen.
 Der Bericht ist ab dem Start 30 Minuten verfügbar. Die Diagnose im Kontomenü dient der allgemeinen Fehlersuche.
 
@@ -94,7 +94,7 @@ Ab **0.4.9-beta.2** kann ein Administrator pro Anycubic-Konto einen Drucker für
 
 1. Öffne in Home Assistant **Entwicklerwerkzeuge → Aktionen**. Wähle **Druckerdiagnose starten** und dann das Anycubic-Cloud-Konto und den Drucker.
 2. Benutze den Drucker wie gewohnt. Warte möglichst fünf Minuten, damit mindestens ein regulärer Cloud-Abruf stattfinden kann. MQTT-Daten erscheinen, wenn der Drucker in dieser Zeit über eine aktive MQTT-Verbindung meldet.
-3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die Antwort und teile sie in [Issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33). Bei längeren Berichten kopierst du die Antwort in eine `.txt`-Datei und ziehst sie in das Kommentarfeld. Nenne Druckermodell, Zubehör und den Ablauf während der Aufzeichnung.
+3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die Antwort und teile sie in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). Bei längeren Berichten kopierst du die Antwort in eine `.txt`-Datei und ziehst sie in das Kommentarfeld. Nenne Druckermodell, Zubehör und den Ablauf während der Aufzeichnung.
 
 Der Bericht enthält Firmware, Modellcode, registrierte Entitätsschlüssel, Feldpfade und Datentypen sowie freigegebene Messwerte wie Temperaturen oder Feuchtigkeit. Unbekannte Felder erscheinen mit ihrem Datentyp. Der Bericht kommt aus der Aktion **Druckerdiagnose exportieren**. Teile nur diese Antwort. Sie ist bis 30 Minuten nach dem Start abrufbar. Ein erneuter Start für dasselbe Konto ersetzt die vorherige Aufzeichnung.
 
