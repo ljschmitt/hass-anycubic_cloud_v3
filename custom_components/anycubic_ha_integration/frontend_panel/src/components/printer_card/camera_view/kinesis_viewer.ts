@@ -1,0 +1,158 @@
+export interface KinesisCameraSession {
+  transport: "kinesis";
+  signaling_url: string;
+  ice_servers: RTCIceServer[];
+}
+
+// Kinesis transports WebRTC descriptions and candidates as base64 JSON.
+type MessageType = "SDP_OFFER" | "ICE_CANDIDATE";
+interface PeerMessage {
+  messageType?: string;
+  messagePayload?: string;
+  statusResponse?: { statusCode?: number };
+}
+
+export function startKinesisViewer(
+  session: KinesisCameraSession,
+  container: HTMLElement,
+  onPlaying: () => void,
+  onError: () => void,
+): () => void {
+  const peer = new RTCPeerConnection({ iceServers: session.ice_servers });
+  let socket: WebSocket;
+  try {
+    socket = new WebSocket(session.signaling_url);
+  } catch (error) {
+    peer.close();
+    throw error;
+  }
+  const video = document.createElement("video");
+  video.muted = true;
+  video.autoplay = true;
+  video.playsInline = true;
+  container.append(video);
+
+  let stopped = false;
+  let offerSent = false;
+  const timer = { id: 0 };
+  const pendingLocal: RTCIceCandidate[] = [];
+  const pendingRemote: RTCIceCandidateInit[] = [];
+
+  function stop(): void {
+    if (stopped) {
+      return;
+    }
+    stopped = true;
+    window.clearTimeout(timer.id);
+    socket.close();
+    peer.close();
+    video.srcObject = null;
+    video.remove();
+  }
+
+  function fail(): void {
+    if (!stopped) {
+      stop();
+      onError();
+    }
+  }
+
+  function send(
+    action: MessageType,
+    data: RTCSessionDescription | RTCIceCandidate,
+  ): void {
+    socket.send(
+      JSON.stringify({
+        action,
+        messagePayload: window.btoa(JSON.stringify(data)),
+      }),
+    );
+  }
+
+  peer.addTransceiver("video", { direction: "recvonly" });
+  peer.addEventListener("icecandidate", ({ candidate }) => {
+    if (candidate && !stopped) {
+      if (!offerSent) {
+        pendingLocal.push(candidate);
+      } else {
+        try {
+          send("ICE_CANDIDATE", candidate);
+        } catch {
+          fail();
+        }
+      }
+    }
+  });
+  peer.addEventListener("track", ({ track, streams }) => {
+    if (!stopped && track.kind === "video") {
+      video.srcObject = streams[0] ?? new MediaStream([track]);
+    }
+  });
+  peer.addEventListener("connectionstatechange", () => {
+    if (peer.connectionState === "failed") {
+      fail();
+    }
+  });
+  video.addEventListener("playing", () => {
+    if (!stopped) {
+      window.clearTimeout(timer.id);
+      onPlaying();
+    }
+  });
+  video.addEventListener("error", fail);
+
+  async function negotiate(): Promise<void> {
+    await peer.setLocalDescription(await peer.createOffer());
+    if (!stopped && peer.localDescription) {
+      send("SDP_OFFER", peer.localDescription);
+      offerSent = true;
+      pendingLocal.splice(0).forEach((candidate) => {
+        send("ICE_CANDIDATE", candidate);
+      });
+    }
+  }
+
+  async function receive({ data }: MessageEvent<string>): Promise<void> {
+    if (stopped) {
+      return;
+    }
+    const message = JSON.parse(data) as PeerMessage;
+    if (message.messageType === "STATUS_RESPONSE") {
+      if ((message.statusResponse?.statusCode ?? 0) >= 400) {
+        fail();
+      }
+      return;
+    }
+    if (!message.messagePayload) {
+      return;
+    }
+    if (message.messageType === "SDP_ANSWER") {
+      const answer = JSON.parse(
+        window.atob(message.messagePayload),
+      ) as RTCSessionDescriptionInit;
+      await peer.setRemoteDescription(answer);
+      for (const candidate of pendingRemote.splice(0)) {
+        await peer.addIceCandidate(candidate);
+      }
+    } else if (message.messageType === "ICE_CANDIDATE") {
+      const candidate = JSON.parse(
+        window.atob(message.messagePayload),
+      ) as RTCIceCandidateInit;
+      if (peer.remoteDescription) {
+        await peer.addIceCandidate(candidate);
+      } else {
+        pendingRemote.push(candidate);
+      }
+    }
+  }
+
+  let messages = Promise.resolve();
+  socket.addEventListener("open", () => void negotiate().catch(fail));
+  socket.addEventListener("message", (event: MessageEvent<string>) => {
+    messages = messages.then(() => receive(event)).catch(fail);
+  });
+  socket.addEventListener("error", fail);
+  socket.addEventListener("close", fail);
+  timer.id = window.setTimeout(fail, 20000);
+  return stop;
+}

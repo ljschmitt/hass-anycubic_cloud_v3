@@ -74,6 +74,8 @@ jobs:
         run: node tests/test_print_time_frontend.cjs
       - name: Test panel and card ACE drying controls
         run: node tests/test_ace_drying_frontend.cjs
+      - name: Test Kobra 2 Max camera signaling
+        run: node tests/test_kinesis_viewer_frontend.cjs
       - name: Build and check diff
         run: |
           npm run build && npm run build_card

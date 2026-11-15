@@ -45,7 +45,7 @@ from .project import AnycubicProject
 
 if TYPE_CHECKING:
     from ..anycubic_api import AnycubicAPI
-    from .orders import AnycubicCameraSession
+    from .orders import AnycubicCameraSession, AnycubicCameraToken
     from .print_response import AnycubicPrintResponse
     from .printer_properties import AnycubicDryingStatus, AnycubicMaterialMapping
 
@@ -2677,7 +2677,7 @@ class AnycubicPrinter:
 
     async def get_camera_session(
         self,
-    ) -> AnycubicCameraSession | None:
+    ) -> AnycubicCameraSession | AnycubicCameraToken | None:
         session = await self._api_parent.get_camera_session(
             self,
         )

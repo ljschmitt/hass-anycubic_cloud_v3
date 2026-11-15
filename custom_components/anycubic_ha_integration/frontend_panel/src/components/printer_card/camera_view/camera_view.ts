@@ -15,12 +15,14 @@ import { property, state } from "lit/decorators.js";
 import { query } from "lit/decorators/query.js";
 import { styleMap } from "lit/directives/style-map.js";
 
+import { KinesisCameraSession, startKinesisViewer } from "./kinesis_viewer";
 import { localize } from "../../../../localize/localize";
 import { customElementIfUndef } from "../../../internal/register-custom-element";
 import { buildCameraUrlFromEntity } from "../../../helpers";
 import { HassEntity, HomeAssistant, LitTemplateResult } from "../../../types";
 
 interface AnycubicCameraSession {
+  transport?: never;
   appid: string;
   channel: string;
   rtc_token: string;
@@ -74,6 +76,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
   private cloudCameraError: string | undefined;
 
   private _agoraClient: IAgoraRTCClient | undefined;
+  private _stopKinesisViewer?: () => void;
   private _remoteVideoTrack: IRemoteVideoTrack | undefined;
   private _startRequest = 0;
   private _zoom = 1;
@@ -272,13 +275,36 @@ export class AnycubicPrintercardCameraview extends LitElement {
     this.cloudCameraError = undefined;
 
     try {
-      const session = await this.hass.callWS<AnycubicCameraSession>({
+      const session = await this.hass.callWS<
+        AnycubicCameraSession | KinesisCameraSession
+      >({
         type: "anycubic_ha_integration/camera_session",
         config_entry: this.configEntryId,
         printer_id: Number(this.printerId),
       });
 
       if (requestId !== this._startRequest || !this.showVideo) {
+        return;
+      }
+
+      if (session.transport === "kinesis") {
+        this._stopKinesisViewer = startKinesisViewer(
+          session,
+          this._videoElement,
+          () => {
+            if (requestId === this._startRequest) {
+              this.cloudCameraStatus = "connected";
+            }
+          },
+          () => {
+            if (requestId === this._startRequest) {
+              this.cloudCameraError = this._localize(
+                "camera.errors.connection_lost",
+              );
+              this.cloudCameraStatus = "error";
+            }
+          },
+        );
         return;
       }
 
@@ -393,6 +419,9 @@ export class AnycubicPrintercardCameraview extends LitElement {
     if (invalidateStartRequest) {
       this._startRequest++;
     }
+
+    this._stopKinesisViewer?.();
+    this._stopKinesisViewer = undefined;
 
     this._remoteVideoTrack?.stop();
     this._remoteVideoTrack = undefined;

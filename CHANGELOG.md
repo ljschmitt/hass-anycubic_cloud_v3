@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1-beta.1
+
+- Add an experimental Kinesis WebRTC viewer for legacy cloud cameras on the Kobra 2 Max (model 20023) in the panel and dashboard card. Keep the existing Agora path for other models. Live playback still needs confirmation on a Kobra 2 Max.
+- Include the camera response type and vendor status code in an active Kobra 2 Max diagnostics capture. Exports omit camera credentials and signaling URLs.
+
 ## 0.5.0
 
 - Show each ACE's temperature and reported relative humidity above its spools in the dashboard card and Anycubic Cloud panel.
