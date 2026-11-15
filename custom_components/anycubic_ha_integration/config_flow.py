@@ -22,7 +22,6 @@ from homeassistant.helpers.storage import Store
 from .anycubic_cloud_api.anycubic_api import AnycubicMQTTAPI as AnycubicAPI
 from .anycubic_cloud_api.models.auth import AnycubicAuthMode
 from .const import (
-    COORDINATOR,
     CONF_CARD_CONFIG,
     CONF_DEBUG_API_CALLS,
     CONF_DEBUG_DEPRECATED,
@@ -34,6 +33,7 @@ from .const import (
     CONF_USER_AUTH_MODE,
     CONF_USER_DEVICE_ID,
     CONF_USER_TOKEN,
+    COORDINATOR,
     DOMAIN,
     LOGGER,
     MAX_DRYING_PRESETS,

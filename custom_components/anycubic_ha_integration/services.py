@@ -58,10 +58,7 @@ from .const import (
     MAX_FILE_UPLOAD_RETRIES,
 )
 from .diagnostics import get_printer_capture_report
-from .helpers import (
-    printer_entity_suggested_object_id,
-    printer_state_for_key,
-)
+from .helpers import printer_entity_suggested_object_id, printer_state_for_key
 
 if TYPE_CHECKING:
     from .coordinator import AnycubicCloudDataUpdateCoordinator
