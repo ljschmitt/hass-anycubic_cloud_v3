@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.9
+
+- Serve the bundled dashboard card at `/anycubic-cloud-card.js` for Lovelace. Existing cards can switch to this resource without changing their configuration.
+- Expose relative humidity for each ACE 2 Pro that reports a valid reading ([#32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)).
+- Promote the per-printer diagnostics, print statistics and ACE control improvements from the 0.4.9 beta series.
+
 ## 0.4.9-beta.6
 
 - Resolve the registered ACE run-out refill switch in the panel and dashboard card, including renamed entities and a second ACE.

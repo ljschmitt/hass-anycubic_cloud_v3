@@ -172,13 +172,17 @@ Use only your own account. Never upload tokens, dumps, configuration files or un
 
 ## Dashboard card
 
+The integration serves the dashboard card at `/anycubic-cloud-card.js`. Add it as a **JavaScript module** under **Settings → Dashboards → ⋮ → Resources**. The integration also includes the **Anycubic Cloud** sidebar panel.
+
+For an existing dashboard, edit the resource for `anycubic-card.js` and change its URL to `/anycubic-cloud-card.js`. Remove duplicate resources for this card and reload the dashboard. Existing cards use the same `custom:anycubic-card` type and retain their settings. Once they load through the bundled resource, you can uninstall the separate card package in HACS. For YAML resources, update the URL under `lovelace.resources` and keep `type: module`.
+
+From **0.4.9**, each ACE 2 Pro that reports a valid reading gets a relative humidity sensor. Use **ACE Humidity** and **Secondary ACE Humidity** in Home Assistant automations. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
+
 ### Loaded slot of the primary ACE
 
 Version **0.4.3** adds `loaded_slot` to the existing `sensor.anycubic_printer_ace_spools` sensor. This is the primary ACE's unchanged, **zero-based** cloud/MQTT value: `0` is its first slot, `1` its second slot, and `-1` means no slot is loaded. The value is `null` when no primary ACE exists. Offline printers can retain a cached value; it does not confirm current filament movement.
 
 With multiple ACE units, this attribute refers only to the primary ACE. The Kobra X internal material rack is not treated as the primary ACE. Existing one-based `local_slot`, `slot` and `display_slot` fields and print-slot mappings stay unchanged. Before accessing `spool_info[loaded_slot]`, check that the value is a number from `0` to the list length minus one; never interpret `-1` as the last list item. This is an additional attribute, not a new entity.
-
-The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card). The integration also includes its own Home Assistant side panel, so the external card is optional.
 
 From [0.4.8](CHANGELOG.md#048), the power icon reflects the entity configured through `powerEntityId`. **On** uses the theme's success color, **Off** is a ring, and **Unknown** and **Unavailable** use a neutral icon. The tooltip shows the state reported by Home Assistant. Use the [matching dashboard card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
 
@@ -199,7 +203,7 @@ Starting with **0.4.9-beta.2**, a Home Assistant administrator can capture five 
 2. Use the printer as usual. Allow up to five minutes for ordinary cloud polling. MQTT samples require an active MQTT connection and incoming printer reports.
 3. Run **Export printer diagnostics** for the same device. Review the response and share it in [testing discussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). For a long report, save the response as a `.txt` file and drag it into the comment box. Include your printer model, accessories and a short note about the capture.
 
-The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one. The [optional dashboard card 0.4.9-beta.3](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.3) can be used with this integration beta.
+The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one.
 
 ## Camera behavior
 

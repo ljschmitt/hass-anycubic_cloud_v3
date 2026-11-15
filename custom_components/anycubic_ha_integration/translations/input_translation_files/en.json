@@ -539,6 +539,9 @@
       "ace_current_temperature": {
         "name": "ACE Current [%key:common::temperature%]"
       },
+      "ace_humidity": {
+        "name": "ACE Humidity"
+      },
       "dry_status_target_temperature": {
         "name": "[%key:common::drying%] [%key:common::target%] [%key:common::temperature%]"
       },
@@ -553,6 +556,9 @@
       },
       "secondary_ace_current_temperature": {
         "name": "[%key:common::secondary%] ACE Current [%key:common::temperature%]"
+      },
+      "secondary_ace_humidity": {
+        "name": "Secondary ACE Humidity"
       },
       "secondary_dry_status_target_temperature": {
         "name": "[%key:common::secondary%] [%key:common::drying%] [%key:common::target%] [%key:common::temperature%]"

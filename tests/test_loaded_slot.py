@@ -59,6 +59,21 @@ def build_sensor_data(printer_object):
 
 
 class LoadedSlotTests(unittest.TestCase):
+    def test_humidity_routes_to_the_reporting_external_ace(self):
+        rack = {**ace(-1), "model_id": 40002, "humidity": 90}
+        primary = {**ace(0), "model_id": 40002, "humidity": "37.5"}
+        secondary = {**ace(1), "model_id": 40002, "humidity": 0}
+        states = build_sensor_data(printer([rack, primary, secondary], machine_type=20030))["states"]
+        self.assertEqual(states["ace_humidity"], 37.5)
+        self.assertEqual(states["secondary_ace_humidity"], 0)
+
+    def test_humidity_ignores_other_ace_models_and_invalid_readings(self):
+        self.assertIsNone(build_sensor_data(printer([{**ace(), "humidity": 42}]))["states"]["ace_humidity"])
+        for value in (None, True, -1, 101, "NaN", "inf", "--"):
+            with self.subTest(value=value):
+                device = printer([{**ace(), "model_id": 40002, "humidity": value}])
+                self.assertIsNone(device.primary_multi_color_box.humidity)
+
     def test_ace_2_pro_exposes_recognized_fill_levels_without_requiring_sku(self):
         box = ace()
         box["model_id"] = 40002

@@ -16,7 +16,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9-beta.6**
+> 🗓️ **Aktuelles Release: 0.4.9**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -26,7 +26,8 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
 > - Das Anycubic-Cloud-Panel zeigt Druckanzahl, Gesamtdruckzeit und Filamentverbrauch im Reiter **Druckstatistik**.
 > - Nachfüllen verwendet den registrierten ACE-Schalter. Beim Kobra X hat die MQTT-Rückmeldung der ACE Vorrang vor dem älteren Cloud-Wert. Der Trocknungsdialog verweist bei fehlenden Vorgaben auf die Integrationsoptionen.
-> - Für das eigene Dashboard gibt es die [passende optionale Card 0.4.9-beta.6](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.6). Das Seitenleisten-Panel ist bereits in der Integration enthalten.
+> - Die Dashboard-Card ist in der Integration enthalten. Die Umstellung ist unter [Frontend-Card](#-frontend-card) beschrieben.
+> - Jede ACE 2 Pro mit gültigem Messwert erhält einen eigenen Luftfeuchtigkeitssensor. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -156,13 +157,9 @@ Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattri
 
 ## 🎨 Frontend-Card
 
-Empfohlen fuer diese Integration ist der passende Anycubic-Card-Fork:
+Die Integration stellt die Dashboard-Card unter `/anycubic-cloud-card.js` bereit. Unter **Einstellungen → Dashboards → ⋮ → Ressourcen** kannst du sie als **JavaScript-Modul** hinzufügen. Das Seitenleisten-Panel **Anycubic Cloud** ist ebenfalls Teil der Integration.
 
-➡️ [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card)
-
-Die urspruengliche [Anycubic-Karte fuer Home Assistant](https://github.com/WaresWichall/hass-anycubic_card) ist eine separate Dashboard-/Lovelace-Card und wurde fuer die originale Anycubic-Integration gebaut. Dieser Fork bleibt naeher an den Entity-IDs und Zusatzfunktionen dieser Integration. Bitte fuer neue Setups bevorzugt den Fork verwenden, damit Dashboard-Card und Integration denselben Stand erwarten.
-
-Die Integration selbst bringt weiterhin ein eigenes Home-Assistant-Panel mit. Die externe Card ist optional und muss separat in HACS als Dashboard-/Frontend-Card installiert werden.
+Bei einem bestehenden Dashboard öffne die Ressource für `anycubic-card.js` und ersetze ihre URL durch `/anycubic-cloud-card.js`. Entferne gegebenenfalls weitere Einträge für dieselbe Card und lade das Dashboard neu. Die Karten verwenden weiterhin `custom:anycubic-card` und ihre gespeicherten Einstellungen. Sobald sie über die integrierte Ressource laden, kannst du das separate Card-Paket in HACS entfernen. Bei YAML-Ressourcen ändere die URL unter `lovelace.resources` und behalte `type: module` bei.
 
 Ab [0.4.8](CHANGELOG.md#048) zeigt das Power-Symbol den Zustand der ueber `powerEntityId` hinterlegten Entitaet. **An** verwendet die Erfolgsfarbe des Themes, **Aus** erscheint als Ring. **Unbekannt** und **Nicht verfuegbar** werden neutral dargestellt. Der Tooltip nennt den von Home Assistant gemeldeten Zustand.
 

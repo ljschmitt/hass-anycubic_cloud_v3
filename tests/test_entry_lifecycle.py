@@ -14,6 +14,7 @@ DOMAIN = "anycubic_ha_integration"
 INTEGRATION = ROOT / "custom_components" / DOMAIN
 PANEL_URL = "/anycubic-cloud-panel-static"
 IMAGES_URL = "/anycubic-cloud-hardware"
+CARD_URL = "/anycubic-cloud-card.js"
 
 
 def load_functions(filename, namespace):
@@ -48,7 +49,7 @@ class EntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         service = Mock(schema={})
         panel_namespace = {
             "DOMAIN": DOMAIN, "CUSTOM_COMPONENTS": "custom_components", "INTEGRATION_FOLDER": DOMAIN,
-            "PANEL_URL": PANEL_URL, "HARDWARE_IMAGES_URL": IMAGES_URL,
+            "PANEL_URL": PANEL_URL, "HARDWARE_IMAGES_URL": IMAGES_URL, "CARD_URL": CARD_URL,
             "PANEL_FOLDER": "frontend_panel", "PANEL_FILENAME": "dist/anycubic-cloud-panel.js",
             "PANEL_ICON": "mdi:printer-3d", "PANEL_NAME": "anycubic-cloud-panel", "PANEL_TITLE": "Anycubic Cloud",
             "LOGGER": Mock(), "os": os, "json": json, "StaticPathConfig": self.static_path,
@@ -95,10 +96,14 @@ class EntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
     async def unload(self, entry):
         return await self.lifecycle["async_unload_entry"](self.hass, entry)
 
-    async def test_last_unload_removes_shared_ui_and_reload_reuses_images(self):
+    async def test_last_unload_removes_shared_ui_and_reload_reuses_frontend_assets(self):
         first = await self.setup("first")
         second = await self.setup("second")
         route = self.routes[IMAGES_URL]
+        card = self.routes[CARD_URL]
+        self.assertEqual(card.path, INTEGRATION / "frontend_panel/dist/anycubic-card.js")
+        self.assertTrue(card.path.is_file())
+        self.assertFalse(card.cache_headers)
 
         self.assertTrue(await self.unload(first))
         self.assertIn(DOMAIN, self.panels)
@@ -116,6 +121,7 @@ class EntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(self.panels[DOMAIN].startswith(PANEL_URL + "?v="))
         self.assertTrue(self.routes[PANEL_URL].path.is_file())
         self.assertIs(self.routes[IMAGES_URL], route)
+        self.assertIs(self.routes[CARD_URL], card)
         self.register_websocket.assert_called_once_with(self.hass)
         for filename in ("textured_pei_plate", "smooth_transfer_plate", "low_temperature_plate", "brass", "hardened_steel"):
             self.assertTrue((route.path / f"{filename}.png").read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
