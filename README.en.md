@@ -25,10 +25,14 @@ The integration was [added to the default HACS catalog](https://github.com/hacs/
 ## Highlights
 
 - Multiple Anycubic printers in one Home Assistant installation
+- Per-printer **Print Count**, **Total Print Time**, and **Total Material Used** sensors when the cloud reports valid totals
+- A **Print statistics** tab next to **Main** and **Side View** in the Anycubic Cloud sidebar panel. It appears when the selected printer reports at least one total and shows a bundled printer image where available. Tested on Kobra X and Kobra 3 Combo V2, with availability on other models determined by the data Anycubic reports.
 - Cloud polling and optional MQTT real-time updates
 - Print status, temperatures, speed, fan, layers, progress, and timing sensors
 - Pause, resume, cancel, and prepared print workflows with ordered color selection for all loaded material sources and a collapsible manual slot-number fallback
 - Local, USB, and cloud file views
+- Home Assistant and the file views show complete live file lists. History records the list status and the path where available. Individual file entries are available in the live view.
+- If the first request for a local file list gets no response, the integration retries the selected directory once.
 - ACE spool, material, color, and drying information
 - Native camera-light entity on supported printers
 - On-demand Anycubic cloud camera stream
@@ -172,19 +176,46 @@ Use only your own account. Never upload tokens, dumps, configuration files or un
 
 ## Dashboard card
 
+The integration serves the dashboard card at `/anycubic-cloud-card.js`. Add it as a **JavaScript module** under **Settings → Dashboards → ⋮ → Resources**. The integration also includes the **Anycubic Cloud** sidebar panel.
+
+For an existing dashboard, edit the resource for `anycubic-card.js` and change its URL to `/anycubic-cloud-card.js`. Remove duplicate resources for this card and reload the dashboard. Existing cards use the same `custom:anycubic-card` type and retain their settings. Once they load through the bundled resource, you can uninstall the separate card package in HACS. For YAML resources, update the URL under `lovelace.resources` and keep `type: module`.
+
+From **0.4.9**, each ACE 2 Pro that reports a valid reading gets a relative humidity sensor. Use **ACE Humidity** and **Secondary ACE Humidity** in Home Assistant automations. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
+
 ### Loaded slot of the primary ACE
 
 Version **0.4.3** adds `loaded_slot` to the existing `sensor.anycubic_printer_ace_spools` sensor. This is the primary ACE's unchanged, **zero-based** cloud/MQTT value: `0` is its first slot, `1` its second slot, and `-1` means no slot is loaded. The value is `null` when no primary ACE exists. Offline printers can retain a cached value; it does not confirm current filament movement.
 
 With multiple ACE units, this attribute refers only to the primary ACE. The Kobra X internal material rack is not treated as the primary ACE. Existing one-based `local_slot`, `slot` and `display_slot` fields and print-slot mappings stay unchanged. Before accessing `spool_info[loaded_slot]`, check that the value is a number from `0` to the list length minus one; never interpret `-1` as the last list item. This is an additional attribute, not a new entity.
 
-The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card). The integration also includes its own Home Assistant side panel, so the external card is optional.
-
 From [0.4.8](CHANGELOG.md#048), the power icon reflects the entity configured through `powerEntityId`. **On** uses the theme's success color, **Off** is a ring, and **Unknown** and **Unavailable** use a neutral icon. The tooltip shows the state reported by Home Assistant. Use the [matching dashboard card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
+
+## Contribute printer data
+
+[Illustrated diagnostics guide](https://apps.schmittit.de/anycubic_ha_cloud/en/printer-diagnostics.html)
+
+From **0.4.9-beta.5**, open the **gear icon** on the Anycubic Cloud account, choose **Start printer diagnostics**, and select a printer.
+After about five minutes, open that printer under **Devices** and choose **Download diagnostics** under **Device information**.
+Home Assistant adds system information and local IDs to the file name. Review the data section and share it
+in [testing discussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). For a long report, save that section
+as `anycubic-diagnostics.json` and attach it.
+The report is available for 30 minutes from the start. The account menu downloads general diagnostics.
+
+Starting with **0.4.9-beta.2**, a Home Assistant administrator can capture five minutes of incoming data from a selected Anycubic printer. Reports from working printers are useful after a firmware update too.
+
+1. Open **Developer tools → Actions**, choose **Start printer diagnostics**, and select the Anycubic Cloud account and the printer.
+2. Use the printer as usual. Allow up to five minutes for ordinary cloud polling. MQTT samples require an active MQTT connection and incoming printer reports.
+3. Run **Export printer diagnostics** for the same device. Review the response and share it in [testing discussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). For a long report, save the response as a `.txt` file and drag it into the comment box. Include your printer model, accessories and a short note about the capture.
+
+The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one.
 
 ## Camera behavior
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
+
+**Kobra 2 Max (20023)**: Diagnostic beta 0.4.9-beta.1 tries the older camera request once for [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) when the cloud reports success for the Agora request but supplies no session credentials. Playback still uses Agora/WebRTC. To test, open the camera once. If it fails, share only the `Kobra 2 Max camera probe` lines from the Home Assistant system log. They contain a numeric vendor code and known field names.
+
+Testing on the Kobra 2 Max confirmed the legacy camera format. Playback for this format is still pending. [Test result in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
 
 The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 

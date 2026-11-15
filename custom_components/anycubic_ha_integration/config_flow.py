@@ -33,6 +33,7 @@ from .const import (
     CONF_USER_AUTH_MODE,
     CONF_USER_DEVICE_ID,
     CONF_USER_TOKEN,
+    COORDINATOR,
     DOMAIN,
     LOGGER,
     MAX_DRYING_PRESETS,
@@ -528,6 +529,7 @@ class AnycubicCloudOptionsFlowHandler(OptionsFlow):
         menu_options = list([
             "mqtt",
             "card_config",
+            "printer_diagnostics",
             "debug",
         ])
 
@@ -537,6 +539,38 @@ class AnycubicCloudOptionsFlowHandler(OptionsFlow):
         return self.async_show_menu(
             step_id="options_menu",
             menu_options=menu_options,
+        )
+
+    async def async_step_printer_diagnostics(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Start a short capture for a configured printer."""
+        coordinator = self.hass.data.get(DOMAIN, {}).get(self.entry.entry_id, {}).get(COORDINATOR)
+        if coordinator is None:
+            return self.async_abort(reason="printer_diagnostics_unavailable")
+
+        printers = {}
+        for printer_id in self.entry.data.get(CONF_PRINTER_ID_LIST, []):
+            printer = coordinator.get_printer_for_id(printer_id)
+            if printer is not None:
+                printers[str(printer_id)] = printer
+        if not printers:
+            return self.async_abort(reason="printer_diagnostics_unavailable")
+
+        if user_input is not None:
+            selected = printers.get(user_input["printer"])
+            if selected is None:
+                return self.async_abort(reason="printer_diagnostics_unavailable")
+            coordinator.anycubic_api.printer_capture.start(selected.id)
+            return self.async_abort(reason="printer_diagnostics_started")
+
+        return self.async_show_form(
+            step_id="printer_diagnostics",
+            data_schema=vol.Schema({
+                vol.Required("printer"): vol.In({
+                    key: printer.name or printer.machine_name for key, printer in printers.items()
+                })
+            }),
         )
 
     @callback

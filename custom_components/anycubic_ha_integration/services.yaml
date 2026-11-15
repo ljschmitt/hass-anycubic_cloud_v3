@@ -33,6 +33,14 @@ debug_set_light_status:
       selector:
         boolean:
 
+start_printer_diagnostics: &printer_diagnostics
+  fields:
+    config_entry: *anycubic_config_entry
+    device_id: *device_id
+    printer_id: *printer_id
+
+export_printer_diagnostics: *printer_diagnostics
+
 multi_color_box_set_slot_pla: &multi_color_box_set_slot
   fields:
     config_entry: *anycubic_config_entry

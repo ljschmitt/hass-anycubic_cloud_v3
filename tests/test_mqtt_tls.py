@@ -107,8 +107,10 @@ class MQTTTLSTests(unittest.TestCase):
                     conn, _ = listener.accept()
                     with conn, server_context.wrap_socket(conn, server_side=True) as secured:
                         secured.sendall(b"verified")
-                except ssl.SSLError:
-                    pass  # Expected TLS alert when the client rejects the test certificate.
+                except (ssl.SSLError, ConnectionResetError) as error:
+                    # A rejecting client can close the socket before the server reads its TLS alert.
+                    if label == "valid" and hostname == "localhost":
+                        errors.append(type(error).__name__)
                 except Exception as error:
                     errors.append(type(error).__name__)
 

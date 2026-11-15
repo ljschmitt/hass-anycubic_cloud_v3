@@ -142,6 +142,8 @@
     },
     "drying_settings": {
       "heading": "Drying Options",
+      "no_presets": "No drying preset is available for this ACE. Save a duration and temperature under Drying presets in the Anycubic Cloud integration options.",
+      "open_options": "Open Anycubic Cloud settings",
       "button_preset": "Preset",
       "button_stop_drying": "Stop Drying",
       "button_minutes": "Mins"
@@ -181,6 +183,12 @@
     }
   },
   "panels": {
+    "statistics": {
+      "title": "Print statistics",
+      "print_count": "Print count",
+      "total_print_time": "Total print time",
+      "total_material_used": "Filament used"
+    },
     "initial": {
       "printer_select": "Select a printer."
     },

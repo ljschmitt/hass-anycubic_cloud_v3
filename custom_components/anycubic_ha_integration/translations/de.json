@@ -60,6 +60,10 @@
     }
   },
   "options": {
+    "abort": {
+      "printer_diagnostics_started": "Aufzeichnung gestartet. Öffne nach fünf Minuten den ausgewählten Drucker und lade im Gerätemenü die Diagnosedaten herunter. Der Bericht ist ab dem Start 30 Minuten verfügbar.",
+      "printer_diagnostics_unavailable": "Anycubic Cloud hat gerade keinen Drucker für die Diagnose verfügbar."
+    },
     "step": {
       "options_menu": {
         "title": "Anycubic Cloud – Optionen",
@@ -67,8 +71,17 @@
           "mqtt": "MQTT‑Einstellungen",
           "drying": "Trocknungsvorgaben",
           "card_config": "Panel‑Kartenkonfiguration",
+          "printer_diagnostics": "Druckerdiagnose starten",
           "debug": "Debug‑Einstellungen"
         }
+      },
+      "printer_diagnostics": {
+        "title": "Druckerdiagnose starten",
+        "description": "Wähle einen Drucker, um fünf Minuten lang bereinigte MQTT- und Cloud-Daten aufzuzeichnen. Ein erneuter Start ersetzt die laufende Aufzeichnung für dieses Konto.",
+        "data": {
+          "printer": "Drucker"
+        },
+        "submit": "Aufzeichnung starten"
       },
       "mqtt": {
         "title": "MQTT‑Einstellungen",
@@ -395,6 +408,24 @@
     }
   },
   "services": {
+    "start_printer_diagnostics": {
+      "name": "Druckerdiagnose starten",
+      "description": "Zeichnet fünf Minuten lang eingehende MQTT- und Cloud-Daten eines Druckers auf.",
+      "fields": {
+        "config_entry": {"name": "Anycubic-Cloud-Konto"},
+        "device_id": {"name": "Drucker"},
+        "printer_id": {"name": "Drucker-ID", "description": "Nur verwenden, wenn die Geräteauswahl nicht verfügbar ist."}
+      }
+    },
+    "export_printer_diagnostics": {
+      "name": "Druckerdiagnose exportieren",
+      "description": "Zeigt den bereinigten Bericht des ausgewählten Druckers an. Die Antwort kann zum Teilen kopiert werden.",
+      "fields": {
+        "config_entry": {"name": "Anycubic-Cloud-Konto"},
+        "device_id": {"name": "Drucker"},
+        "printer_id": {"name": "Drucker-ID", "description": "Nur verwenden, wenn die Geräteauswahl nicht verfügbar ist."}
+      }
+    },
     "multi_color_box_set_slot_pla": {
       "name": "ACE Slot setzen – PLA",
       "description": "Setzt die Slot‑Eigenschaften (PLA) der ACE‑Einheit.",

@@ -20,7 +20,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.8**
+> 🗓️ **Aktuelles Release: 0.4.9**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -28,7 +28,10 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - ACE 2 Pro zeigt bei manuell konfigurierten Spulen ohne verifizierten Fuellstand **Unbekannt** ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
 > - Beim Entladen des letzten Kontos werden Aktionen und Seitenleisten-Panel abgemeldet. Beim Neuladen werden sie wieder registriert.
 > - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
-> - Verwende die [passende Dashboard-Card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
+> - Das Anycubic-Cloud-Panel zeigt Druckanzahl, Gesamtdruckzeit und Filamentverbrauch im Reiter **Druckstatistik**.
+> - Nachfüllen verwendet den registrierten ACE-Schalter. Beim Kobra X hat die MQTT-Rückmeldung der ACE Vorrang vor dem älteren Cloud-Wert. Der Trocknungsdialog verweist bei fehlenden Vorgaben auf die Integrationsoptionen.
+> - Die Dashboard-Card ist in der Integration enthalten. Die Umstellung ist unter [Frontend-Card](#-frontend-card) beschrieben.
+> - Jede ACE 2 Pro mit gültigem Messwert erhält einen eigenen Luftfeuchtigkeitssensor. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -80,6 +83,26 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 
 Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wird das Geraet angelegt, welche Entitaeten funktionieren, gibt es MQTT- oder Kamera-Auffaelligkeiten? Bitte keine Tokens, privaten IPs, Seriennummern oder persoenlichen Daten in Issues hochladen.
 
+### Druckerdaten für neue Firmware und Entitäten beitragen
+
+Eine bebilderte Schritt-für-Schritt-Anleitung erklärt den Diagnoseexport und das Teilen des bereinigten Berichts.
+[Textanleitung im Repository](docs/druckerdiagnose.md) · [Anleitung auf der Projektwebsite](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html)
+
+Ab **0.4.9-beta.5**: Über das **Zahnrad** des Anycubic-Cloud-Eintrags kannst du **Druckerdiagnose starten** und einen Drucker auswählen.
+Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle unter **Geräte-Informationen**
+**Diagnosedaten herunterladen**. Home Assistant ergänzt Systeminformationen und lokale IDs im Dateinamen.
+Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37).
+Bei längeren Berichten kannst du diesen Abschnitt als `anycubic-diagnose.json` anhängen.
+Der Bericht ist ab dem Start 30 Minuten verfügbar. Die Diagnose im Kontomenü dient der allgemeinen Fehlersuche.
+
+Ab **0.4.9-beta.2** kann ein Administrator pro Anycubic-Konto einen Drucker für eine kurze Aufzeichnung auswählen. Auch Meldungen von Geräten, die bereits funktionieren, helfen dabei, neue Firmware-Felder zu finden.
+
+1. Öffne in Home Assistant **Entwicklerwerkzeuge → Aktionen**. Wähle **Druckerdiagnose starten** und dann das Anycubic-Cloud-Konto und den Drucker.
+2. Benutze den Drucker wie gewohnt. Warte möglichst fünf Minuten, damit mindestens ein regulärer Cloud-Abruf stattfinden kann. MQTT-Daten erscheinen, wenn der Drucker in dieser Zeit über eine aktive MQTT-Verbindung meldet.
+3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die Antwort und teile sie in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). Bei längeren Berichten kopierst du die Antwort in eine `.txt`-Datei und ziehst sie in das Kommentarfeld. Nenne Druckermodell, Zubehör und den Ablauf während der Aufzeichnung.
+
+Der Bericht enthält Firmware, Modellcode, registrierte Entitätsschlüssel, Feldpfade und Datentypen sowie freigegebene Messwerte wie Temperaturen oder Feuchtigkeit. Unbekannte Felder erscheinen mit ihrem Datentyp. Der Bericht kommt aus der Aktion **Druckerdiagnose exportieren**. Teile nur diese Antwort. Sie ist bis 30 Minuten nach dem Start abrufbar. Ein erneuter Start für dasselbe Konto ersetzt die vorherige Aufzeichnung.
+
 ---
 
 ## ⚙️ Funktionsweise
@@ -87,6 +110,16 @@ Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wi
 - Cloud-Polling: alle **1 Minute**
 - MQTT (Echtzeit): **mehrfach pro Sekunde**
 - Erfordert **Slicer Next Token** für MQTT-Zugriff
+
+Unter **Einstellungen → Geräte & Dienste → Anycubic Cloud → Geräte** stehen **Print Count**, **Total Print Time**
+und **Total Material Used** bereit, sobald die Cloud für den jeweiligen Drucker einen gültigen Gesamtwert liefert.
+Der Druckzähler übernimmt den Wert aus der Anycubic-Druckerliste. Druckzeit und Materialverbrauch werden
+als numerische Sensoren aus den Gerätedetails gelesen.
+Öffne einen Drucker im Seitenleisten-Panel **Anycubic Cloud**. Oben neben **Hauptansicht** und **Nebenansicht**
+erscheint der Reiter **Druckstatistik**, sobald mindestens einer der drei Sensoren einen Wert liefert.
+Die Ansicht zeigt die verfügbaren Gesamtwerte und das vorhandene Druckerbild, sofern eines verfügbar ist.
+Getestet wurde der Reiter mit Kobra X und Kobra 3 Combo V2. Weitere Modelle können ihn nutzen, wenn Anycubic
+für sie gültige Gesamtwerte meldet.
 
 ### Druckzeit beim Kobra S1 Max
 
@@ -128,13 +161,9 @@ Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattri
 
 ## 🎨 Frontend-Card
 
-Empfohlen fuer diese Integration ist der passende Anycubic-Card-Fork:
+Die Integration stellt die Dashboard-Card unter `/anycubic-cloud-card.js` bereit. Unter **Einstellungen → Dashboards → ⋮ → Ressourcen** kannst du sie als **JavaScript-Modul** hinzufügen. Das Seitenleisten-Panel **Anycubic Cloud** ist ebenfalls Teil der Integration.
 
-➡️ [ljschmitt/hass-anycubic_card](https://github.com/ljschmitt/hass-anycubic_card)
-
-Die urspruengliche [Anycubic-Karte fuer Home Assistant](https://github.com/WaresWichall/hass-anycubic_card) ist eine separate Dashboard-/Lovelace-Card und wurde fuer die originale Anycubic-Integration gebaut. Dieser Fork bleibt naeher an den Entity-IDs und Zusatzfunktionen dieser Integration. Bitte fuer neue Setups bevorzugt den Fork verwenden, damit Dashboard-Card und Integration denselben Stand erwarten.
-
-Die Integration selbst bringt weiterhin ein eigenes Home-Assistant-Panel mit. Die externe Card ist optional und muss separat in HACS als Dashboard-/Frontend-Card installiert werden.
+Bei einem bestehenden Dashboard öffne die Ressource für `anycubic-card.js` und ersetze ihre URL durch `/anycubic-cloud-card.js`. Entferne gegebenenfalls weitere Einträge für dieselbe Card und lade das Dashboard neu. Die Karten verwenden weiterhin `custom:anycubic-card` und ihre gespeicherten Einstellungen. Sobald sie über die integrierte Ressource laden, kannst du das separate Card-Paket in HACS entfernen. Bei YAML-Ressourcen ändere die URL unter `lovelace.resources` und behalte `type: module` bei.
 
 Ab [0.4.8](CHANGELOG.md#048) zeigt das Power-Symbol den Zustand der ueber `powerEntityId` hinterlegten Entitaet. **An** verwendet die Erfolgsfarbe des Themes, **Aus** erscheint als Ring. **Unbekannt** und **Nicht verfuegbar** werden neutral dargestellt. Der Tooltip nennt den von Home Assistant gemeldeten Zustand.
 
@@ -186,8 +215,10 @@ Ab **0.4.6** enthaelt `spool_info` bei der ACE 2 Pro das Feld `consumables_perce
 - Vorbereiteter Druckstart aus lokalen und USB-Dateilisten mit farbiger Auswahl aller aktuell geladenen Materialquellen. Beim Kobra X werden Materialregal und ACE gemeinsam angeboten, waehrend die fuer den ACE reservierte Zuleitung nicht als Filamentspule auswaehlbar ist. Die Auswahlreihenfolge wird als Slotzuordnung uebernommen; eine aufklappbare manuelle Slotnummernliste bleibt als Fallback erhalten.
 - Die Druckvorbereitung zeigt eine Vorschau, wenn die Anycubic-Projekthistorie fuer denselben Drucker einen exakt passenden Dateinamen mit Bild enthaelt. Ohne sicheren Treffer bleibt der Druck weiterhin moeglich und es wird keine fremde Vorschau geraten.
 - Leere lokale und USB-Unterordner werden als leere Ordner angezeigt, auch wenn der Drucker in der MQTT-Antwort kein `records`-Feld mitsendet.
+- Bleibt der erste Abruf einer lokalen Dateiliste unbeantwortet, versucht die Integration denselben Ordner einmal erneut abzufragen.
 - ACE-Slot-Verwaltung (Farbe, Presets, Services)
 - Dateimanager (MQTT benötigt)
+- Lokale, USB- und Cloud-Dateilisten stehen mit allen Einträgen in Home Assistant und im Dateimanager zur Verfügung. Der Verlauf speichert den Status und, sofern vorhanden, den Pfad der Liste. Die Dateieinträge selbst sind in der Live-Ansicht verfügbar.
 - Sensoren: Temp, Speed, Fan, Job-Fortschritt, Name, Zeit, …
 - Firmware-Update-Entitäten
 - MQTT-Aktivität automatisch während Druck (oder dauerhaft)
@@ -204,6 +235,8 @@ Die ACE-Steuerung befindet sich in der **Hauptansicht** unter den Materialspulen
 
 Der gemeinsame Trocknungsdialog von Panel und Dashboard-Card verwendet die vorhandenen Button-Schluessel `drying_start_preset_1` bis `drying_start_preset_4`. Er loest die tatsaechliche Button-Entity aus der Entity-Registry auf und aktualisiert die Auswahl sofort beim Wechsel zwischen primaerer und sekundaerer ACE. Bestehende Entity-IDs bleiben gueltig.
 
+Sind keine Startvorgaben verfügbar, verlinkt der Dialog zu den Integrationsoptionen. Unter **Trocknungsvorgaben** legst du Dauer und Temperatur an. **Nachfüllen** schaltet die automatische Filamentfortsetzung bei leerer Spule über die registrierte ACE-Entität. Beim Kobra X richtet sich der Befehl an die externe ACE. Home Assistant übernimmt deren MQTT-Rückmeldung auch dann, wenn die Cloud noch den vorherigen Zustand meldet.
+
 Der Stop-Button betrifft jeweils nur die ausgewaehlte ACE. Zuvor konnte der sekundaere Stop-Befehl seine Box-ID verlieren und stattdessen die primaere ACE ansprechen; der primaere Stop-Button konnte beide ACEs stoppen. Der interne API-Aufruf ohne Box-Auswahl behaelt seine Stop-alle-Funktion. Automatisierte Tests pruefen Einzel- und Doppel-ACE sowie Kobra X mit internem Materialregal; eine Funktionsbestaetigung am betroffenen Kobra 3 Max steht noch aus. Panel und separate Dashboard-Card benoetigen fuer den Dialogfix jeweils ein neu gebautes Bundle.
 
 Trocknungsberichte ohne `temp` aktualisieren den Status, die Solltemperatur und die Restzeit. Die zuletzt gemessene Ist-Temperatur bleibt erhalten. Beim Kobra X wird die beobachtete Gesamtdauer in Sekunden auf Minuten umgerechnet. Der letzte aktive MQTT-Bericht bleibt je ACE bis zum Stop oder bis zum Ablauf der gemeldeten Restzeit gueltig, auch wenn die Cloud-Antwort zwischenzeitlich andere Werte liefert. Zwischen den Berichten zaehlt Home Assistant die Restminuten lokal herunter.
@@ -215,6 +248,10 @@ Die Nebenansicht bietet standardmaessig den Anycubic-Cloud-Kamerastream des ausg
 Der Kamerastream wird bewusst **nicht automatisch im Hintergrund gestartet**. Erst wenn in der Nebenansicht der Play-Button gedrueckt wird, wird die lokale Kameraquelle bzw. die Anycubic-Cloud-Kamerasession angefragt. Beim Stoppen, Verlassen der Ansicht oder Wechsel auf einen anderen Drucker wird der Stream wieder beendet.
 
 Auch die optionale Dashboard-Card kann den Cloudstream nach einem Klick auf die Druckergrafik anzeigen. Dabei wird eine authentifizierte Agora-/WebRTC-Session im Browser gestartet; die Integration legt dafuer keine native Home-Assistant-`camera.*`-Entity an und stellt keine feste RTSP-/MJPEG-URL zum Kopieren bereit. Eine vorhandene lokale Kameraquelle kann dagegen ueber eine [Generic Camera](https://www.home-assistant.io/integrations/generic/)-Entity eingebunden und mit `cameraEntityId` bzw. `cameraEntityIds` zugeordnet werden. Eine alternative Firmware oder Kamera-Bruecke muss den jeweiligen Drucker tatsaechlich unterstuetzen; das ist fuer den Kobra 3 Max hier nicht bestaetigt.
+
+**Kobra 2 Max (20023)**: Die Diagnose-Beta 0.4.9-beta.1 prueft fuer [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) einmal den aelteren Kameraaufruf, wenn die Cloud den Agora-Aufruf als erfolgreich meldet, aber keine Sitzungsdaten liefert. Die Wiedergabe verwendet weiterhin Agora/WebRTC. Fuer den Test die Kamera einmal oeffnen und bei einem Fehler aus dem Home-Assistant-Systemprotokoll nur die Zeilen mit `Kobra 2 Max camera probe` teilen. Sie enthalten einen numerischen Hersteller-Code und bekannte Feldnamen.
+
+Beim Kobra 2 Max wurde inzwischen das ältere Kameraformat bestätigt. Für dieses Format fehlt die Wiedergabe in Home Assistant. [Testergebnis in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
 
 Die Card hat derzeit keine Option, die Kameraansicht automatisch als Startansicht zu oeffnen. `alwaysShow: true` zeigt Status und ACE-Bereich dauerhaft an, startet aber keine Kamera. Das automatische Oeffnen der Kamera waere eine eigene Erweiterung.
 

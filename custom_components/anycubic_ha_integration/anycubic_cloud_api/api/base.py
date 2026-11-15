@@ -32,6 +32,7 @@ from ..exceptions.exceptions import (
 )
 from ..models.auth import AnycubicAuthentication, AnycubicAuthMode
 from ..models.http import HTTP_METHODS, AnycubicAPIEndpoint
+from ..printer_capture import PrinterCapture
 
 
 class AnycubicAPIBase:
@@ -46,6 +47,7 @@ class AnycubicAPIBase:
         "_log_api_call_info",
         "_last_warn_api_duration",
         "_anycubic_auth",
+        "printer_capture",
     )
 
     def __init__(
@@ -70,6 +72,7 @@ class AnycubicAPIBase:
         self._log_api_call_info: bool = False
         self._last_warn_api_duration: int | None = None
         self._anycubic_auth: AnycubicAuthentication | None = None
+        self.printer_capture = PrinterCapture()
 
         if auth_token:
             self.set_authentication(
@@ -249,6 +252,14 @@ class AnycubicAPIBase:
             ),
             with_origin=with_origin,
         )
+        printer_id = None
+        if endpoint is API_ENDPOINT.printer_info and query is not None:
+            printer_id = query.get("id")
+        elif endpoint is API_ENDPOINT.printer_properties:
+            printer_id = params.get("printer_id")
+        if isinstance(printer_id, (int, str)) and str(printer_id).isascii() and str(printer_id).isdigit():
+            kind = "printer_info" if endpoint is API_ENDPOINT.printer_info else "printer_properties"
+            self.printer_capture.record(int(printer_id), "cloud", kind, resp)
         return resp
 
     #

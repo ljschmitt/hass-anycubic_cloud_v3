@@ -81,26 +81,24 @@ def float_minutes_string_to_delta(
         raise
 
 
-def time_duration_string_to_delta(
-    time_string: str | None,
-) -> timedelta:
-    if isinstance(time_string, str):
-        # try:
-        #     return int_seconds_string_to_delta(time_string)
-        # except ValueError:
-        #     pass
+def parse_time_duration_string(time_string: str | None) -> timedelta | None:
+    """Parse the cloud's minutes or hour/minute format."""
+    if not isinstance(time_string, str):
+        return None
 
-        try:
-            return float_minutes_string_to_delta(time_string)
-        except ValueError:
-            pass
+    try:
+        return float_minutes_string_to_delta(time_string)
+    except (ValueError, OverflowError):
+        pass
 
-        try:
-            return hour_min_time_string_to_delta(time_string)
-        except ValueError:
-            pass
+    try:
+        return hour_min_time_string_to_delta(time_string.strip())
+    except (ValueError, OverflowError):
+        return None
 
-    return timedelta()
+
+def time_duration_string_to_delta(time_string: str | None) -> timedelta:
+    return parse_time_duration_string(time_string) or timedelta()
 
 
 def get_part_from_mqtt_topic(topic: str, part: int) -> str | None:

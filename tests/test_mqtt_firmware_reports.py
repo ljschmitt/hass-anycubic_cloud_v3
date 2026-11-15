@@ -370,6 +370,33 @@ class FirmwareMQTTTests(unittest.TestCase):
             self.assertEqual(states["dry_status_target_temperature"], 0)
             self.assertTrue(device.secondary_drying_status_is_drying)
 
+    def test_kobra_x_refill_uses_latest_mqtt_value_for_each_ace(self):
+        device = printer(model=20030)
+        boxes = [{**ace(0), "auto_feed": 1}, {**ace(1), "auto_feed": 1}]
+        cloud = {
+            "id": 1, "name": "Synthetic Printer", "key": "test", "machine_type": 20030,
+            "model": "Synthetic Printer", "img": None, "device_status": 1, "is_printing": 0,
+            "type_function_ids": [], "version": None, "multi_color_box": boxes,
+        }
+        device._set_multi_color_box(boxes)
+        report(device, "multiColorBox", "setAutoFeed", "done", {
+            "multi_color_box": [{"id": 0, "auto_feed": 0}],
+        })
+        device.update_from_info_json(cloud)
+        self.assertEqual([box.auto_feed for box in device._multi_color_box], [0, 1])
+        report(device, "multiColorBox", "getInfo", "success", {
+            "multi_color_box": [{**boxes[1], "auto_feed": 0}],
+        })
+        device.update_from_info_json(cloud)
+        self.assertEqual([box.auto_feed for box in device._multi_color_box], [0, 0])
+        report(device, "multiColorBox", "setAutoFeed", "done", {
+            "multi_color_box": [{"id": 0, "auto_feed": 1}],
+        })
+        device.update_from_info_json(cloud)
+        self.assertEqual([box.auto_feed for box in device._multi_color_box], [1, 0])
+        device.update_from_info_json({**cloud, "device_status": 2})
+        self.assertEqual([box.auto_feed for box in device._multi_color_box], [1, 1])
+
     def test_legacy_ace_drying_temperature_and_minutes_still_update(self):
         device = printer(model=20029)
         device._set_multi_color_box([ace()])

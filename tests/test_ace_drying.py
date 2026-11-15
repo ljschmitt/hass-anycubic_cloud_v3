@@ -33,11 +33,14 @@ def methods(file, owner, names, namespace):
     return namespace
 
 
-API_METHODS = methods("anycubic_cloud_api/api/functions.py", "AnycubicAPIFunctions",
-                      {"_send_order_multi_color_box_dry", "multi_color_box_drying_start", "multi_color_box_drying_stop"},
+API_METHOD_NAMES = {
+    "_send_order_multi_color_box_dry", "multi_color_box_drying_start", "multi_color_box_drying_stop",
+    "_send_order_multi_color_auto_feed", "_set_multi_color_box_auto_feed",
+    "multi_color_box_switch_on_auto_feed", "multi_color_box_switch_off_auto_feed",
+}
+API_METHODS = methods("anycubic_cloud_api/api/functions.py", "AnycubicAPIFunctions", API_METHOD_NAMES,
                       {"AnycubicProjectOrderRequest": AnycubicProjectOrderRequest, "AnycubicOrderID": AnycubicOrderID})
-API = type("OfflineAPI", (), {k: API_METHODS[k] for k in (
-    "_send_order_multi_color_box_dry", "multi_color_box_drying_start", "multi_color_box_drying_stop")})
+API = type("OfflineAPI", (), {k: API_METHODS[k] for k in API_METHOD_NAMES})
 
 
 class ACEDryingTests(unittest.IsolatedAsyncioTestCase):
@@ -50,6 +53,28 @@ class ACEDryingTests(unittest.IsolatedAsyncioTestCase):
 
     def payload(self, send):
         return send.await_args.kwargs["order_request"].order_request_data
+
+    async def test_refill_targets_the_selected_ace_and_skips_the_kobra_x_rack(self):
+        for model in (20029, 20030):
+            rack = [{**ace(-1), "auto_feed": 0}] if model == 20030 else []
+            boxes = rack + [{**ace(0), "auto_feed": 1}, {**ace(1), "auto_feed": 1}]
+            printer, send = self.make_printer(model, boxes)
+            for box_id, argument in ((0, -1), (1, 1)):
+                with self.subTest(model=model, box=box_id):
+                    for expected, toggle in (
+                        (0, printer.multi_color_box_switch_off_auto_feed),
+                        (1, printer.multi_color_box_switch_on_auto_feed),
+                    ):
+                        send.reset_mock()
+                        await toggle(box_id=argument)
+                        send.assert_awaited_once()
+                        payload = self.payload(send)
+                        self.assertEqual(payload["order_id"], AnycubicOrderID.MULTI_COLOR_BOX_AUTO_FEED)
+                        self.assertEqual(payload["data"]["multi_color_box"], [
+                            {"id": box_id, "auto_feed": expected},
+                        ])
+            if rack:
+                self.assertEqual(printer.kobra_x_internal_material_rack.auto_feed, 0)
 
     async def test_presets_and_stops_reach_only_the_selected_ace_across_models(self):
         ns = methods("coordinator.py", "AnycubicCloudDataUpdateCoordinator", {"button_press_event"}, {

@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.4.9
+
+- Serve the bundled dashboard card at `/anycubic-cloud-card.js` for Lovelace. Existing cards can switch to this resource without changing their configuration.
+- Expose relative humidity for each ACE 2 Pro that reports a valid reading ([#32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)).
+- Promote the per-printer diagnostics, print statistics and ACE control improvements from the 0.4.9 beta series.
+
+## 0.4.9-beta.6
+
+- Resolve the registered ACE run-out refill switch in the panel and dashboard card, including renamed entities and a second ACE.
+- Keep the Kobra X refill state reported by the ACE over MQTT when the cloud still returns an older value.
+- Apply refill commands to the selected ACE, skipping the internal spool rack on Kobra X.
+- Explain how to configure drying presets when none are available and link to the integration settings.
+
+## 0.4.9-beta.5
+
+- Start a printer diagnostics capture in the integration options and download the filtered report from the device menu.
+
+## 0.4.9-beta.4
+
+- Add numeric print count, total print time, and total material used sensors for printers that report those totals.
+- Show available totals and the matching printer image in the Anycubic Cloud panel's Print statistics tab.
+- Read the print count from the Anycubic printer list. On Kobra X and Kobra 3 Combo V2, this matches the counts shown in Anycubic Slicer Next.
+
+## 0.4.9-beta.3
+
+- Exclude file entries from Home Assistant history while retaining complete live local, USB and cloud file lists. This avoids Recorder size warnings on large directories.
+- Retry unanswered initial local file list requests for the selected directory from both Home Assistant actions and the refresh button.
+- Recognize Anycubic camera success code 1 during the Kobra 2 Max diagnostic and show the legacy format error in the camera view. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
+## 0.4.9-beta.2
+
+- Add an opt-in, five-minute per-printer diagnostics capture for incoming MQTT reports and cloud printer data. Export field types, selected measurement values, firmware, model code and registered entity keys from Home Assistant's Actions tab.
+
+## 0.4.9-beta.1
+
+- Probe the older camera request on the Kobra 2 Max when the Agora request succeeds without session credentials. Log the vendor code and known field names to diagnose the response. Playback still uses Agora/WebRTC. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
 ## 0.4.8
 
 - Show the configured power entity state in the dashboard card and sidebar panel. A confirmed on state uses the theme's success color, off uses a ring, and unknown or unavailable states use a neutral icon. [Card #1](https://github.com/ljschmitt/hass-anycubic_card/issues/1)

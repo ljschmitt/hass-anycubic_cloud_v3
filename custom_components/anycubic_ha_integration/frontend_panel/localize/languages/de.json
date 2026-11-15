@@ -142,6 +142,8 @@
     },
     "drying_settings": {
       "heading": "Trocknungseinstellungen",
+      "no_presets": "Für dieses ACE ist keine Trocknungsvorgabe verfügbar. Speichere Dauer und Temperatur unter Trocknungsvorgaben in den Integrationsoptionen.",
+      "open_options": "Anycubic-Cloud-Einstellungen öffnen",
       "button_preset": "Voreinstellung",
       "button_stop_drying": "Trocknung stoppen",
       "button_minutes": "Min."
@@ -179,6 +181,12 @@
     }
   },
   "panels": {
+    "statistics": {
+      "title": "Druckstatistik",
+      "print_count": "Druckanzahl",
+      "total_print_time": "Gesamtdruckzeit",
+      "total_material_used": "Verbrauchtes Filament"
+    },
     "initial": {
       "printer_select": "Drucker auswählen."
     },

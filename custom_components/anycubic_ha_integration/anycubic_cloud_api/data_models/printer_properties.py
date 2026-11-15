@@ -560,6 +560,7 @@ class AnycubicMultiColorBox:
         "_loaded_slot",
         "_feed_status",
         "_temp",
+        "_humidity",
         "_drying_status",
         "_curr_nozzle_temp",
         "_target_nozzle_temp",
@@ -579,6 +580,7 @@ class AnycubicMultiColorBox:
         curr_nozzle_temp: int | None,
         target_nozzle_temp: int | None,
         slots: list[dict[str, Any]],
+        humidity: object = None,
     ) -> None:
         self._id: int = int(id)
         self._status: int = int(status)
@@ -587,6 +589,15 @@ class AnycubicMultiColorBox:
         self._loaded_slot: int = int(loaded_slot)
         self.set_feed_status(feed_status)
         self.set_current_temperature(temp)
+        self._humidity: float | None = None
+        if self._model_id == ACE_2_PRO_MODEL_ID and isinstance(humidity, (int, float, str)) and not isinstance(humidity, bool):
+            try:
+                measurement = float(humidity)
+            except (ValueError, OverflowError):
+                pass
+            else:
+                if 0 <= measurement <= 100:
+                    self._humidity = measurement
         self.set_drying_status(drying_status)
         self._curr_nozzle_temp: int | None = int(curr_nozzle_temp) if curr_nozzle_temp is not None else None
         self._target_nozzle_temp: int | None = int(target_nozzle_temp) if target_nozzle_temp is not None else None
@@ -675,11 +686,16 @@ class AnycubicMultiColorBox:
             curr_nozzle_temp=data.get('curr_nozzle_temp'),
             target_nozzle_temp=data.get('target_nozzle_temp'),
             slots=data['slots'],
+            humidity=data.get('humidity'),
         )
 
     @property
     def current_temperature(self) -> int:
         return self._temp
+
+    @property
+    def humidity(self) -> float | None:
+        return self._humidity
 
     @property
     def box_id(self) -> int:

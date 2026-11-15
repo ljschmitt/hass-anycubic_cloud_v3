@@ -54,9 +54,15 @@ from ..exceptions.exceptions import (
     AnycubicDataParsingError,
     AnycubicFileNotFoundError,
     AnycubicGcodeParsingError,
+    AnycubicLegacyCameraError,
 )
 from ..models.cloud_upload import AnycubicCloudUpload
 from .base import AnycubicAPIBase
+
+_AGORA_CAMERA_FIELDS = (
+    "appid", "channel", "rtc_token", "client_uid",
+    "encryption_kdf_salt", "encryption_key", "encryption_mode",
+)
 
 
 class AnycubicAPIFunctions(AnycubicAPIBase):
@@ -879,7 +885,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
 
     #
     #
-    # WIP Unused ORDER Functions
+    # Camera Orders
     # ------------------------------------------
 
     async def _send_anycubic_camera_open_order(
@@ -936,9 +942,15 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if raw_data:
             return resp
 
+        is_kobra_2_max = str(printer.machine_type) == "20023"
+        if is_kobra_2_max:
+            resp = await self._probe_kobra_2_max_camera(printer, resp)
+
         data = resp.get("data") if resp is not None else None
         shengwang = data.get("shengwang") if isinstance(data, dict) else None
         if not isinstance(shengwang, dict):
+            if is_kobra_2_max and isinstance(data, dict) and isinstance(data.get("token"), dict):
+                raise AnycubicLegacyCameraError()
             raise AnycubicAPIParsingError("Unexpected camera session response.")
 
         device = data.get("shengwang_device") if isinstance(data, dict) else None
@@ -952,6 +964,49 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             encryption_kdf_salt=shengwang["encryption_kdf_salt"],
             encryption_key=shengwang["encryption_key"],
             encryption_mode=shengwang["encryption_mode"],
+        )
+
+    async def _probe_kobra_2_max_camera(
+        self, printer: AnycubicPrinter, response: dict[Any, Any],
+    ) -> dict[Any, Any]:
+        """Try the legacy camera order once when a successful reply has no credentials."""
+        data = response.get("data") if isinstance(response, dict) else None
+        agora = data.get("shengwang") if isinstance(data, dict) else None
+        if isinstance(agora, dict):
+            if not all(key in agora for key in _AGORA_CAMERA_FIELDS):
+                self._log_camera_probe("Agora incomplete", response)
+            return response
+
+        self._log_camera_probe("Agora", response)
+        if not isinstance(response, dict) or response.get("code") not in (0, 1, 200, "0", "1", "200"):
+            return response
+        if isinstance(data, dict) and isinstance(data.get("token"), dict):
+            return response
+
+        legacy = await self._send_anycubic_camera_open_order(printer, raw_data=True)
+        self._log_camera_probe("legacy", legacy)
+        # Only Agora credentials are supported by the current player.
+        return legacy if isinstance(legacy, dict) else response
+
+    def _log_camera_probe(self, path: str, response: Any) -> None:
+        """Record only a bounded status code and known schema keys."""
+        response = response if isinstance(response, dict) else {}
+        code = response.get("code")
+        if isinstance(code, str) and len(code) <= 6 and code.isascii() and code.isdecimal():
+            code = int(code)
+        code = code if type(code) is int and 0 <= code <= 999999 else None
+        data = response.get("data")
+        data = data if isinstance(data, dict) else {}
+        agora = data.get("shengwang")
+        token = data.get("token")
+        data_fields = [key for key in ("msgid", "shengwang", "shengwang_device", "token", "video_taskid")
+                       if key in data]
+        agora_fields = [key for key in _AGORA_CAMERA_FIELDS if isinstance(agora, dict) and key in agora]
+        token_fields = [key for key in ("tmpSecretId", "tmpSecretKey", "sessionToken", "region")
+                        if isinstance(token, dict) and key in token]
+        self._log_to_warn(
+            f"Kobra 2 Max camera probe ({path}): code={code}, data_fields={data_fields}, "
+            f"agora_fields={agora_fields}, token_fields={token_fields}"
         )
 
     async def _send_order_multi_color_box_get_info(
@@ -1354,62 +1409,34 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         printer: AnycubicPrinter,
         box_id: int = -1,
     ) -> str | None:
-        if not printer:
-            return None
-
-        if not printer.primary_multi_color_box:
-            return None
-
-        if box_id < 0:
-            box_id = 0
-
-        assert printer.multi_color_box
-
-        current_auto_feed = bool(printer.multi_color_box[box_id].auto_feed)
-
-        if current_auto_feed:
-            return None
-
-        printer.multi_color_box[box_id].set_auto_feed(True)
-
-        resp = await self._send_order_multi_color_auto_feed(
-            printer,
-            True,
-            box_id,
-        )
-
-        return resp
+        return await self._set_multi_color_box_auto_feed(printer, True, box_id)
 
     async def multi_color_box_switch_off_auto_feed(
         self,
         printer: AnycubicPrinter,
         box_id: int = -1,
     ) -> str | None:
+        return await self._set_multi_color_box_auto_feed(printer, False, box_id)
+
+    async def _set_multi_color_box_auto_feed(
+        self,
+        printer: AnycubicPrinter,
+        enabled: bool,
+        box_id: int,
+    ) -> str | None:
         if not printer:
             return None
 
-        if not printer.primary_multi_color_box:
+        # The Kobra X rack precedes the external ACEs in the raw box list.
+        ace = printer.secondary_multi_color_box if box_id == 1 else printer.primary_multi_color_box
+        if ace is None:
             return None
 
-        if box_id < 0:
-            box_id = 0
-
-        assert printer.multi_color_box
-
-        current_auto_feed = bool(printer.multi_color_box[box_id].auto_feed)
-
-        if not current_auto_feed:
-            return None
-
-        printer.multi_color_box[box_id].set_auto_feed(False)
-
-        resp = await self._send_order_multi_color_auto_feed(
-            printer,
-            False,
-            box_id,
-        )
-
-        return resp
+        if not printer.is_kobra_x:
+            if bool(ace.auto_feed) == enabled:
+                return None
+            ace.set_auto_feed(int(enabled))
+        return await self._send_order_multi_color_auto_feed(printer, enabled, ace.box_id)
 
     async def multi_color_box_set_slot(
         self,

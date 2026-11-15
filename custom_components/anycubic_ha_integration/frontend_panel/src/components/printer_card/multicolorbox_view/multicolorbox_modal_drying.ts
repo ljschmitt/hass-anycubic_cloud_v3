@@ -300,6 +300,24 @@ export class AnycubicPrintercardMulticolorboxModalDrying extends LitElement {
     return html`
       <div>
         <div class="ac-drying-header">${this._heading}</div>
+        ${!this._hasDryingPreset1 &&
+        !this._hasDryingPreset2 &&
+        !this._hasDryingPreset3 &&
+        !this._hasDryingPreset4
+          ? html`
+              <p class="ac-drying-hint">
+                ${localize("card.drying_settings.no_presets", this.language)}
+                <a
+                  href="/config/integrations/integration/anycubic_ha_integration"
+                >
+                  ${localize(
+                    "card.drying_settings.open_options",
+                    this.language,
+                  )}
+                </a>
+              </p>
+            `
+          : nothing}
         <div class="ac-drying-buttonscont">
           ${this._hasDryingPreset1
             ? html`
@@ -433,6 +451,12 @@ export class AnycubicPrintercardMulticolorboxModalDrying extends LitElement {
         font-size: 24px;
         text-align: center;
         font-weight: 600;
+      }
+
+      .ac-drying-hint {
+        max-width: 32rem;
+        margin: 1rem auto 0;
+        text-align: center;
       }
 
       ha-control-button {

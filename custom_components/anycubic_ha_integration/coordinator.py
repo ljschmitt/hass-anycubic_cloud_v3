@@ -7,7 +7,7 @@ import traceback
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from aiohttp import CookieJar
+from aiohttp import ClientError, CookieJar
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import (
@@ -242,6 +242,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         plate_code = hardware.get('build_plate_material_code')
         nozzle_material_code = hardware.get('nozzle_material_code')
         build_plate_type = printer.build_plate_type
+        print_count = printer.print_count
         nozzle_material = None
         if nozzle_material_code is not None:
             nozzle_material = 'unmapped'
@@ -258,6 +259,9 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "is_busy": printer.is_busy,
             "is_available": printer.is_available,
             "current_status": printer.current_status,
+            "print_count": print_count if type(print_count) is int and print_count >= 0 else None,
+            "total_print_time": printer.total_print_time_seconds,
+            "total_material_used": printer.total_material_used_kg,
             "build_plate_type": build_plate_type,
             "build_plate_selection": (
                 build_plate_type
@@ -285,10 +289,12 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "ace_spools": state_string_active(primary_ace_spool_info),
             "multi_color_box_runout_refill": printer.primary_multi_color_box_auto_feed,
             "ace_current_temperature": printer.primary_multi_color_box_current_temperature,
+            "ace_humidity": primary_ace.humidity if (primary_ace := printer.primary_multi_color_box) else None,
             "secondary_multi_color_box_fw_version": printer.secondary_multi_color_box_fw_firmware_version,
             "secondary_ace_spools": state_string_active(secondary_ace_spool_info),
             "secondary_multi_color_box_runout_refill": printer.secondary_multi_color_box_auto_feed,
             "secondary_ace_current_temperature": printer.secondary_multi_color_box_current_temperature,
+            "secondary_ace_humidity": secondary_ace.humidity if (secondary_ace := printer.secondary_multi_color_box) else None,
             "material_rack_spools": state_string_active(material_rack_spool_info),
             "dry_status_is_drying": printer.primary_drying_status_is_drying,
             "dry_status_target_temperature": printer.primary_drying_status_target_temperature,
@@ -747,26 +753,28 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 await asyncio.sleep(2)
                 await self._check_anycubic_mqtt_connection(True)
 
-    async def _async_check_local_file_list_changed(
+    async def async_request_local_file_list(self, printer: AnycubicPrinter, file_path: str = "/") -> None:
+        """Request a directory and check that the initial response arrives."""
+        prev_file_list = printer.local_file_list_object
+        await self._connect_mqtt_for_action_response()
+        await printer.request_local_file_list(file_path=file_path)
+        if prev_file_list is None:
+            self.hass.create_task(
+                self._async_retry_initial_local_file_list(printer, file_path),
+                f"Anycubic coordinator {self.entry.entry_id} {printer.id} local file list check",
+            )
+
+    async def _async_retry_initial_local_file_list(
         self,
-        prev_file_list: list[dict[str, str | float]] | None,
         printer: AnycubicPrinter,
+        file_path: str,
     ) -> None:
-        if self._mqtt_file_list_check_lock.locked():
-            return
-
+        await asyncio.sleep(5)
         async with self._mqtt_file_list_check_lock:
-            if not printer.printer_online:
-                return
-
-            await asyncio.sleep(5)
-            new_file_list = printer.local_file_list_object
-            if prev_file_list is None and new_file_list is None:
-                LOGGER.debug("Anycubic MQTT response for local file list appears to be empty, refreshing MQTT and retrying.")
-                await self.refresh_anycubic_mqtt_connection()
-                await self.anycubic_api.mqtt_wait_for_connect()
-                await asyncio.sleep(2)
-                await printer.request_local_file_list()
+            if printer.printer_online and printer.is_waiting_for_local_file_list(file_path):
+                LOGGER.debug("No MQTT response for the initial local file list. Retrying the selected directory.")
+                if await self.anycubic_api.mqtt_wait_for_connect() and printer.is_waiting_for_local_file_list(file_path):
+                    await printer.request_local_file_list(file_path=file_path)
 
     async def _setup_anycubic_api_connection(self) -> None:
         LOGGER.debug("Coordinator setting up Anycubic Cloud API connection.")
@@ -967,6 +975,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if printer.is_kobra_x and printer.printer_online and printer_id not in self._hardware_properties_loaded:
                     await self._read_initial_hardware_properties(printer)
 
+            await self._refresh_print_counts()
             self._failed_updates = 0
 
             await self._request_missing_multi_color_box_info()
@@ -992,6 +1001,24 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._last_state_update = int(time.time())
 
         return True
+
+    async def _refresh_print_counts(self) -> None:
+        """Fetch the account-level print counts for all configured printers."""
+        try:
+            async with asyncio.timeout(6):
+                response = await self.anycubic_api.list_my_printers(raw_data=True)
+        except (AnycubicAPIError, ClientError, TimeoutError):
+            LOGGER.debug("Could not refresh the Anycubic printer list for print counts.")
+            return
+
+        printer_rows = response.get("data")
+        if not isinstance(printer_rows, list):
+            return
+
+        printers = {str(printer_id): printer for printer_id, printer in self._anycubic_printers.items()}
+        for row in printer_rows:
+            if isinstance(row, dict) and (printer := printers.get(str(row.get("id")))) is not None:
+                printer.update_print_count_from_list(row.get("print_count"))
 
     async def _read_initial_hardware_properties(self, printer: AnycubicPrinter) -> None:
         previous = printer.hardware_settings
@@ -1177,13 +1204,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 await self.refresh_cloud_files()
 
             elif printer and event_key == 'request_file_list_local':
-                prev_file_list = printer.local_file_list_object
-                await self._connect_mqtt_for_action_response()
-                await printer.request_local_file_list()
-                self.hass.create_task(
-                    self._async_check_local_file_list_changed(prev_file_list, printer),
-                    f"Anycubic coordinator {self.entry.entry_id} {printer.id} local file list check",
-                )
+                await self.async_request_local_file_list(printer)
 
             elif printer and event_key == 'request_file_list_udisk':
                 await self._connect_mqtt_for_action_response()

@@ -13,7 +13,12 @@ from homeassistant.const import (
     CONF_FILENAME,
     CONF_TYPE,
 )
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import (
     config_validation as cv,
@@ -52,6 +57,7 @@ from .const import (
     LOGGER,
     MAX_FILE_UPLOAD_RETRIES,
 )
+from .diagnostics import get_printer_capture_report
 from .helpers import printer_entity_suggested_object_id, printer_state_for_key
 
 if TYPE_CHECKING:
@@ -146,6 +152,8 @@ def build_anycubic_light_debug_service_schema() -> vol.Schema:
 class AnycubicCloudServiceCall:
     """Parent class for all Anycubic Cloud service calls."""
 
+    supports_response = SupportsResponse.NONE
+
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize service call."""
         self.hass = hass
@@ -162,10 +170,11 @@ class AnycubicCloudServiceCall:
                 "Could not find Anycubic Cloud config entry."
             )
 
-        coordinator: AnycubicCloudDataUpdateCoordinator = self.hass.data[DOMAIN][entry.entry_id][
-            COORDINATOR
-        ]
+        entry_data = self.hass.data.get(DOMAIN, {}).get(entry.entry_id)
+        if not entry_data:
+            raise ServiceValidationError("The Anycubic Cloud config entry is not loaded.")
 
+        coordinator: AnycubicCloudDataUpdateCoordinator = entry_data[COORDINATOR]
         return coordinator
 
     def _get_printer(self, service: ServiceCall) -> AnycubicPrinter:
@@ -217,9 +226,46 @@ class AnycubicCloudServiceCall:
 
         return slot_idx_list
 
-    async def async_call_service(self, service: ServiceCall) -> None:
+    async def async_call_service(self, service: ServiceCall) -> ServiceResponse:
         """Execute service call."""
         raise NotImplementedError
+
+
+class PrinterDiagnosticsService(AnycubicCloudServiceCall):
+    """Select the printer and restrict firmware captures to administrators."""
+
+    schema = build_anycubic_service_schema()
+
+    async def _require_admin(self, service: ServiceCall) -> None:
+        user_id = service.context.user_id
+        user = await self.hass.auth.async_get_user(user_id) if user_id is not None else None
+        if user is None or not user.is_admin:
+            raise ServiceValidationError("Only an administrator can use printer diagnostics.")
+
+
+class StartPrinterDiagnostics(PrinterDiagnosticsService):
+    """Start a five-minute capture for one printer."""
+
+    async def async_call_service(self, service: ServiceCall) -> None:
+        await self._require_admin(service)
+        coordinator = self._get_coordinator(service)
+        printer = self._get_printer(service)
+        coordinator.anycubic_api.printer_capture.start(printer.id)
+
+
+class ExportPrinterDiagnostics(PrinterDiagnosticsService):
+    """Return just the filtered Anycubic report in the Actions response."""
+
+    supports_response = SupportsResponse.ONLY
+
+    async def async_call_service(self, service: ServiceCall) -> ServiceResponse:
+        await self._require_admin(service)
+        coordinator = self._get_coordinator(service)
+        printer = self._get_printer(service)
+        report = get_printer_capture_report(self.hass, coordinator, printer)
+        if report is None:
+            raise ServiceValidationError("Start printer diagnostics for this printer first.")
+        return report
 
 
 class DebugSetLightStatus(AnycubicCloudServiceCall):
@@ -686,8 +732,7 @@ class RequestFileListLocal(BaseRequestPrinterFileList):
         printer = self._get_printer(service)
 
         try:
-            await coordinator._connect_mqtt_for_action_response()
-            await printer.request_local_file_list(file_path=file_path)
+            await coordinator.async_request_local_file_list(printer, file_path)
             await coordinator._async_force_data_refresh()
         except Exception as error:
             raise HomeAssistantError(error) from error
@@ -1114,6 +1159,8 @@ class ChangePrintOnTime(BaseChangePrintSetting):
 
 
 SERVICES = (
+    ("start_printer_diagnostics", StartPrinterDiagnostics),
+    ("export_printer_diagnostics", ExportPrinterDiagnostics),
     ("debug_set_light_status", DebugSetLightStatus),
     ("multi_color_box_set_slot_pla", MultiColorBoxSetSlotPla),
     ("multi_color_box_set_slot_petg", MultiColorBoxSetSlotPetg),

@@ -60,6 +60,10 @@
     }
   },
   "options": {
+    "abort": {
+      "printer_diagnostics_started": "Recording started. After five minutes, open the selected device and use its menu to download diagnostics. The report is available for 30 minutes from the start.",
+      "printer_diagnostics_unavailable": "Anycubic Cloud has no printer available for diagnostics right now."
+    },
     "step": {
       "options_menu": {
         "title": "Anycubic Cloud Options",
@@ -67,8 +71,17 @@
           "mqtt": "MQTT Settings",
           "drying": "Drying Presets",
           "card_config": "Panel Card Config",
+          "printer_diagnostics": "Start printer diagnostics",
           "debug": "Debug Settings"
         }
+      },
+      "printer_diagnostics": {
+        "title": "Start printer diagnostics",
+        "description": "Select a printer to record five minutes of filtered MQTT and cloud data. Starting another capture replaces the current one for this account.",
+        "data": {
+          "printer": "Printer"
+        },
+        "submit": "Start recording"
       },
       "mqtt": {
         "title": "MQTT Settings",
@@ -227,6 +240,15 @@
       "current_status": {
         "name": "Current Status"
       },
+      "print_count": {
+        "name": "Print Count"
+      },
+      "total_print_time": {
+        "name": "Total Print Time"
+      },
+      "total_material_used": {
+        "name": "Total Material Used"
+      },
       "build_plate_type": {
         "name": "Build Plate Type",
         "state": {
@@ -346,6 +368,9 @@
       "ace_current_temperature": {
         "name": "ACE Current Temperature"
       },
+      "ace_humidity": {
+        "name": "ACE Humidity"
+      },
       "dry_status_target_temperature": {
         "name": "Drying Target Temperature"
       },
@@ -360,6 +385,9 @@
       },
       "secondary_ace_current_temperature": {
         "name": "Secondary ACE Current Temperature"
+      },
+      "secondary_ace_humidity": {
+        "name": "Secondary ACE Humidity"
       },
       "secondary_dry_status_target_temperature": {
         "name": "Secondary Drying Target Temperature"
@@ -395,6 +423,38 @@
     }
   },
   "services": {
+    "start_printer_diagnostics": {
+      "name": "Start printer diagnostics",
+      "description": "Record incoming MQTT and cloud data for one printer for five minutes.",
+      "fields": {
+        "config_entry": {
+          "name": "Anycubic Cloud account"
+        },
+        "device_id": {
+          "name": "Printer"
+        },
+        "printer_id": {
+          "name": "Printer ID",
+          "description": "Use only if selecting a device is unavailable."
+        }
+      }
+    },
+    "export_printer_diagnostics": {
+      "name": "Export printer diagnostics",
+      "description": "Show the filtered report for the selected printer. Copy the response to share it.",
+      "fields": {
+        "config_entry": {
+          "name": "Anycubic Cloud account"
+        },
+        "device_id": {
+          "name": "Printer"
+        },
+        "printer_id": {
+          "name": "Printer ID",
+          "description": "Use only if selecting a device is unavailable."
+        }
+      }
+    },
     "multi_color_box_set_slot_pla": {
       "name": "ACE Set Slot - PLA",
       "description": "Sets PLA slot properties in ACE unit.",

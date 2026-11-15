@@ -44,6 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 service_name,
                 service(hass).async_call_service,
                 service.schema,
+                supports_response=service.supports_response,
             )
 
     # register panel
@@ -74,7 +75,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await host[COORDINATOR].stop_anycubic_mqtt_connection_if_started()
     domain_data.pop(entry.entry_id)
 
-    # The WebSocket and image routes stay registered for the HA process.
+    # The WebSocket and bundled frontend routes stay registered for the HA process.
     if not any(isinstance(data, dict) and COORDINATOR in data for data in domain_data.values()):
         for service_name, _ in SERVICES:
             hass.services.async_remove(DOMAIN, service_name)

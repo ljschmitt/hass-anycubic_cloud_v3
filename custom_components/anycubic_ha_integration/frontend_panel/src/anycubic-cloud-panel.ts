@@ -1,4 +1,4 @@
-import { CSSResult, LitElement, PropertyValues, css, html } from "lit";
+import { CSSResult, LitElement, PropertyValues, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 
 import "./views/debug/view-debug.ts";
@@ -15,6 +15,8 @@ import {
   getPage,
   getPrinterDevID,
   getPrinterDevices,
+  getPrinterEntities,
+  getPrinterSensorStateObj,
   getSelectedPrinter,
   navigateToPage,
   navigateToPrinter,
@@ -33,6 +35,17 @@ import {
 import { PRINTER_IMAGE_KOBRA_3, PRINTER_IMAGE_KOBRA_X } from "./printer_images";
 import * as pkgjson from "../package.json";
 import { localize } from "../localize/localize";
+
+const statisticKeys = [
+  "print_count",
+  "total_print_time",
+  "total_material_used",
+] as const;
+type PrintStatistic = {
+  key: (typeof statisticKeys)[number];
+  value: number;
+  unit?: string;
+};
 
 window.console.info(
   `%c ANYCUBIC-PANEL %c v${pkgjson.version} `,
@@ -158,12 +171,23 @@ export class AnycubicCloudPanel extends LitElement {
   }
 
   renderPrinterPage(): LitTemplateResult {
+    const statistics = this._getPrintStatistics();
+    const page =
+      this.selectedPage === "statistics" && !statistics.length
+        ? "main"
+        : this.selectedPage;
     return html`
       <div class="header">
         ${this.renderToolbar()}
         <nav class="tabs" role="tablist">
-          ${this._renderTab("main", this._tabMain)}
+          ${this._renderTab("main", this._tabMain, page)}
           ${this._renderTab("side", this._tabSide)}
+          ${statistics.length
+            ? this._renderTab(
+                "statistics",
+                localize("panels.statistics.title", this.language),
+              )
+            : nothing}
           ${this._renderTab("local-files", this._tabFilesLocal)}
           ${this._renderTab("udisk-files", this._tabFilesUdisk)}
           ${this._renderTab("cloud-files", this._tabFilesCloud)}
@@ -174,21 +198,90 @@ export class AnycubicCloudPanel extends LitElement {
             : null}
         </nav>
       </div>
-      <div class="view">${this.getView(this.route)}</div>
+      <div class="view">
+        ${page === "statistics"
+          ? this._renderPrintStatistics(statistics)
+          : this.getView(this.route, page)}
+      </div>
     `;
   }
 
-  private _renderTab(page: string, label: string): LitTemplateResult {
+  private _renderTab(
+    page: string,
+    label: string,
+    selectedPage = this.selectedPage,
+  ): LitTemplateResult {
     return html`
       <button
-        class=${this.selectedPage === page ? "tab selected" : "tab"}
+        class=${selectedPage === page ? "tab selected" : "tab"}
         data-page=${page}
         role="tab"
-        aria-selected=${this.selectedPage === page ? "true" : "false"}
+        aria-selected=${selectedPage === page ? "true" : "false"}
         @click=${this.handlePageSelected}
       >
         ${label}
       </button>
+    `;
+  }
+
+  private _getPrintStatistics(): PrintStatistic[] {
+    const entities = getPrinterEntities(this.hass, this.selectedPrinterID);
+    const rows: PrintStatistic[] = [];
+    for (const key of statisticKeys) {
+      const entity = getPrinterSensorStateObj(
+        this.hass,
+        entities,
+        undefined,
+        key,
+      );
+      const value = Number(entity.state);
+      if (!entity.state.trim() || !Number.isFinite(value) || value < 0) {
+        continue;
+      }
+      const unit = entity.attributes.unit_of_measurement;
+      rows.push({
+        key,
+        value,
+        unit: typeof unit === "string" ? unit : undefined,
+      });
+    }
+    return rows;
+  }
+
+  private _renderPrintStatistics(
+    statistics: PrintStatistic[],
+  ): LitTemplateResult {
+    const printer = this.selectedPrinterDevice;
+    const image = this._getPrinterImage(printer);
+    const format = new Intl.NumberFormat(this.language, {
+      maximumFractionDigits: 2,
+    });
+    const rows = statistics.map(
+      ({ key, value, unit }) => html`
+        <div>
+          <dt>${localize(`panels.statistics.${key}`, this.language)}</dt>
+          <dd>
+            ${format.format(value)}${unit
+              ? html` <span>${unit}</span>`
+              : nothing}
+          </dd>
+        </div>
+      `,
+    );
+    return html`
+      <section
+        class="printer-statistics"
+        role="tabpanel"
+        aria-label=${localize("panels.statistics.title", this.language)}
+      >
+        <ha-card>
+          <h2>${printer?.name}</h2>
+          <div class="printer-statistics-body">
+            ${image ? html`<img src=${image} alt="" />` : nothing}
+            <dl>${rows}</dl>
+          </div>
+        </ha-card>
+      </section>
     `;
   }
 
@@ -261,8 +354,8 @@ export class AnycubicCloudPanel extends LitElement {
     }
   }
 
-  getView(route: HassRoute): LitTemplateResult {
-    switch (this.selectedPage) {
+  getView(route: HassRoute, page: string): LitTemplateResult {
+    switch (page) {
       case "side":
         return html`
           <anycubic-view-side
@@ -495,6 +588,66 @@ export class AnycubicCloudPanel extends LitElement {
 
       .ac_wide_view {
         width: 100%;
+      }
+
+      .view > .printer-statistics {
+        width: min(100%, 720px);
+        min-width: 0;
+        align-self: flex-start;
+        margin-top: 24px;
+      }
+
+      .printer-statistics ha-card {
+        padding: clamp(16px, 4vw, 28px);
+      }
+
+      .printer-statistics h2 {
+        margin: 0 0 16px;
+        font-size: 1.25rem;
+      }
+
+      .printer-statistics-body {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px 24px;
+      }
+
+      .printer-statistics-body img {
+        display: block;
+        width: min(100%, 220px);
+        height: 156px;
+        object-fit: contain;
+        border-radius: 12px;
+        background: white;
+      }
+
+      .printer-statistics-body dl {
+        flex: 1 1 170px;
+        margin: 0;
+      }
+
+      .printer-statistics-body dl > div + div {
+        border-top: 1px solid var(--divider-color);
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+
+      .printer-statistics-body dt {
+        color: var(--secondary-text-color);
+      }
+
+      .printer-statistics-body dd {
+        margin: 2px 0 0;
+        color: var(--primary-text-color);
+        font-size: 1.5rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .printer-statistics-body dd span {
+        font-size: 0.9rem;
+        font-weight: 400;
       }
 
       .printers-container {
