@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9-beta.2
+
+- Add an opt-in, five-minute per-printer diagnostics capture for incoming MQTT reports and cloud printer data. Export field types, selected measurement values, firmware, model code and registered entity keys from Home Assistant's Actions tab.
+
 ## 0.4.9-beta.1
 
 - Probe the older camera request on the Kobra 2 Max when the Agora request succeeds without session credentials. Log the vendor code and known field names to diagnose the response. Playback still uses Agora/WebRTC. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)

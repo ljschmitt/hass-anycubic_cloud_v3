@@ -395,6 +395,24 @@
     }
   },
   "services": {
+    "start_printer_diagnostics": {
+      "name": "Druckerdiagnose starten",
+      "description": "Zeichnet fünf Minuten lang eingehende MQTT- und Cloud-Daten eines Druckers auf.",
+      "fields": {
+        "config_entry": {"name": "Anycubic-Cloud-Konto"},
+        "device_id": {"name": "Drucker"},
+        "printer_id": {"name": "Drucker-ID", "description": "Nur verwenden, wenn die Geräteauswahl nicht verfügbar ist."}
+      }
+    },
+    "export_printer_diagnostics": {
+      "name": "Druckerdiagnose exportieren",
+      "description": "Zeigt den bereinigten Bericht des ausgewählten Druckers an. Die Antwort kann zum Teilen kopiert werden.",
+      "fields": {
+        "config_entry": {"name": "Anycubic-Cloud-Konto"},
+        "device_id": {"name": "Drucker"},
+        "printer_id": {"name": "Drucker-ID", "description": "Nur verwenden, wenn die Geräteauswahl nicht verfügbar ist."}
+      }
+    },
     "multi_color_box_set_slot_pla": {
       "name": "ACE Slot setzen – PLA",
       "description": "Setzt die Slot‑Eigenschaften (PLA) der ACE‑Einheit.",

@@ -16,7 +16,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9-beta.1**
+> 🗓️ **Aktuelles Release: 0.4.9-beta.2**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -75,6 +75,16 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 - 🧪 Weitere noch nicht bestaetigte Modelle
 
 Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wird das Geraet angelegt, welche Entitaeten funktionieren, gibt es MQTT- oder Kamera-Auffaelligkeiten? Bitte keine Tokens, privaten IPs, Seriennummern oder persoenlichen Daten in Issues hochladen.
+
+### Druckerdaten für neue Firmware und Entitäten beitragen
+
+Ab **0.4.9-beta.2** kann ein Administrator pro Anycubic-Konto einen Drucker für eine kurze Aufzeichnung auswählen. Auch Meldungen von Geräten, die bereits funktionieren, helfen dabei, neue Firmware-Felder zu finden.
+
+1. Öffne in Home Assistant **Entwicklerwerkzeuge → Aktionen**. Wähle **Druckerdiagnose starten** und dann das Anycubic-Cloud-Konto und den Drucker.
+2. Benutze den Drucker wie gewohnt. Warte möglichst fünf Minuten, damit mindestens ein regulärer Cloud-Abruf stattfinden kann. MQTT-Daten erscheinen, wenn der Drucker in dieser Zeit über eine aktive MQTT-Verbindung meldet.
+3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die angezeigte Antwort und kopiere sie in ein GitHub-Issue. Schreib dazu, welches Modell du hast und was du während der Aufzeichnung gemacht hast.
+
+Der Bericht enthält Firmware, Modellcode, registrierte Entitätsschlüssel, Feldpfade und Datentypen sowie freigegebene Messwerte wie Temperaturen oder Feuchtigkeit. Unbekannte Felder erscheinen mit ihrem Datentyp. Der Bericht kommt aus der Aktion **Druckerdiagnose exportieren**. Teile nur diese Antwort. Sie ist bis 30 Minuten nach dem Start abrufbar. Ein erneuter Start für dasselbe Konto ersetzt die vorherige Aufzeichnung. Die vorhandene Dashboard-Card ist für diese Beta geeignet.
 
 ---
 

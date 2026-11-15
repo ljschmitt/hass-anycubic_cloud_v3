@@ -566,6 +566,24 @@
     }
   },
   "services": {
+    "start_printer_diagnostics": {
+      "name": "Start printer diagnostics",
+      "description": "Record incoming MQTT and cloud data for one printer for five minutes.",
+      "fields": {
+        "config_entry": {"name": "Anycubic Cloud account"},
+        "device_id": {"name": "Printer"},
+        "printer_id": {"name": "Printer ID", "description": "Use only if selecting a device is unavailable."}
+      }
+    },
+    "export_printer_diagnostics": {
+      "name": "Export printer diagnostics",
+      "description": "Show the filtered report for the selected printer. Copy the response to share it.",
+      "fields": {
+        "config_entry": {"name": "Anycubic Cloud account"},
+        "device_id": {"name": "Printer"},
+        "printer_id": {"name": "Printer ID", "description": "Use only if selecting a device is unavailable."}
+      }
+    },
     "multi_color_box_set_slot_pla": {
       "name": "[%key:common::ace_set_slot_name{PLA}%]",
       "description": "[%key:common::ace_set_slot_descr{PLA}%]",

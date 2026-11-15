@@ -178,6 +178,16 @@ The recommended companion dashboard card is [ljschmitt/hass-anycubic_card](https
 
 From [0.4.8](CHANGELOG.md#048), the power icon reflects the entity configured through `powerEntityId`. **On** uses the theme's success color, **Off** is a ring, and **Unknown** and **Unavailable** use a neutral icon. The tooltip shows the state reported by Home Assistant. Use the [matching dashboard card 0.4.8](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.8).
 
+## Contribute printer data
+
+Starting with **0.4.9-beta.2**, a Home Assistant administrator can capture five minutes of incoming data from a selected Anycubic printer. Reports from working printers are useful after a firmware update too.
+
+1. Open **Developer tools → Actions**, choose **Start printer diagnostics**, and select the Anycubic Cloud account and the printer.
+2. Use the printer as usual. Allow up to five minutes for ordinary cloud polling. MQTT samples require an active MQTT connection and incoming printer reports.
+3. Run **Export printer diagnostics** for the same device. Review the action response and copy it into a GitHub issue. Add your printer model and a short note on what you did during the capture.
+
+The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one. Your existing dashboard card is compatible.
+
 ## Camera behavior
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.

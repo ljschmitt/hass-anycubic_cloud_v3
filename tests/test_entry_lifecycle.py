@@ -38,7 +38,7 @@ class EntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
             ),
             services=SimpleNamespace(
                 has_service=lambda domain, name: (domain, name) in self.services,
-                async_register=lambda domain, name, handler, schema: self.services.update({(domain, name): handler}),
+                async_register=lambda domain, name, handler, schema, **kwargs: self.services.update({(domain, name): handler}),
                 async_remove=lambda domain, name: self.services.pop((domain, name)),
             ),
             http=SimpleNamespace(async_register_static_paths=AsyncMock(side_effect=self.register_paths)),

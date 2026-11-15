@@ -146,6 +146,11 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
 
         else:
             printer_key = get_part_from_mqtt_topic(topic, 6)
+            printer = self._mqtt_subscribed_printers.get(printer_key)
+            if printer is None:
+                return
+
+            self.printer_capture.record(printer.id, "mqtt", "printer_report", payload)
 
             if (
                 get_part_from_mqtt_topic(topic, 7) == 'response'
@@ -154,11 +159,6 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
                 and not payload.get('state')
             ):
                 return
-
-            if printer_key not in self._mqtt_subscribed_printers:
-                return
-
-            printer = self._mqtt_subscribed_printers[printer_key]
 
             printer_was_available = printer.is_available
 

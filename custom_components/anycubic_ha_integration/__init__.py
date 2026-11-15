@@ -44,6 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 service_name,
                 service(hass).async_call_service,
                 service.schema,
+                supports_response=service.supports_response,
             )
 
     # register panel
