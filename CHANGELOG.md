@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0
 
 - Show each ACE's temperature and reported relative humidity above its spools in the dashboard card and Anycubic Cloud panel.
 

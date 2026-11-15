@@ -20,7 +20,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9**
+> 🗓️ **Aktuelles Release: 0.5.0**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -32,6 +32,7 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 > - Nachfüllen verwendet den registrierten ACE-Schalter. Beim Kobra X hat die MQTT-Rückmeldung der ACE Vorrang vor dem älteren Cloud-Wert. Der Trocknungsdialog verweist bei fehlenden Vorgaben auf die Integrationsoptionen.
 > - Die Dashboard-Card ist in der Integration enthalten. Die Umstellung ist unter [Frontend-Card](#-frontend-card) beschrieben.
 > - Jede ACE 2 Pro mit gültigem Messwert erhält einen eigenen Luftfeuchtigkeitssensor. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
+> - Dashboard-Card und Panel zeigen die gemeldete ACE-Luftfeuchtigkeit direkt neben der ACE-Temperatur an.
 >
 > **Home Assistant 2026.11.0 / Marketplace** mit der 0.4.5-Beta geprueft. Mindestversion **Home Assistant 2025.10.0**.
 > MQTT-Echtzeitupdates benoetigen **Slicer Next (Windows oder macOS)** und dessen **Access-Token**.
@@ -163,7 +164,7 @@ Der letzte Kalibrierstatus aus `calibration/getInfo` erscheint als Diagnoseattri
 
 Die Integration stellt die Dashboard-Card unter `/anycubic-cloud-card.js` bereit. Unter **Einstellungen → Dashboards → ⋮ → Ressourcen** kannst du sie als **JavaScript-Modul** hinzufügen. Das Seitenleisten-Panel **Anycubic Cloud** ist ebenfalls Teil der Integration.
 
-Ab der nächsten Version stehen die ACE-Temperatur und die gemeldete Luftfeuchtigkeit in der Dashboard-Card und im Panel direkt über den Spulen der jeweiligen ACE. Meldet die ACE keine Luftfeuchtigkeit, bleibt dieser Wert ausgeblendet.
+Seit Version **0.5.0** stehen die ACE-Temperatur und die gemeldete Luftfeuchtigkeit in der Dashboard-Card und im Panel direkt über den Spulen der jeweiligen ACE. Meldet die ACE keine Luftfeuchtigkeit, bleibt dieser Wert ausgeblendet.
 
 Bei einem bestehenden Dashboard öffne die Ressource für `anycubic-card.js` und ersetze ihre URL durch `/anycubic-cloud-card.js`. Entferne gegebenenfalls weitere Einträge für dieselbe Card und lade das Dashboard neu. Die Karten verwenden weiterhin `custom:anycubic-card` und ihre gespeicherten Einstellungen. Sobald sie über die integrierte Ressource laden, kannst du das separate Card-Paket in HACS entfernen. Bei YAML-Ressourcen ändere die URL unter `lovelace.resources` und behalte `type: module` bei.
 
