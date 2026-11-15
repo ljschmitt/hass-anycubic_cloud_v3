@@ -10,6 +10,10 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
+**Hilf mit, weitere Drucker und Firmware-Versionen zu unterstützen.** Die bebilderte Diagnoseanleitung zeigt, wie du in Home Assistant eine Aufzeichnung startest und den geprüften Abschnitt `data` teilst. Nenne Druckermodell, Firmware, Zubehör und den Ablauf während der Aufzeichnung. [Diagnoseanleitung](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html) · [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37)
+
+[Beta 0.4.9-beta.4](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.4) ergänzt im Seitenleisten-Panel **Anycubic Cloud** den Reiter **Druckstatistik** neben **Hauptansicht** und **Nebenansicht**. Er erscheint, sobald für den ausgewählten Drucker mindestens einer der drei Werte aus der Cloud vorliegt. Die Integration legt dafür die Sensoren **Print Count**, **Total Print Time** und **Total Material Used** an. Der Druckzähler verwendet den Wert aus der Anycubic-Druckerliste. Getestet mit Kobra X und Kobra 3 Combo V2. Bei weiteren Modellen hängt die Anzeige von den gemeldeten Werten ab.
+
 Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Dashboard-Karte **Anycubic Cloud Card**. Zuvor hiessen die Eintraege **Anycubic HA Integration** und **Anycubic Frontend Card**. Repository-Adressen, Integration-Domain `anycubic_ha_integration`, vorhandene Entity-IDs und der Card-Typ `custom:anycubic-card` bleiben erhalten.
 
 **0.4.5** kombiniert die ACE-Trocknungskorrektur aus #23, die Entwickler-Helfer-Bereinigung und die MQTT-Korrekturen aus #10 und dem Kobra-X-Praxistest. Verwende Integration und optionale Dashboard-Card in derselben Version.

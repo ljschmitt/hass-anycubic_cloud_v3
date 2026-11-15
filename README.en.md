@@ -10,6 +10,10 @@
 
 A Home Assistant integration for Anycubic cloud printers with status sensors, MQTT real-time updates, print and file actions, ACE/material management, and an optional camera view.
 
+**Help us support more printers and firmware versions.** The illustrated guide shows how to capture printer diagnostics in Home Assistant and share the reviewed `data` object. Include your printer model, firmware, accessories, and what you did during the capture. [Diagnostics guide](https://apps.schmittit.de/anycubic_ha_cloud/en/printer-diagnostics.html) · [Testing discussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37)
+
+[Beta 0.4.9-beta.4](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.4) adds **Print statistics** next to **Main** and **Side View** in the Anycubic Cloud sidebar panel. The tab appears when the cloud reports at least one total for the selected printer. The integration exposes **Print Count**, **Total Print Time**, and **Total Material Used**, with the count coming from the Anycubic printer list. Tested on Kobra X and Kobra 3 Combo V2. Availability on other models depends on their reported values.
+
 From **0.4.5-beta.1**, the display names are **Anycubic Cloud** and **Anycubic Cloud Card**, previously **Anycubic HA Integration** and **Anycubic Frontend Card**. Repository URLs, the `anycubic_ha_integration` domain, existing entity IDs and `custom:anycubic-card` remain unchanged.
 
 **0.4.5** combines the ACE drying fix, repository-helper cleanup and MQTT fixes from the Kobra X print and drying test. Use matching integration and dashboard-card versions. The beta was tested on Home Assistant 2026.11.0 with Marketplace.
