@@ -146,7 +146,7 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
 
         else:
             printer_key = get_part_from_mqtt_topic(topic, 6)
-            printer = self._mqtt_subscribed_printers.get(printer_key)
+            printer = self._mqtt_subscribed_printers.get(printer_key) if printer_key is not None else None
             if printer is None:
                 return
 
