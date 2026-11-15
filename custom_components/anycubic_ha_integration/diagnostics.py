@@ -7,10 +7,15 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.device_registry import DeviceEntry
 
+from .anycubic_cloud_api.printer_capture import printer_metadata
 from .const import COORDINATOR, DOMAIN
+from .helpers import printer_entity_unique_id
 
 if TYPE_CHECKING:
+    from .anycubic_cloud_api.data_models.printer import AnycubicPrinter
     from .coordinator import AnycubicCloudDataUpdateCoordinator
 
 USER_TO_REDACT = {
@@ -124,6 +129,43 @@ def parse_all_json_data(
             output_dict[key] = value
 
     return output_dict
+
+
+def get_printer_capture_report(
+    hass: HomeAssistant, coordinator: AnycubicCloudDataUpdateCoordinator, printer: AnycubicPrinter
+) -> dict[str, Any] | None:
+    """Build the same filtered device report for the action and the native download."""
+    capture = coordinator.anycubic_api.printer_capture.export(printer.id)
+    if capture is None:
+        return None
+
+    prefix = printer_entity_unique_id(coordinator, printer.id, "")
+    registered_entities = {
+        entity.unique_id.removeprefix(prefix): {
+            "domain": entity.domain,
+            "enabled": entity.disabled_by is None,
+        }
+        for entity in er.async_entries_for_config_entry(er.async_get(hass), coordinator.entry.entry_id)
+        if entity.platform == DOMAIN and entity.unique_id.startswith(prefix)
+    }
+    firmware = printer.fw_version
+    return {
+        "printer": printer_metadata(printer.machine_type, firmware.firmware_version if firmware else None),
+        "integration_entities": registered_entities,
+        "capture": capture,
+    }
+
+
+async def async_get_device_diagnostics(
+    hass: HomeAssistant, entry: ConfigEntry, device: DeviceEntry
+) -> dict[str, Any]:
+    """Download a filtered capture for this device only."""
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id, {}).get(COORDINATOR)
+    if coordinator is not None:
+        printer = coordinator.get_printer_for_device_id(device.id)
+        if printer is not None and (report := get_printer_capture_report(hass, coordinator, printer)) is not None:
+            return report
+    return {"status": "capture_unavailable"}
 
 
 async def async_get_config_entry_diagnostics(

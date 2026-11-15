@@ -29,7 +29,6 @@ from homeassistant.helpers import (
 from .anycubic_cloud_api.data_models.print_response import AnycubicPrintResponse
 from .anycubic_cloud_api.data_models.printer import AnycubicPrinter
 from .anycubic_cloud_api.data_models.printer_properties import AnycubicMaterialColor
-from .anycubic_cloud_api.printer_capture import printer_metadata
 from .const import (
     AC_EVENT_PRINT_CLOUD_START,
     ATTR_ANYCUBIC_EVENT,
@@ -58,9 +57,9 @@ from .const import (
     LOGGER,
     MAX_FILE_UPLOAD_RETRIES,
 )
+from .diagnostics import get_printer_capture_report
 from .helpers import (
     printer_entity_suggested_object_id,
-    printer_entity_unique_id,
     printer_state_for_key,
 )
 
@@ -266,25 +265,10 @@ class ExportPrinterDiagnostics(PrinterDiagnosticsService):
         await self._require_admin(service)
         coordinator = self._get_coordinator(service)
         printer = self._get_printer(service)
-        capture = coordinator.anycubic_api.printer_capture.export(printer.id)
-        if capture is None:
+        report = get_printer_capture_report(self.hass, coordinator, printer)
+        if report is None:
             raise ServiceValidationError("Start printer diagnostics for this printer first.")
-
-        prefix = printer_entity_unique_id(coordinator, printer.id, "")
-        registered_entities: dict[str, Any] = {
-            entity.unique_id.removeprefix(prefix): {
-                "domain": entity.domain,
-                "enabled": entity.disabled_by is None,
-            }
-            for entity in er.async_entries_for_config_entry(er.async_get(self.hass), coordinator.entry.entry_id)
-            if entity.platform == DOMAIN and entity.unique_id.startswith(prefix)
-        }
-        firmware = printer.fw_version
-        return {
-            "printer": printer_metadata(printer.machine_type, firmware.firmware_version if firmware else None),
-            "integration_entities": registered_entities,
-            "capture": capture,
-        }
+        return report
 
 
 class DebugSetLightStatus(AnycubicCloudServiceCall):

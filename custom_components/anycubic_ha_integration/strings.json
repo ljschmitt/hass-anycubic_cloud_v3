@@ -60,6 +60,10 @@
     }
   },
   "options": {
+    "abort": {
+      "printer_diagnostics_started": "Recording started. After five minutes, open the selected device and use its menu to download diagnostics. The report is available for 30 minutes from the start.",
+      "printer_diagnostics_unavailable": "Anycubic Cloud has no printer available for diagnostics right now."
+    },
     "step": {
       "options_menu": {
         "title": "Anycubic Cloud Options",
@@ -67,8 +71,17 @@
           "mqtt": "MQTT Settings",
           "drying": "Drying Presets",
           "card_config": "Panel Card Config",
+          "printer_diagnostics": "Start printer diagnostics",
           "debug": "Debug Settings"
         }
+      },
+      "printer_diagnostics": {
+        "title": "Start printer diagnostics",
+        "description": "Select a printer to record five minutes of filtered MQTT and cloud data. Starting another capture replaces the current one for this account.",
+        "data": {
+          "printer": "Printer"
+        },
+        "submit": "Start recording"
       },
       "mqtt": {
         "title": "MQTT Settings",

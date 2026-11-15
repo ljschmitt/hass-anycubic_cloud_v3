@@ -16,7 +16,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.4.9-beta.4**
+> 🗓️ **Aktuelles Release: 0.4.9-beta.5**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -78,6 +78,16 @@ Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufge
 Wenn du ein noch nicht bestaetigtes Modell testest, bitte Rueckmeldung geben: Wird das Geraet angelegt, welche Entitaeten funktionieren, gibt es MQTT- oder Kamera-Auffaelligkeiten? Bitte keine Tokens, privaten IPs, Seriennummern oder persoenlichen Daten in Issues hochladen.
 
 ### Druckerdaten für neue Firmware und Entitäten beitragen
+
+Eine bebilderte Schritt-für-Schritt-Anleitung erklärt den Diagnoseexport und das Teilen des bereinigten Berichts.
+[Textanleitung im Repository](docs/druckerdiagnose.md) · [Anleitung auf der Projektwebsite](https://apps.schmittit.de/anycubic_ha_cloud/#druckerdiagnose)
+
+Ab **0.4.9-beta.5**: Über das **Zahnrad** des Anycubic-Cloud-Eintrags kannst du **Druckerdiagnose starten** und einen Drucker auswählen.
+Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle im Gerätemenü
+**Diagnosedaten herunterladen**. Home Assistant ergänzt Systeminformationen und lokale IDs im Dateinamen.
+Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33).
+Bei längeren Berichten kannst du diesen Abschnitt als `anycubic-diagnose.json` anhängen.
+Der Bericht ist ab dem Start 30 Minuten verfügbar. Die Diagnose im Kontomenü dient der allgemeinen Fehlersuche.
 
 Ab **0.4.9-beta.2** kann ein Administrator pro Anycubic-Konto einen Drucker für eine kurze Aufzeichnung auswählen. Auch Meldungen von Geräten, die bereits funktionieren, helfen dabei, neue Firmware-Felder zu finden.
 

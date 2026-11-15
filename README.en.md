@@ -184,6 +184,13 @@ From [0.4.8](CHANGELOG.md#048), the power icon reflects the entity configured th
 
 ## Contribute printer data
 
+From **0.4.9-beta.5**, open the **gear icon** on the Anycubic Cloud account, choose **Start printer diagnostics**, and select a printer.
+After about five minutes, open that printer under **Devices** and choose **Download diagnostics** from the device
+menu. Home Assistant adds system information and local IDs to the file name. Review the `data` section and share it
+in [issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33). For a long report, save that section
+as `anycubic-diagnostics.json` and attach it.
+The report is available for 30 minutes from the start. The account menu downloads general diagnostics.
+
 Starting with **0.4.9-beta.2**, a Home Assistant administrator can capture five minutes of incoming data from a selected Anycubic printer. Reports from working printers are useful after a firmware update too.
 
 1. Open **Developer tools → Actions**, choose **Start printer diagnostics**, and select the Anycubic Cloud account and the printer.

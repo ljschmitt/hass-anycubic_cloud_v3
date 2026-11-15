@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9-beta.5
+
+- Start a printer diagnostics capture in the integration options and download the filtered report from the device menu.
+
 ## 0.4.9-beta.4
 
 - Add numeric print count, total print time, and total material used sensors for printers that report those totals.

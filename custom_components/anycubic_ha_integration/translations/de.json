@@ -60,6 +60,10 @@
     }
   },
   "options": {
+    "abort": {
+      "printer_diagnostics_started": "Aufzeichnung gestartet. Öffne nach fünf Minuten den ausgewählten Drucker und lade im Gerätemenü die Diagnosedaten herunter. Der Bericht ist ab dem Start 30 Minuten verfügbar.",
+      "printer_diagnostics_unavailable": "Anycubic Cloud hat gerade keinen Drucker für die Diagnose verfügbar."
+    },
     "step": {
       "options_menu": {
         "title": "Anycubic Cloud – Optionen",
@@ -67,8 +71,17 @@
           "mqtt": "MQTT‑Einstellungen",
           "drying": "Trocknungsvorgaben",
           "card_config": "Panel‑Kartenkonfiguration",
+          "printer_diagnostics": "Druckerdiagnose starten",
           "debug": "Debug‑Einstellungen"
         }
+      },
+      "printer_diagnostics": {
+        "title": "Druckerdiagnose starten",
+        "description": "Wähle einen Drucker, um fünf Minuten lang bereinigte MQTT- und Cloud-Daten aufzuzeichnen. Ein erneuter Start ersetzt die laufende Aufzeichnung für dieses Konto.",
+        "data": {
+          "printer": "Drucker"
+        },
+        "submit": "Aufzeichnung starten"
       },
       "mqtt": {
         "title": "MQTT‑Einstellungen",
