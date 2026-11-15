@@ -449,9 +449,7 @@ export class AnycubicPrintercardCameraview extends LitElement {
 
   private _formatCloudCameraError(err: unknown): string {
     const message =
-      err && typeof err === "object" && "message" in err
-        ? err.message
-        : err;
+      err && typeof err === "object" && "message" in err ? err.message : err;
     if (typeof message !== "string" || !message) {
       return this._localize("camera.errors.unavailable");
     }
