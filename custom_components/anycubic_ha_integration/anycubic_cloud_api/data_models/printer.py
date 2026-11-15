@@ -2607,6 +2607,10 @@ class AnycubicPrinter:
                 project_to_update=self._latest_project
             )
 
+    def is_waiting_for_local_file_list(self, file_path: str) -> bool:
+        """Check whether the first response for the requested directory is still pending."""
+        return self._pending_local_file_list_path == self._normalise_file_list_path(file_path)
+
     async def request_local_file_list(
         self,
         file_path: str = "/",

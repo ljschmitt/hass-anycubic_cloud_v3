@@ -15,6 +15,10 @@ class AnycubicAPIParsingError(AnycubicAPIError):
     pass
 
 
+class AnycubicLegacyCameraError(AnycubicAPIParsingError):
+    """The camera session uses the older Anycubic format."""
+
+
 class AnycubicFileNotFoundError(AnycubicAPIError):
     pass
 

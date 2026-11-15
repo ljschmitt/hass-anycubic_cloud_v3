@@ -9,7 +9,7 @@ from test_ace_drying import methods
 from anycubic_cloud_api.const.api_endpoints import API_ENDPOINT
 from anycubic_cloud_api.const.enums import AnycubicOrderID
 from anycubic_cloud_api.data_models.orders import AnycubicBaseOrderRequest, AnycubicCameraSession
-from anycubic_cloud_api.exceptions.exceptions import AnycubicAPIParsingError
+from anycubic_cloud_api.exceptions.exceptions import AnycubicAPIParsingError, AnycubicLegacyCameraError
 
 AGORA = {
     "appid": "test-app", "channel": "test-channel", "rtc_token": "test-session", "client_uid": 1,
@@ -25,6 +25,7 @@ namespace = methods("anycubic_cloud_api/api/functions.py", "AnycubicAPIFunctions
     "AnycubicBaseOrderRequest": AnycubicBaseOrderRequest,
     "AnycubicCameraSession": AnycubicCameraSession,
     "AnycubicAPIParsingError": AnycubicAPIParsingError,
+    "AnycubicLegacyCameraError": AnycubicLegacyCameraError,
     "_AGORA_CAMERA_FIELDS": tuple(AGORA),
 })
 API = type("OfflineAPI", (), {name: namespace[name] for name in METHODS})
@@ -83,10 +84,28 @@ class CameraSessionTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_alternate_request_can_reuse_an_agora_session(self):
         self.api._fetch_api_resp.side_effect = [
-            {"code": "200", "data": {}},
+            {"code": "1", "data": {}},
             {"code": 200, "data": {"shengwang": AGORA}},
         ]
         session = await self.api.get_camera_session(SimpleNamespace(id=1, machine_type="20023"))
         self.assertEqual(session.data["channel"], AGORA["channel"])
         self.assertEqual(self.api._fetch_api_resp.await_count, 2)
         self.assertNotIn("test-session", str(self.api._log_to_warn.call_args_list))
+
+    async def test_kobra_2_max_legacy_credentials_are_not_an_agora_session(self):
+        self.api._fetch_api_resp.return_value = {"code": 1, "data": {"token": {"sessionToken": "never-log-this"}}}
+        with self.assertRaises(AnycubicLegacyCameraError):
+            await self.api.get_camera_session(SimpleNamespace(id=1, machine_type=20023))
+        self.api._fetch_api_resp.assert_awaited_once()
+        self.assertNotIn("never-log-this", str(self.api._log_to_warn.call_args_list))
+
+    async def test_other_models_do_not_use_kobra_2_max_legacy_handling(self):
+        self.api._fetch_api_resp.return_value = {"code": 1, "data": {"token": {"sessionToken": "never-log-this"}}}
+        for model in (20021, 20024, 20030):
+            with self.subTest(model=model):
+                self.api._fetch_api_resp.reset_mock()
+                with self.assertRaises(AnycubicAPIParsingError) as result:
+                    await self.api.get_camera_session(SimpleNamespace(id=1, machine_type=model))
+                self.assertIs(type(result.exception), AnycubicAPIParsingError)
+                self.api._fetch_api_resp.assert_awaited_once()
+        self.api._log_to_warn.assert_not_called()

@@ -25,6 +25,8 @@ The integration was [added to the default HACS catalog](https://github.com/hacs/
 - Print status, temperatures, speed, fan, layers, progress, and timing sensors
 - Pause, resume, cancel, and prepared print workflows with ordered color selection for all loaded material sources and a collapsible manual slot-number fallback
 - Local, USB, and cloud file views
+- Home Assistant and the file views show complete live file lists. History records the list status and the path where available. Individual file entries are available in the live view.
+- If the first request for a local file list gets no response, the integration retries the selected directory once.
 - ACE spool, material, color, and drying information
 - Native camera-light entity on supported printers
 - On-demand Anycubic cloud camera stream
@@ -184,15 +186,17 @@ Starting with **0.4.9-beta.2**, a Home Assistant administrator can capture five 
 
 1. Open **Developer tools → Actions**, choose **Start printer diagnostics**, and select the Anycubic Cloud account and the printer.
 2. Use the printer as usual. Allow up to five minutes for ordinary cloud polling. MQTT samples require an active MQTT connection and incoming printer reports.
-3. Run **Export printer diagnostics** for the same device. Review the action response and copy it into a GitHub issue. Add your printer model and a short note on what you did during the capture.
+3. Run **Export printer diagnostics** for the same device. Review the response and share it in [issue #33](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/33). For a long report, save the response as a `.txt` file and drag it into the comment box. Include your printer model, accessories and a short note about the capture.
 
-The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one. Your existing dashboard card is compatible.
+The response contains the model code, firmware version, registered entity keys, field paths and types, and selected measurements such as temperature or humidity. Unrecognized fields are included with their types. Share just the action response. It is available for 30 minutes from the start. Starting another capture on the same account replaces the previous one. The [matching dashboard card 0.4.9-beta.3](https://github.com/ljschmitt/hass-anycubic_card/releases/tag/v0.4.9-beta.3) displays the camera error from #31.
 
 ## Camera behavior
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
 
 **Kobra 2 Max (20023)**: Diagnostic beta 0.4.9-beta.1 tries the older camera request once for [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) when the cloud reports success for the Agora request but supplies no session credentials. Playback still uses Agora/WebRTC. To test, open the camera once. If it fails, share only the `Kobra 2 Max camera probe` lines from the Home Assistant system log. They contain a numeric vendor code and known field names.
+
+Testing on the Kobra 2 Max confirmed the legacy camera format. Playback for this format is still pending. [Test result in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
 
 The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 

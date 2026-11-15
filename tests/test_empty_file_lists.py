@@ -43,6 +43,8 @@ class EmptyFileListTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_empty_local_folder_without_records_is_loaded(self) -> None:
         await self.printer.request_local_file_list("/Empty Local")
+        self.assertTrue(self.printer.is_waiting_for_local_file_list("/Empty Local/"))
+        self.assertFalse(self.printer.is_waiting_for_local_file_list("/"))
 
         self.printer.process_mqtt_update(
             "anycubic/test/file/report",
@@ -58,6 +60,7 @@ class EmptyFileListTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(self.printer.local_file_list_path, "/Empty Local")
         self.assertEqual(self.printer.local_file_list_object, [])
+        self.assertFalse(self.printer.is_waiting_for_local_file_list("/Empty Local"))
 
     async def test_empty_udisk_folder_without_records_is_loaded(self) -> None:
         await self.printer.request_udisk_file_list("/Empty USB")

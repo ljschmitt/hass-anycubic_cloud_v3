@@ -368,6 +368,9 @@ async def async_setup_entry(
 class AnycubicSensor(AnycubicCloudEntity, SensorEntity):
     """Representation of a Anycubic Cloud sensor."""
 
+    # Only the three file-list sensors use this attribute. Keep the live list on the entity.
+    _unrecorded_attributes = frozenset({"file_info"})
+
     entity_description: AnycubicSensorEntityDescription
 
     def __init__(

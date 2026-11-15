@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.9-beta.3
+
+- Exclude file entries from Home Assistant history while retaining complete live local, USB and cloud file lists. This avoids Recorder size warnings on large directories.
+- Retry unanswered initial local file list requests for the selected directory from both Home Assistant actions and the refresh button.
+- Recognize Anycubic camera success code 1 during the Kobra 2 Max diagnostic and show the legacy format error in the camera view. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
 ## 0.4.9-beta.2
 
 - Add an opt-in, five-minute per-printer diagnostics capture for incoming MQTT reports and cloud printer data. Export field types, selected measurement values, firmware, model code and registered entity keys from Home Assistant's Actions tab.

@@ -54,6 +54,7 @@ from ..exceptions.exceptions import (
     AnycubicDataParsingError,
     AnycubicFileNotFoundError,
     AnycubicGcodeParsingError,
+    AnycubicLegacyCameraError,
 )
 from ..models.cloud_upload import AnycubicCloudUpload
 from .base import AnycubicAPIBase
@@ -941,12 +942,15 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         if raw_data:
             return resp
 
-        if str(printer.machine_type) == "20023":
+        is_kobra_2_max = str(printer.machine_type) == "20023"
+        if is_kobra_2_max:
             resp = await self._probe_kobra_2_max_camera(printer, resp)
 
         data = resp.get("data") if resp is not None else None
         shengwang = data.get("shengwang") if isinstance(data, dict) else None
         if not isinstance(shengwang, dict):
+            if is_kobra_2_max and isinstance(data, dict) and isinstance(data.get("token"), dict):
+                raise AnycubicLegacyCameraError()
             raise AnycubicAPIParsingError("Unexpected camera session response.")
 
         device = data.get("shengwang_device") if isinstance(data, dict) else None
@@ -974,7 +978,7 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
             return response
 
         self._log_camera_probe("Agora", response)
-        if not isinstance(response, dict) or response.get("code") not in (0, 200, "0", "200"):
+        if not isinstance(response, dict) or response.get("code") not in (0, 1, 200, "0", "1", "200"):
             return response
         if isinstance(data, dict) and isinstance(data.get("token"), dict):
             return response

@@ -11,6 +11,7 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from .anycubic_cloud_api.exceptions.exceptions import AnycubicLegacyCameraError
 from .const import COORDINATOR, DOMAIN
 from .coordinator import AnycubicCloudDataUpdateCoordinator
 from .file_preview import find_project_preview_url, normalize_preview_filename
@@ -180,6 +181,13 @@ async def websocket_camera_session(
 
     try:
         camera_session = await printer.get_camera_session()
+    except AnycubicLegacyCameraError:
+        connection.send_error(
+            msg["id"],
+            "camera_legacy_format",
+            "This Kobra 2 Max camera uses a stream format that this integration cannot play yet.",
+        )
+        return
     except Exception:  # noqa: BLE001
         connection.send_error(
             msg["id"],

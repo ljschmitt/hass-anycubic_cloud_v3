@@ -751,8 +751,7 @@ class RequestFileListLocal(BaseRequestPrinterFileList):
         printer = self._get_printer(service)
 
         try:
-            await coordinator._connect_mqtt_for_action_response()
-            await printer.request_local_file_list(file_path=file_path)
+            await coordinator.async_request_local_file_list(printer, file_path)
             await coordinator._async_force_data_refresh()
         except Exception as error:
             raise HomeAssistantError(error) from error
