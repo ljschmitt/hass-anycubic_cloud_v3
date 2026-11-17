@@ -262,7 +262,9 @@ export class AnycubicPrintercardCameraview extends LitElement {
     void this._stopCloudCamera();
   }
 
-  private async _startCloudCamera(): Promise<void> {
+  private async _startCloudCamera(
+    retryKinesisTimeout: boolean = true,
+  ): Promise<void> {
     const requestId = ++this._startRequest;
 
     await this._stopCloudCamera(false);
@@ -296,8 +298,12 @@ export class AnycubicPrintercardCameraview extends LitElement {
               this.cloudCameraStatus = "connected";
             }
           },
-          () => {
-            if (requestId === this._startRequest) {
+          (failure) => {
+            if (requestId === this._startRequest && this.showVideo) {
+              if (failure === "timeout" && retryKinesisTimeout) {
+                void this._startCloudCamera(false);
+                return;
+              }
               this.cloudCameraError = this._localize(
                 "camera.errors.connection_lost",
               );

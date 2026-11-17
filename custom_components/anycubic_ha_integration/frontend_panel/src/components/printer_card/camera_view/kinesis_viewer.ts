@@ -16,7 +16,7 @@ export function startKinesisViewer(
   session: KinesisCameraSession,
   container: HTMLElement,
   onPlaying: () => void,
-  onError: () => void,
+  onError: (failure: "timeout" | "connection") => void,
 ): () => void {
   const peer = new RTCPeerConnection({ iceServers: session.ice_servers });
   let socket: WebSocket;
@@ -34,6 +34,7 @@ export function startKinesisViewer(
 
   let stopped = false;
   let offerSent = false;
+  let startupStage = "signaling connection";
   const timer = { id: 0 };
   const pendingLocal: RTCIceCandidate[] = [];
   const pendingRemote: RTCIceCandidateInit[] = [];
@@ -50,12 +51,20 @@ export function startKinesisViewer(
     video.remove();
   }
 
-  function fail(reason: string, code?: number): void {
+  function fail(
+    reason: string,
+    code?: number,
+    failure: "timeout" | "connection" = "connection",
+  ): void {
     if (!stopped) {
       // Never log signaling URLs, credentials or server-provided payloads.
-      window.console.debug("[Anycubic Kinesis]", reason, code ?? "");
+      const details: (string | number)[] = ["[Anycubic Kinesis]", reason];
+      if (code !== undefined) {
+        details.push(code);
+      }
+      window.console.debug(...details);
       stop();
-      onError();
+      onError(failure);
     }
   }
 
@@ -87,6 +96,7 @@ export function startKinesisViewer(
   });
   peer.addEventListener("track", ({ track, streams }) => {
     if (!stopped && track.kind === "video") {
+      startupStage = "video playback";
       video.srcObject = streams[0] ?? new MediaStream([track]);
     }
   });
@@ -108,6 +118,7 @@ export function startKinesisViewer(
   async function negotiate(): Promise<void> {
     await peer.setLocalDescription(await peer.createOffer());
     if (!stopped && peer.localDescription) {
+      startupStage = "SDP answer";
       send("SDP_OFFER", peer.localDescription);
       offerSent = true;
       pendingLocal.splice(0).forEach((candidate) => {
@@ -147,6 +158,7 @@ export function startKinesisViewer(
       const answer = JSON.parse(
         window.atob(message.messagePayload),
       ) as RTCSessionDescriptionInit;
+      startupStage = "video track";
       await peer.setRemoteDescription(answer);
       for (const candidate of pendingRemote.splice(0)) {
         await peer.addIceCandidate(candidate);
@@ -185,7 +197,7 @@ export function startKinesisViewer(
     fail("Signaling socket closed", code);
   });
   timer.id = window.setTimeout(() => {
-    fail("Timed out waiting for video");
+    fail("Timed out waiting for " + startupStage, undefined, "timeout");
   }, 20000);
   return stop;
 }
