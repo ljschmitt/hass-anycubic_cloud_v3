@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1-beta.3
+
+- Retry the Kobra 2 Max camera once with a fresh session after a startup timeout. Log the pending signaling or video stage and omit the empty numeric-code placeholder. Closing the camera cancels startup and retry. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
 ## 0.5.1-beta.2
 
 - Keep the Kobra 2 Max viewer open when Kinesis sends empty or malformed signaling frames. Log connection failure categories without signaling credentials or payloads. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
