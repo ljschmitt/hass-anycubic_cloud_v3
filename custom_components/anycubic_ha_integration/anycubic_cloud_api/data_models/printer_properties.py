@@ -620,7 +620,7 @@ class AnycubicMultiColorBox:
     def set_current_temperature(self, temp: int) -> None:
         self._temp = int(temp)
 
-    def set_humidity(self, humidity: int | float | str | None) -> None:
+    def set_humidity(self, humidity: object) -> None:
         self._humidity: float | None = None
         if self._model_id == ACE_2_PRO_MODEL_ID and isinstance(humidity, (int, float, str)) and not isinstance(humidity, bool):
             try:
