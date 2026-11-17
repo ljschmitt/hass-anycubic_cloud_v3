@@ -74,6 +74,11 @@ class AnycubicMQTTAPI(AnycubicAPIFunctions):
     def mqtt_is_started(self) -> bool:
         return self._mqtt_client is not None
 
+    @property
+    def mqtt_is_connected(self) -> bool:
+        client = self._mqtt_client
+        return client is not None and client.is_connected()
+
     def set_mqtt_log_all_messages(self, val: bool) -> None:
         self._mqtt_log_all_messages = bool(val)
 

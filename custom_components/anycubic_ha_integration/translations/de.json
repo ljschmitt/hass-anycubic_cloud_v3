@@ -163,6 +163,9 @@
       "drying_start_preset_4": {
         "name": "Drying Preset 4"
       },
+      "request_ace_info": {
+        "name": "Request ACE Info"
+      },
       "drying_stop": {
         "name": "Drying Stop"
       },

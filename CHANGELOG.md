@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1-beta.2
+
+- Keep the Kobra 2 Max viewer open when Kinesis sends empty or malformed signaling frames. Log connection failure categories without signaling credentials or payloads. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+- Request fresh ACE readings after MQTT subscribes and periodically while connected. Add a diagnostic button for an on-demand request and preserve recent MQTT readings during cloud polling. [#45](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/45)
+
 ## 0.5.1-beta.1
 
 - Add an experimental Kinesis WebRTC viewer for legacy cloud cameras on the Kobra 2 Max (model 20023) in the panel and dashboard card. Keep the existing Agora path for other models. Live playback still needs confirmation on a Kobra 2 Max.

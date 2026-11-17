@@ -18,10 +18,9 @@ class Socket extends EventTarget {
   send(data) { this.sent.push(JSON.parse(data)); }
   close() { this.closed = true; }
   receive(messageType, payload) {
-    this.dispatchEvent(new MessageEvent("message", {
-      data: JSON.stringify({ messageType, messagePayload: btoa(JSON.stringify(payload)) }),
-    }));
+    this.receiveRaw(JSON.stringify({ messageType, messagePayload: btoa(JSON.stringify(payload)) }));
   }
+  receiveRaw(data) { this.dispatchEvent(new MessageEvent("message", { data })); }
 }
 
 class Peer extends EventTarget {
@@ -43,9 +42,10 @@ class Peer extends EventTarget {
 async function run() {
   const video = new EventTarget();
   video.remove = () => { video.removed = true; };
+  const logs = [];
   const context = {
     exports: {}, RTCPeerConnection: Peer, WebSocket: Socket,
-    document: { createElement: () => video }, window: { setTimeout, clearTimeout, btoa, atob },
+    document: { createElement: () => video }, window: { setTimeout, clearTimeout, btoa, atob, console: { debug: (...args) => logs.push(args) } },
   };
   vm.runInNewContext(outputText, context);
   let state = "connecting";
@@ -60,7 +60,10 @@ async function run() {
     socket.dispatchEvent(new Event("open"));
     await new Promise(setImmediate);
     assert.deepEqual(socket.sent.map((message) => message.action), ["SDP_OFFER", "ICE_CANDIDATE"]);
+    socket.receiveRaw("");
     socket.receive("ICE_CANDIDATE", { candidate: "remote" });
+    socket.receiveRaw("unexpected signaling text");
+    socket.receiveRaw("null");
     socket.receive("SDP_ANSWER", { type: "answer", sdp: "test-answer" });
     await new Promise(setImmediate);
     assert.equal(peer.remoteIce[0].candidate, "remote");
@@ -70,12 +73,31 @@ async function run() {
     assert.equal(state, "connecting");
     video.dispatchEvent(new Event("playing"));
     assert.equal(state, "playing");
+    socket.receiveRaw("");
+    await new Promise(setImmediate);
+    assert.equal(state, "playing", "Empty signaling frames must not interrupt playback");
     stop();
     socket.dispatchEvent(new Event("close"));
     assert.ok(socket.closed && peer.closed && video.removed);
     assert.equal(state, "playing", "A deliberate close must not report an error");
   } finally {
     stop();
+  }
+
+  const stopSecond = context.exports.startKinesisViewer(
+    { signaling_url: "wss://example.com", ice_servers: [] }, { append: () => {} },
+    () => {}, () => { state = "error"; },
+  );
+  try {
+    Socket.current.receiveRaw(JSON.stringify({
+      messageType: "STATUS_RESPONSE",
+      statusResponse: { statusCode: 403, description: "private vendor data" },
+    }));
+    await new Promise(setImmediate);
+    assert.equal(state, "error");
+    assert.deepEqual(logs, [["[Anycubic Kinesis]", "Signaling request rejected", 403]]);
+  } finally {
+    stopSecond();
   }
 }
 
