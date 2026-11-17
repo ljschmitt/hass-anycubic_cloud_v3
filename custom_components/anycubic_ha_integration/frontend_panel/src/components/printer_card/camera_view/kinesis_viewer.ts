@@ -50,8 +50,10 @@ export function startKinesisViewer(
     video.remove();
   }
 
-  function fail(): void {
+  function fail(reason: string, code?: number): void {
     if (!stopped) {
+      // Never log signaling URLs, credentials or server-provided payloads.
+      window.console.debug("[Anycubic Kinesis]", reason, code ?? "");
       stop();
       onError();
     }
@@ -78,7 +80,7 @@ export function startKinesisViewer(
         try {
           send("ICE_CANDIDATE", candidate);
         } catch {
-          fail();
+          fail("Could not send ICE candidate");
         }
       }
     }
@@ -90,7 +92,7 @@ export function startKinesisViewer(
   });
   peer.addEventListener("connectionstatechange", () => {
     if (peer.connectionState === "failed") {
-      fail();
+      fail("Peer connection failed");
     }
   });
   video.addEventListener("playing", () => {
@@ -99,7 +101,9 @@ export function startKinesisViewer(
       onPlaying();
     }
   });
-  video.addEventListener("error", fail);
+  video.addEventListener("error", () => {
+    fail("Video playback failed", video.error?.code);
+  });
 
   async function negotiate(): Promise<void> {
     await peer.setLocalDescription(await peer.createOffer());
@@ -116,14 +120,27 @@ export function startKinesisViewer(
     if (stopped) {
       return;
     }
-    const message = JSON.parse(data) as PeerMessage;
+    if (typeof data !== "string" || !data.trim()) {
+      return;
+    }
+    let message: PeerMessage | null;
+    try {
+      message = JSON.parse(data) as PeerMessage | null;
+    } catch {
+      // The signaling socket can deliver non-JSON frames during a valid session.
+      return;
+    }
+    if (typeof message?.messageType !== "string") {
+      return;
+    }
     if (message.messageType === "STATUS_RESPONSE") {
-      if ((message.statusResponse?.statusCode ?? 0) >= 400) {
-        fail();
+      const code = message.statusResponse?.statusCode;
+      if (typeof code === "number" && code >= 400) {
+        fail("Signaling request rejected", code);
       }
       return;
     }
-    if (!message.messagePayload) {
+    if (typeof message.messagePayload !== "string" || !message.messagePayload) {
       return;
     }
     if (message.messageType === "SDP_ANSWER") {
@@ -147,12 +164,28 @@ export function startKinesisViewer(
   }
 
   let messages = Promise.resolve();
-  socket.addEventListener("open", () => void negotiate().catch(fail));
+  socket.addEventListener(
+    "open",
+    () =>
+      void negotiate().catch(() => {
+        fail("Could not send SDP offer");
+      }),
+  );
   socket.addEventListener("message", (event: MessageEvent<string>) => {
-    messages = messages.then(() => receive(event)).catch(fail);
+    messages = messages
+      .then(() => receive(event))
+      .catch(() => {
+        fail("Could not apply signaling message");
+      });
   });
-  socket.addEventListener("error", fail);
-  socket.addEventListener("close", fail);
-  timer.id = window.setTimeout(fail, 20000);
+  socket.addEventListener("error", () => {
+    fail("Signaling socket error");
+  });
+  socket.addEventListener("close", ({ code }) => {
+    fail("Signaling socket closed", code);
+  });
+  timer.id = window.setTimeout(() => {
+    fail("Timed out waiting for video");
+  }, 20000);
   return stop;
 }

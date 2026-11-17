@@ -397,6 +397,34 @@ class FirmwareMQTTTests(unittest.TestCase):
         device.update_from_info_json({**cloud, "device_status": 2})
         self.assertEqual([box.auto_feed for box in device._multi_color_box], [1, 1])
 
+    def test_recent_mqtt_ace_readings_survive_a_stale_cloud_poll(self):
+        device = printer(model=20029)
+        boxes = [{**ace(0), "temp": 34, "humidity": 20, "model_id": 40002}, ace(1)]
+        cloud = {
+            "id": 1, "name": "Synthetic Printer", "key": "test", "machine_type": 20029,
+            "model": "Synthetic Printer", "img": None, "device_status": 1, "is_printing": 0,
+            "type_function_ids": [], "version": None, "multi_color_box": boxes,
+        }
+        device.update_from_info_json(cloud)
+        with patch("anycubic_cloud_api.data_models.printer.monotonic", return_value=100):
+            report(device, "multiColorBox", "getInfo", "success", {
+                "multi_color_box": [{**boxes[0], "temp": 46, "humidity": 16}],
+            })
+            report(device, "multiColorBox", "autoUpdateDryStatus", "success", {
+                "multi_color_box": [{"id": 0, "temp": 48, "drying_status": {
+                    "status": 1, "duration": 60, "remain_time": 50, "target_temp": 50,
+                }}],
+            })
+        with patch("anycubic_cloud_api.data_models.printer.monotonic", return_value=160):
+            device.update_from_info_json(cloud)
+            self.assertEqual(device.primary_multi_color_box_current_temperature, 48)
+            self.assertEqual(device.primary_multi_color_box.humidity, 16)
+            self.assertEqual(device.secondary_multi_color_box_current_temperature, 25)
+        with patch("anycubic_cloud_api.data_models.printer.monotonic", return_value=221):
+            device.update_from_info_json(cloud)
+            self.assertEqual(device.primary_multi_color_box_current_temperature, 34)
+            self.assertEqual(device.primary_multi_color_box.humidity, 20)
+
     def test_legacy_ace_drying_temperature_and_minutes_still_update(self):
         device = printer(model=20029)
         device._set_multi_color_box([ace()])

@@ -52,6 +52,7 @@ from .const import (
     LOGGER,
     MAX_DRYING_PRESETS,
     MAX_FAILED_UPDATES,
+    MQTT_ACE_INFO_REFRESH_INTERVAL,
     MQTT_ACTION_RESPONSE_ALIVE_SECONDS,
     MQTT_IDLE_DISCONNECT_SECONDS,
     MQTT_REFRESH_INTERVAL,
@@ -107,7 +108,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._mqtt_refresh_lock = asyncio.Lock()
         self._mqtt_file_list_check_lock = asyncio.Lock()
         self._mqtt_last_refresh: int | None = None
-        self._mqtt_last_multi_color_info_request: dict[int, int] = dict()
+        self._mqtt_last_multi_color_info_request: dict[int, float] = {}
         self._hardware_properties_loaded: set[int] = set()
         self._hardware_write_lock = asyncio.Lock()
         self._printer_device_map: dict[str, int] | None = None
@@ -616,16 +617,15 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_mqtt_callback_subscribed(self) -> None:
         await asyncio.sleep(10)
-        for printer_id, printer in self._anycubic_printers.items():
+        for printer in self._anycubic_printers.values():
             try:
                 if printer.printer_online:
                     await printer.query_printer_options()
-                    if self._printer_needs_multi_color_info_request(printer):
-                        self._mqtt_last_multi_color_info_request[printer.id] = int(time.time())
-                        await printer.multi_color_box_request_info()
             except Exception as error:
                 tb = traceback.format_exc()
                 LOGGER.warning(f"Anycubic MQTT on subscribe error: {error}\n{tb}")
+
+        await self._refresh_ace_info(after_subscribe=True)
 
     @callback
     def _mqtt_callback_data_updated(self) -> None:
@@ -894,24 +894,46 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "Anycubic MQTT Timed out waiting for connection, try manually enabling MQTT."
             )
 
+    def _printer_supports_ace_info_request(self, printer: AnycubicPrinter) -> bool:
+        return (
+            printer.printer_online
+            and printer.supports_function_multi_color_box
+            and (printer.has_peripheral_multi_color_box or printer.is_kobra_x)
+        )
+
+    async def _request_ace_info(self, printer: AnycubicPrinter) -> None:
+        self._mqtt_last_multi_color_info_request[printer.id] = time.monotonic()
+        await printer.multi_color_box_request_info()
+
+    async def _refresh_ace_info(self, *, after_subscribe: bool = False) -> None:
+        """Refresh ACE readings over an existing MQTT connection."""
+        for printer in self._anycubic_printers.values():
+            if not self.anycubic_api.mqtt_is_connected:
+                return
+            if not self._printer_supports_ace_info_request(printer):
+                continue
+            last_request = self._mqtt_last_multi_color_info_request.get(printer.id)
+            if not after_subscribe and last_request is not None and (
+                time.monotonic() - last_request < MQTT_ACE_INFO_REFRESH_INTERVAL
+            ):
+                continue
+            try:
+                await self._request_ace_info(printer)
+            except (AnycubicAPIError, ClientError, TimeoutError):
+                LOGGER.debug("Could not request fresh Anycubic ACE info.")
+
     def _printer_needs_multi_color_info_request(
         self,
         printer: AnycubicPrinter,
     ) -> bool:
-        if not printer.printer_online:
-            return False
-
-        if not printer.supports_function_multi_color_box:
+        if not self._printer_supports_ace_info_request(printer):
             return False
 
         if printer.primary_multi_color_box_spool_info_object:
             return False
 
-        if not (printer.has_peripheral_multi_color_box or printer.is_kobra_x):
-            return False
-
         last_request = self._mqtt_last_multi_color_info_request.get(printer.id)
-        if last_request and int(time.time()) < last_request + MQTT_IDLE_DISCONNECT_SECONDS:
+        if last_request is not None and time.monotonic() - last_request < MQTT_IDLE_DISCONNECT_SECONDS:
             return False
 
         return True
@@ -980,6 +1002,7 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             await self._request_missing_multi_color_box_info()
             await self._check_anycubic_mqtt_connection()
+            await self._refresh_ace_info()
 
         except ConfigEntryAuthFailed:
             raise
@@ -1209,6 +1232,14 @@ class AnycubicCloudDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             elif printer and event_key == 'request_file_list_udisk':
                 await self._connect_mqtt_for_action_response()
                 await printer.request_udisk_file_list()
+
+            elif printer and event_key == 'request_ace_info':
+                if not self._printer_supports_ace_info_request(printer):
+                    raise HomeAssistantError("The printer must be online and support ACE status requests.")
+                await self._connect_mqtt_for_action_response()
+                if not self.anycubic_api.mqtt_is_connected:
+                    raise HomeAssistantError("An active Anycubic MQTT connection is required.")
+                await self._request_ace_info(printer)
 
             elif printer and event_key == 'drying_stop':
                 await self._connect_mqtt_for_action_response()

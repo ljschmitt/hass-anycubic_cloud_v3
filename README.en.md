@@ -182,6 +182,8 @@ For an existing dashboard, edit the resource for `anycubic-card.js` and change i
 
 From **0.5.0**, the dashboard card and panel show each ACE's temperature and reported humidity directly above its spools. If the ACE does not report humidity, the card and panel hide that reading.
 
+From **0.5.1-beta.2**, the integration requests fresh ACE readings after MQTT connects and about every five minutes while it stays connected. Use the **Request ACE Info** diagnostic button to request a reading manually.
+
 From **0.4.9**, each ACE 2 Pro that reports a valid reading gets a relative humidity sensor. Use **ACE Humidity** and **Secondary ACE Humidity** in Home Assistant automations. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
 
 ### Loaded slot of the primary ACE
@@ -215,7 +217,7 @@ The response contains the model code, firmware version, registered entity keys, 
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
 
-**Kobra 2 Max (20023)**: Beta **0.5.1-beta.1** adds experimental playback for the legacy cloud camera via Amazon Kinesis Video Streams. Open the camera in the Anycubic panel or bundled dashboard card. Live playback still needs confirmation on a Kobra 2 Max. If playback fails, start a printer diagnostics capture before opening the camera and share the reviewed export and the visible error. The capture includes the response type and vendor status code and omits camera credentials and signaling URLs. [Camera testing in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+**Kobra 2 Max (20023)**: Beta **0.5.1-beta.2** supports experimental playback for the legacy cloud camera via Amazon Kinesis Video Streams. Open the camera in the Anycubic panel or bundled dashboard card. Live playback still needs confirmation on a Kobra 2 Max. From **0.5.1-beta.2**, the viewer ignores empty Kinesis messages and logs the failure category to the browser console if a connection drops. If playback fails, start a printer diagnostics capture before opening the camera and share the reviewed export and the visible error. The capture includes the response type and vendor status code and omits camera credentials and signaling URLs. [Camera testing in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
 
 The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 

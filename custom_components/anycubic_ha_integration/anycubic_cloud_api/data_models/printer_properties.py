@@ -589,15 +589,7 @@ class AnycubicMultiColorBox:
         self._loaded_slot: int = int(loaded_slot)
         self.set_feed_status(feed_status)
         self.set_current_temperature(temp)
-        self._humidity: float | None = None
-        if self._model_id == ACE_2_PRO_MODEL_ID and isinstance(humidity, (int, float, str)) and not isinstance(humidity, bool):
-            try:
-                measurement = float(humidity)
-            except (ValueError, OverflowError):
-                pass
-            else:
-                if 0 <= measurement <= 100:
-                    self._humidity = measurement
+        self.set_humidity(humidity)
         self.set_drying_status(drying_status)
         self._curr_nozzle_temp: int | None = int(curr_nozzle_temp) if curr_nozzle_temp is not None else None
         self._target_nozzle_temp: int | None = int(target_nozzle_temp) if target_nozzle_temp is not None else None
@@ -627,6 +619,16 @@ class AnycubicMultiColorBox:
 
     def set_current_temperature(self, temp: int) -> None:
         self._temp = int(temp)
+
+    def set_humidity(self, humidity: int | float | str | None) -> None:
+        self._humidity: float | None = None
+        if self._model_id == ACE_2_PRO_MODEL_ID and isinstance(humidity, (int, float, str)) and not isinstance(humidity, bool):
+            try:
+                measurement = float(humidity)
+            except (ValueError, OverflowError):
+                return
+            if 0 <= measurement <= 100:
+                self._humidity = measurement
 
     def update_slots_with_mqtt_data(self, slot_list: list[dict[str, Any]] | None) -> None:
         if slot_list is None:

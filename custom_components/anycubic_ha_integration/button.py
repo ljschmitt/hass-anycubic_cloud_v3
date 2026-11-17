@@ -49,6 +49,12 @@ SECONDARY_DRYING_PRESET_BUTTON_TYPES: list[AnycubicButtonEntityDescription] = li
 
 PRIMARY_MULTI_COLOR_BOX_BUTTON_TYPES: list[AnycubicButtonEntityDescription] = list([
     AnycubicButtonEntityDescription(
+        key="request_ace_info",
+        translation_key="request_ace_info",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        printer_entity_type=PrinterEntityType.ACE_PRIMARY,
+    ),
+    AnycubicButtonEntityDescription(
         key="drying_stop",
         translation_key="drying_stop",
         printer_entity_type=PrinterEntityType.ACE_PRIMARY,
