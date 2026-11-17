@@ -10,7 +10,7 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
-**Hilf mit, weitere Drucker und Firmware-Versionen zu unterstützen.** Die bebilderte Diagnoseanleitung zeigt, wie du in Home Assistant eine Aufzeichnung startest und den geprüften Abschnitt `data` teilst. Nenne Druckermodell, Firmware, Zubehör und den Ablauf während der Aufzeichnung. [Diagnoseanleitung](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html) · [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37)
+**Hilf mit, weitere Drucker und Firmware-Versionen zu unterstützen.** Die bebilderte Diagnoseanleitung zeigt, wie du in Home Assistant eine Aufzeichnung startest und den geprüften Abschnitt `data` teilst. Nenne Druckermodell, Firmware, Zubehör und den Ablauf während der Aufzeichnung. [Diagnoseanleitung](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html) · [Deutsche Testdiskussion #43](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/43)
 
 [Beta 0.4.9-beta.4](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.4) ergänzt im Seitenleisten-Panel **Anycubic Cloud** den Reiter **Druckstatistik** neben **Hauptansicht** und **Nebenansicht**. Er erscheint, sobald für den ausgewählten Drucker mindestens einer der drei Werte aus der Cloud vorliegt. Die Integration legt dafür die Sensoren **Print Count**, **Total Print Time** und **Total Material Used** an. Der Druckzähler verwendet den Wert aus der Anycubic-Druckerliste. Getestet mit Kobra X und Kobra 3 Combo V2. Bei weiteren Modellen hängt die Anzeige von den gemeldeten Werten ab.
 
@@ -92,7 +92,7 @@ Eine bebilderte Schritt-für-Schritt-Anleitung erklärt den Diagnoseexport und d
 Ab **0.4.9-beta.5**: Über das **Zahnrad** des Anycubic-Cloud-Eintrags kannst du **Druckerdiagnose starten** und einen Drucker auswählen.
 Warte etwa fünf Minuten. Öffne dann den ausgewählten Drucker unter **Geräte** und wähle unter **Geräte-Informationen**
 **Diagnosedaten herunterladen**. Home Assistant ergänzt Systeminformationen und lokale IDs im Dateinamen.
-Teile nach der Prüfung den Inhalt des Abschnitts `data` in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37).
+Teile nach der Prüfung den Inhalt des Abschnitts `data` in [deutsche Testdiskussion #43](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/43).
 Bei längeren Berichten kannst du diesen Abschnitt als `anycubic-diagnose.json` anhängen.
 Der Bericht ist ab dem Start 30 Minuten verfügbar. Die Diagnose im Kontomenü dient der allgemeinen Fehlersuche.
 
@@ -100,7 +100,7 @@ Ab **0.4.9-beta.2** kann ein Administrator pro Anycubic-Konto einen Drucker für
 
 1. Öffne in Home Assistant **Entwicklerwerkzeuge → Aktionen**. Wähle **Druckerdiagnose starten** und dann das Anycubic-Cloud-Konto und den Drucker.
 2. Benutze den Drucker wie gewohnt. Warte möglichst fünf Minuten, damit mindestens ein regulärer Cloud-Abruf stattfinden kann. MQTT-Daten erscheinen, wenn der Drucker in dieser Zeit über eine aktive MQTT-Verbindung meldet.
-3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die Antwort und teile sie in [Testdiskussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37). Bei längeren Berichten kopierst du die Antwort in eine `.txt`-Datei und ziehst sie in das Kommentarfeld. Nenne Druckermodell, Zubehör und den Ablauf während der Aufzeichnung.
+3. Wähle **Druckerdiagnose exportieren** für dasselbe Gerät. Prüfe die Antwort und teile sie in [deutsche Testdiskussion #43](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/43). Bei längeren Berichten kopierst du die Antwort in eine `.txt`-Datei und ziehst sie in das Kommentarfeld. Nenne Druckermodell, Zubehör und den Ablauf während der Aufzeichnung.
 
 Der Bericht enthält Firmware, Modellcode, registrierte Entitätsschlüssel, Feldpfade und Datentypen sowie freigegebene Messwerte wie Temperaturen oder Feuchtigkeit. Unbekannte Felder erscheinen mit ihrem Datentyp. Der Bericht kommt aus der Aktion **Druckerdiagnose exportieren**. Teile nur diese Antwort. Sie ist bis 30 Minuten nach dem Start abrufbar. Ein erneuter Start für dasselbe Konto ersetzt die vorherige Aufzeichnung.
 
