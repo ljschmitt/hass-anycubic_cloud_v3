@@ -1,0 +1,14 @@
+.token-guide { max-width: 58rem; padding-block: 3rem; }
+.token-guide h1 { font-size: clamp(2rem, 5vw, 3rem); }
+.token-guide h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.token-guide p, .token-guide ol { margin-block: 1rem; }
+.token-guide section { margin-top: 2.5rem; min-width: 0; }
+.command-box { margin-top: 1rem; border: 1px solid var(--line); border-radius: .75rem; background: #fff; overflow: hidden; }
+.command-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--line); }
+.command-heading strong { font-size: 1rem; }
+.copy-command { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem .9rem; border: 1px solid var(--line); border-radius: .4rem; background: var(--paper); color: var(--blue-dark); font: inherit; cursor: pointer; }
+.copy-command:hover { background: #e7edfb; }
+.copy-command:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.copy-command svg { width: 1.2rem; height: 1.2rem; fill: currentColor; }
+.token-guide pre { margin: 0; padding: 1.25rem; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; font-size: .85rem; }
+.copy-status { min-height: 1.8em; font-weight: 600; color: var(--ink); }

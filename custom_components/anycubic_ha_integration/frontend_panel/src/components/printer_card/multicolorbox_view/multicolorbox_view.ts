@@ -256,7 +256,6 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
     LitTemplateResult
   > {
     const fillLabel = localize("card.spools.fill_level", this.language);
-    const unknown = localize("card.spools.fill_unknown", this.language);
     const percentFormat = new Intl.NumberFormat(this.language, {
       style: "percent",
       maximumFractionDigits: 1,
@@ -280,9 +279,12 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
             : "---";
         const percent = spool.consumables_percent;
         const fill =
-          typeof percent === "number"
+          typeof percent === "number" &&
+          Number.isFinite(percent) &&
+          percent >= 0 &&
+          percent <= 100
             ? percentFormat.format(percent / 100)
-            : unknown;
+            : undefined;
         return html`
           <div
             class="ac-spool-info ${reservedByAce ? "ac-spool-reserved" : ""}"
@@ -305,7 +307,7 @@ export class AnycubicPrintercardMulticolorboxview extends LitElement {
             </div>
             <div class="ac-spool-material-type">
               ${spoolLabel}
-              ${spool.spool_loaded && !reservedByAce && percent !== undefined
+              ${spool.spool_loaded && !reservedByAce && fill !== undefined
                 ? html`<span
                     class="ac-spool-fill"
                     title=${`${fillLabel} · ${fill}`}

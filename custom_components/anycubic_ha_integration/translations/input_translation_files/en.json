@@ -192,7 +192,7 @@
       },
       "auth_mode_slicer": {
         "title": "Authentication Mode - Slicer Next",
-        "description": "Open Slicer Next on Windows or macOS, sign in and open the printer view.\n\nWindows: copy this complete command into PowerShell and run it once:\n\n```powershell\n$log = Get-ChildItem \"$env:AppData\\AnycubicSlicerNext\\log\\debug_*.log\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $token = Select-String -Path $log.FullName -Pattern '(?:accessToken\\s*=\\s*|id_token=)(eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)' -AllMatches | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Groups | Where-Object Name -eq 1 | Select-Object -ExpandProperty Value -Last 1; $token | Set-Clipboard -ErrorAction Stop; Write-Host ('Token copied and verified: ' + ([bool]$token -and ((Get-Clipboard -Raw -ErrorAction Stop) -ceq $token)))\n```\n\nContinue only when the verification shows True. Otherwise retry or use the detailed instructions.\n\nmacOS: copy this complete command into Terminal and run it once:\n\n```bash\nbash <<'ANYCUBIC_TOKEN'\nf=\nfor candidate in \"$HOME/Library/Application Support/AnycubicSlicerNext/log/\"debug_*.log; do\n    [ -f \"$candidate\" ] || continue\n    if [ -z \"$f\" ] || [ \"$candidate\" -nt \"$f\" ]; then f=$candidate; fi\ndone\nif [ -z \"$f\" ]; then printf '%s\\n' 'No Slicer debug log found. Sign in and open the printer view.' >&2; exit 1; fi\nt=$(grep -h -o -E '(accessToken[[:space:]]*=[[:space:]]*|id_token=)eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+' \"$f\" | tail -n 1 | sed -E 's/^(accessToken[[:space:]]*=[[:space:]]*|id_token=)//')\nif [ -z \"$t\" ]; then printf '%s\\n' 'No Slicer token found in the latest log.' >&2; exit 1; fi\nif ! printf '%s' \"$t\" | pbcopy; then printf '%s\\n' 'Could not copy token to clipboard.' >&2; exit 1; fi\ncopied=$(pbpaste) || exit 1\nif [ \"$copied\" != \"$t\" ]; then printf '%s\\n' 'Could not confirm the token in the clipboard. Run the command again.' >&2; exit 1; fi\nprintf '%s\\n' 'Token successfully copied and verified. Paste into Home Assistant with Cmd+V now.'\nANYCUBIC_TOKEN\n```\n\nPaste the token below, then clear the clipboard (macOS: pbcopy < /dev/null). No Python, download or process-memory access is required. [Detailed instructions]({token_instructions_url}) are available on GitHub. Do not share tokens or unredacted logs. Web mode is an alternative without MQTT.",
+        "description": "Open Anycubic Slicer Next, sign in and open the printer view.\n\n**Windows — PowerShell**\n[Open the Windows command with copy button]({token_instructions_url}#heading-windows). Run the command in PowerShell, wait for the green copy confirmation, then return here and paste the token below with Ctrl+V.\n\n**macOS — Terminal**\n[Open the macOS command with copy button]({token_instructions_url}#heading-macos). Run the command in Terminal, wait for the copy confirmation, then return here and paste the token below with Cmd+V.\n\nThe website copies the public command; running it copies your token locally. Never share tokens or unredacted logs. Clear the clipboard afterwards. Web mode is an alternative without MQTT.",
         "data": {
           "user_token": "Slicer Access Token"
         }
@@ -333,6 +333,9 @@
       },
       "drying_start_preset_4": {
         "name": "[%key:common::drying_preset%] 4"
+      },
+      "request_ace_info": {
+        "name": "Request ACE Info"
       },
       "drying_stop": {
         "name": "[%key:common::drying%] Stop"

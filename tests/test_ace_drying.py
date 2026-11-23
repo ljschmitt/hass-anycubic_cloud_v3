@@ -44,6 +44,56 @@ API = type("OfflineAPI", (), {k: API_METHODS[k] for k in API_METHOD_NAMES})
 
 
 class ACEDryingTests(unittest.IsolatedAsyncioTestCase):
+    async def test_ace_refresh_uses_existing_mqtt_and_throttles_each_printer(self):
+        clock = SimpleNamespace(monotonic=lambda: 10)
+        def make_printer(printer_id, *, online=True, has_ace=True, is_kobra_x=False):
+            return SimpleNamespace(
+                id=printer_id, printer_online=online, supports_function_multi_color_box=True,
+                has_peripheral_multi_color_box=has_ace, is_kobra_x=is_kobra_x,
+                multi_color_box_request_info=AsyncMock(),
+            )
+
+        names = {"_request_ace_info", "_refresh_ace_info", "_printer_supports_ace_info_request", "button_press_event"}
+        namespace = methods("coordinator.py", "AnycubicCloudDataUpdateCoordinator", names, {
+            "time": clock, "MQTT_ACE_INFO_REFRESH_INTERVAL": 300,
+            "AnycubicAPIError": AnycubicAPIError, "ClientError": OSError,
+            "HomeAssistantError": RuntimeError, "ENTITY_ID_DRYING_START_PRESET_": "drying_start_preset_",
+        })
+        coordinator = type("OfflineCoordinator", (), {name: namespace[name] for name in names})()
+        online_ace = make_printer(1)
+        offline_ace = make_printer(2, online=False)
+        no_ace = make_printer(3, has_ace=False)
+        kobra_x = make_printer(4, is_kobra_x=True)
+        coordinator._anycubic_printers = {p.id: p for p in (online_ace, offline_ace, no_ace, kobra_x)}
+        coordinator._mqtt_last_multi_color_info_request = {}
+        coordinator.anycubic_api = SimpleNamespace(mqtt_is_connected=False)
+
+        await coordinator._refresh_ace_info()
+        online_ace.multi_color_box_request_info.assert_not_awaited()
+        coordinator.anycubic_api.mqtt_is_connected = True
+        await coordinator._refresh_ace_info(after_subscribe=True)
+        await coordinator._refresh_ace_info()
+        online_ace.multi_color_box_request_info.assert_awaited_once()
+        kobra_x.multi_color_box_request_info.assert_awaited_once()
+        offline_ace.multi_color_box_request_info.assert_not_awaited()
+        no_ace.multi_color_box_request_info.assert_not_awaited()
+
+        clock.monotonic = lambda: 310
+        await coordinator._refresh_ace_info()
+        self.assertEqual(online_ace.multi_color_box_request_info.await_count, 2)
+        self.assertEqual(kobra_x.multi_color_box_request_info.await_count, 2)
+
+        coordinator.get_printer_for_id = coordinator._anycubic_printers.get
+        coordinator._connect_mqtt_for_action_response = AsyncMock()
+        coordinator.force_state_update = AsyncMock()
+        await coordinator.button_press_event(1, "request_ace_info")
+        coordinator._connect_mqtt_for_action_response.assert_awaited_once()
+        self.assertEqual(online_ace.multi_color_box_request_info.await_count, 3)
+        coordinator.anycubic_api.mqtt_is_connected = False
+        with self.assertRaisesRegex(RuntimeError, "active Anycubic MQTT connection"):
+            await coordinator.button_press_event(1, "request_ace_info")
+        self.assertEqual(online_ace.multi_color_box_request_info.await_count, 3)
+
     def make_printer(self, model, boxes):
         api = API()
         api._send_anycubic_order = AsyncMock(return_value="accepted")

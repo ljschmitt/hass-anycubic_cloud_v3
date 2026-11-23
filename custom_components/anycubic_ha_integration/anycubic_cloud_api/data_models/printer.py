@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from datetime import timedelta
 from math import isfinite
+from time import monotonic
 from typing import TYPE_CHECKING, Any
 
 from ..const.enums import (
@@ -43,9 +44,12 @@ from .printer_properties import (
 from .printing_settings import AnycubicPrintingSettings
 from .project import AnycubicProject
 
+# Cloud printer details can lag behind live ACE reports.
+ACE_MQTT_READING_TTL = 120
+
 if TYPE_CHECKING:
     from ..anycubic_api import AnycubicAPI
-    from .orders import AnycubicCameraSession
+    from .orders import AnycubicCameraSession, AnycubicCameraToken
     from .print_response import AnycubicPrintResponse
     from .printer_properties import AnycubicDryingStatus, AnycubicMaterialMapping
 
@@ -99,6 +103,8 @@ class AnycubicPrinter:
         "_external_shelves",
         "_multi_color_box",
         "_mqtt_ace_auto_feed",
+        "_mqtt_ace_temperatures",
+        "_mqtt_ace_humidity",
         "_mqtt_drying_statuses",
         "_latest_project",
         "_fan_speed",
@@ -215,6 +221,8 @@ class AnycubicPrinter:
         self._set_external_shelves(external_shelves)
         self._set_multi_color_box(multi_color_box)
         self._mqtt_ace_auto_feed: dict[int, int] = {}
+        self._mqtt_ace_temperatures: dict[int, tuple[int, float]] = {}
+        self._mqtt_ace_humidity: dict[int, tuple[float, float]] = {}
         self._mqtt_drying_statuses: dict[int, AnycubicDryingStatus] = {}
 
         self._latest_project: AnycubicProject | None = None
@@ -658,6 +666,8 @@ class AnycubicPrinter:
         self._is_printing = data['is_printing']
         if not self.printer_online:
             self._mqtt_ace_auto_feed.clear()
+            self._mqtt_ace_temperatures.clear()
+            self._mqtt_ace_humidity.clear()
             self._mqtt_drying_statuses.clear()
         self._material_used = extra_data.get('material_used')
         self._set_total_print_time(extra_data.get('print_totaltime'))
@@ -672,11 +682,22 @@ class AnycubicPrinter:
         self._update_multi_color_box_fw_version_from_json(data.get('multi_color_box_version'))
         self._set_external_shelves(data.get('external_shelves'))
         self._set_multi_color_box(data.get('multi_color_box'))
-        if self.is_kobra_x and self._multi_color_box:
-            # Cloud details can still contain the setting from before a device report.
-            for box in self._multi_color_box:
-                if box.box_id in self._mqtt_ace_auto_feed:
-                    box.set_auto_feed(self._mqtt_ace_auto_feed[box.box_id])
+        now = monotonic()
+        for box in self._multi_color_box or []:
+            if self.is_kobra_x and box.box_id in self._mqtt_ace_auto_feed:
+                box.set_auto_feed(self._mqtt_ace_auto_feed[box.box_id])
+            if (reading := self._mqtt_ace_temperatures.get(box.box_id)) is not None:
+                temperature, expires_at = reading
+                if now < expires_at:
+                    box.set_current_temperature(temperature)
+                else:
+                    self._mqtt_ace_temperatures.pop(box.box_id)
+            if (humidity_reading := self._mqtt_ace_humidity.get(box.box_id)) is not None:
+                humidity, expires_at = humidity_reading
+                if now < expires_at:
+                    box.set_humidity(humidity)
+                else:
+                    self._mqtt_ace_humidity.pop(box.box_id)
 
     def _check_latest_project_id_valid(
         self,
@@ -796,6 +817,8 @@ class AnycubicPrinter:
         elif action == 'onlineReport' and state == 'offline':
             self._device_status = 2
             self._mqtt_ace_auto_feed.clear()
+            self._mqtt_ace_temperatures.clear()
+            self._mqtt_ace_humidity.clear()
             self._mqtt_drying_statuses.clear()
             return
         else:
@@ -1145,16 +1168,23 @@ class AnycubicPrinter:
             data = payload_data['multi_color_box']
             payload_data.get('head_tools_model')
             self._set_multi_color_box(data)
-            if self.is_kobra_x and data is not None and self._multi_color_box:
+            if data is not None and self._multi_color_box:
                 # A fresh MQTT snapshot supersedes an earlier report for the same box.
                 for box in data if isinstance(data, list) else [data]:
                     box_index = self._multi_color_box_index_by_id(int(box['id']))
-                    if box_index is not None:
-                        ace = self._multi_color_box[box_index]
+                    if box_index is None:
+                        continue
+                    ace = self._multi_color_box[box_index]
+                    expires_at = monotonic() + ACE_MQTT_READING_TTL
+                    self._mqtt_ace_temperatures[ace.box_id] = (ace.current_temperature, expires_at)
+                    if ace.humidity is not None:
+                        self._mqtt_ace_humidity[ace.box_id] = (ace.humidity, expires_at)
+                    else:
+                        self._mqtt_ace_humidity.pop(ace.box_id, None)
+                    if self.is_kobra_x:
                         self._mqtt_ace_auto_feed[ace.box_id] = ace.auto_feed
-                    drying_status = box['drying_status']
-                    if box_index is not None and drying_status is not None:
-                        self._update_mqtt_drying_status(self._multi_color_box[box_index], drying_status, action)
+                        if (drying_status := box['drying_status']) is not None:
+                            self._update_mqtt_drying_status(ace, drying_status, action)
             return
         elif action in ['setInfo', 'refresh'] and state == 'success':
             data = payload['data']['multi_color_box']
@@ -1190,6 +1220,7 @@ class AnycubicPrinter:
                 ace = self._multi_color_box[box_index]
                 if (temperature := box.get('temp')) is not None:
                     ace.set_current_temperature(temperature)
+                    self._mqtt_ace_temperatures[box_id] = (ace.current_temperature, monotonic() + ACE_MQTT_READING_TTL)
 
                 self._update_mqtt_drying_status(ace, box['drying_status'], action)
             return
@@ -2677,7 +2708,7 @@ class AnycubicPrinter:
 
     async def get_camera_session(
         self,
-    ) -> AnycubicCameraSession | None:
+    ) -> AnycubicCameraSession | AnycubicCameraToken | None:
         session = await self._api_parent.get_camera_session(
             self,
         )

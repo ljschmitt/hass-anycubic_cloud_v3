@@ -922,8 +922,8 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
         self,
         printer: AnycubicPrinter,
         raw_data: bool = False,
-    ) -> AnycubicCameraSession | None | dict[str, Any]:
-        """Request the Agora WebRTC camera session used by Anycubic Slicer Next."""
+    ) -> AnycubicCameraSession | AnycubicCameraToken | None | dict[str, Any]:
+        """Request an Agora session or a Kobra 2 Max Kinesis viewer token."""
         if not printer:
             return None
 
@@ -948,9 +948,28 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
 
         data = resp.get("data") if resp is not None else None
         shengwang = data.get("shengwang") if isinstance(data, dict) else None
+        token = data.get("token") if isinstance(data, dict) else None
+        if is_kobra_2_max:
+            # Capture only the response classification. Camera credentials must never enter diagnostics.
+            self.printer_capture.record(printer.id, "cloud", "camera_open", {
+                "code": resp.get("code") if resp is not None else None,
+                "agora": {"status": isinstance(shengwang, dict)},
+                "kinesis": {"status": isinstance(token, dict)},
+            })
         if not isinstance(shengwang, dict):
-            if is_kobra_2_max and isinstance(data, dict) and isinstance(data.get("token"), dict):
-                raise AnycubicLegacyCameraError()
+            if is_kobra_2_max and isinstance(token, dict):
+                fields = ("tmpSecretId", "tmpSecretKey", "sessionToken", "region")
+                if resp is None or resp.get("code") not in (0, 1, 200, "0", "1", "200") or not all(
+                    isinstance(token.get(field), str) and token[field] for field in fields
+                ):
+                    raise AnycubicLegacyCameraError()
+                return AnycubicCameraToken(
+                    secret_id=token["tmpSecretId"],
+                    secret_key=token["tmpSecretKey"],
+                    session_token=token["sessionToken"],
+                    region=token["region"],
+                    msg_id="",
+                )
             raise AnycubicAPIParsingError("Unexpected camera session response.")
 
         device = data.get("shengwang_device") if isinstance(data, dict) else None
@@ -985,7 +1004,6 @@ class AnycubicAPIFunctions(AnycubicAPIBase):
 
         legacy = await self._send_anycubic_camera_open_order(printer, raw_data=True)
         self._log_camera_probe("legacy", legacy)
-        # Only Agora credentials are supported by the current player.
         return legacy if isinstance(legacy, dict) else response
 
     def _log_camera_probe(self, path: str, response: Any) -> None:

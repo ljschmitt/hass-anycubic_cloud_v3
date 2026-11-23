@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.5.1
+
+- Hide unknown or invalid spool-fill labels in the panel and dashboard card; retain valid estimates including 0% and 100%. Backend unknown values, spool materials, colors and controls remain unchanged.
+- Promote the beta fixes for fresh token retries, concise Windows/macOS copy instructions, automatic ACE refresh and Kobra 2 Max camera signaling/startup retry. See #48, #49, #45 and #31.
+- Publish integration and standalone card together as 0.5.1. Kobra X and Kobra 3 Combo V2 idle cloud/MQTT/ACE checks passed; the Kobra 2 Max first-start retry still awaits reporter confirmation.
+
+## 0.5.1-beta.4
+
+- Validate each explicit authentication submission with a fresh API client, including retries and authentication-mode changes. Keep saved-token loading for existing printer configuration and correct the premature authentication-success log message. [#48](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/48)
+- Replace long inline commands in the setup dialog with short, separate Windows and macOS instructions linking directly to the German/English website commands with copy buttons. The website copies only public commands; tokens remain on the user's computer. [#49](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/49)
+
+- This integration-only beta does not require a new standalone card release; Card 0.5.1-beta.3 remains compatible.
+
+## 0.5.1-beta.3
+
+- Retry the Kobra 2 Max camera once with a fresh session after a startup timeout. Log the pending signaling or video stage and omit the empty numeric-code placeholder. Closing the camera cancels startup and retry. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+
+## 0.5.1-beta.2
+
+- Keep the Kobra 2 Max viewer open when Kinesis sends empty or malformed signaling frames. Log connection failure categories without signaling credentials or payloads. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
+- Request fresh ACE readings after MQTT subscribes and periodically while connected. Add a diagnostic button for an on-demand request and preserve recent MQTT readings during cloud polling. [#45](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/45)
+
+## 0.5.1-beta.1
+
+- Add an experimental Kinesis WebRTC viewer for legacy cloud cameras on the Kobra 2 Max (model 20023) in the panel and dashboard card. Keep the existing Agora path for other models. Live playback still needs confirmation on a Kobra 2 Max.
+- Include the camera response type and vendor status code in an active Kobra 2 Max diagnostics capture. Exports omit camera credentials and signaling URLs.
+
 ## 0.5.0
 
 - Show each ACE's temperature and reported relative humidity above its spools in the dashboard card and Anycubic Cloud panel.

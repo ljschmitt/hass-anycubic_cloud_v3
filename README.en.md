@@ -10,6 +10,8 @@
 
 A Home Assistant integration for Anycubic cloud printers with status sensors, MQTT real-time updates, print and file actions, ACE/material management, and an optional camera view.
 
+**0.5.1 stable** promotes the beta fixes for authentication retries, token-copy guidance, automatic ACE updates and the model-specific Kobra 2 Max camera path. Unknown spool-fill labels are hidden while valid estimates remain visible. Post-restart cloud, MQTT and ACE readings were checked on Kobra X and Kobra 3 Combo V2 without starting a print or heating cycle. Kobra 2 Max live playback was confirmed by the reporter; hardware confirmation of the automatic first-start retry remains pending in #31.
+
 **Help us support more printers and firmware versions.** The illustrated guide shows how to capture printer diagnostics in Home Assistant and share the reviewed `data` object. Include your printer model, firmware, accessories, and what you did during the capture. [Diagnostics guide](https://apps.schmittit.de/anycubic_ha_cloud/en/printer-diagnostics.html) · [Testing discussion #37](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/37)
 
 [Beta 0.4.9-beta.4](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.4) adds **Print statistics** next to **Main** and **Side View** in the Anycubic Cloud sidebar panel. The tab appears when the cloud reports at least one total for the selected printer. The integration exposes **Print Count**, **Total Print Time**, and **Total Material Used**, with the count coming from the Anycubic printer list. Tested on Kobra X and Kobra 3 Combo V2. Availability on other models depends on their reported values.
@@ -99,7 +101,7 @@ The overview shows thumbnails when available and uses labels as a fallback. Sele
 
 ### ACE 2 Pro remaining filament
 
-From **0.4.6**, `spool_info` includes `consumables_percent` for ACE 2 Pro slots. A reported estimate is used for loaded, automatically recognized spools. Manually configured, empty or reserved slots and missing or invalid estimates return `null`. The panel and matching card show **Unknown** for an occupied spool without a verified estimate, including the Kobra X's default 100% on manually configured slots. [Feedback in #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
+From **0.4.6**, `spool_info` includes `consumables_percent` for ACE 2 Pro slots. A reported estimate is used for loaded, automatically recognized spools. Manually configured, empty or reserved slots and missing or invalid estimates return `null`. From **0.5.1**, the panel and matching card show the fill line only for a finite, verified estimate from 0 to 100 percent. Unknown values remain `null` in HA and are hidden in the card, including the Kobra X's default 100% on manually configured slots. [Feedback in #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
 
 ## Screenshots
 
@@ -125,6 +127,10 @@ Detailed token extraction, camera setup, Rinkhals/Moonraker mapping, entity migr
 ### Recover a Slicer token (Windows and macOS)
 
 Slicer Next 2.0.x still writes the required access token to its current debug log, but may label the URL parameter `id_token=` instead of the former `accessToken = ...` line. The command below supports both forms. It does not require Python, a repository download or process-memory access.
+
+[Token instructions with copy buttons for Windows and macOS](https://apps.schmittit.de/anycubic_ha_cloud/en/slicer-token.html). The button copies the command; running it locally copies the token. Confirmation verifies the clipboard, not authentication with the cloud service.
+
+**0.5.1 (#48/#49):** The HA setup dialog shows short, separate Windows and macOS instructions. Each section links directly to the corresponding website command with a copy button. Every explicit authentication submission uses a fresh API client with the new credentials. In earlier versions, close the dialog and start a new authentication attempt after a failure so the previous token is not checked again. Use the bundled card or matching standalone Card **0.5.1**. A copying failure and rejection by the cloud are separate symptoms; a three-part JWT alone does not prove valid authentication.
 
 1. Open Slicer Next, sign in and open the printer view.
 2. Copy the complete command for your operating system and run it once.
@@ -182,6 +188,8 @@ For an existing dashboard, edit the resource for `anycubic-card.js` and change i
 
 From **0.5.0**, the dashboard card and panel show each ACE's temperature and reported humidity directly above its spools. If the ACE does not report humidity, the card and panel hide that reading.
 
+From **0.5.1-beta.2**, the integration requests fresh ACE readings after MQTT connects and about every five minutes while it stays connected. Use the **Request ACE Info** diagnostic button to request a reading manually.
+
 From **0.4.9**, each ACE 2 Pro that reports a valid reading gets a relative humidity sensor. Use **ACE Humidity** and **Secondary ACE Humidity** in Home Assistant automations. [Issue #32](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/32)
 
 ### Loaded slot of the primary ACE
@@ -215,9 +223,7 @@ The response contains the model code, firmware version, registered entity keys, 
 
 In the panel's Side view, the cloud camera stream starts only after pressing Play. The optional dashboard card also supports the cloud stream after clicking the printer graphic. Both use an authenticated Agora/WebRTC session in the browser; the integration does not create a native Home Assistant `camera.*` entity or expose a fixed RTSP/MJPEG URL to copy into another camera integration.
 
-**Kobra 2 Max (20023)**: Diagnostic beta 0.4.9-beta.1 tries the older camera request once for [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31) when the cloud reports success for the Agora request but supplies no session credentials. Playback still uses Agora/WebRTC. To test, open the camera once. If it fails, share only the `Kobra 2 Max camera probe` lines from the Home Assistant system log. They contain a numeric vendor code and known field names.
-
-Testing on the Kobra 2 Max confirmed the legacy camera format. Playback for this format is still pending. [Test result in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31#issuecomment-6893490590)
+**Kobra 2 Max (20023)**: Beta **0.5.1-beta.2** supports experimental playback for the legacy cloud camera via Amazon Kinesis Video Streams. Open the camera in the Anycubic panel or bundled dashboard card. Moving video and reopening were confirmed with **0.5.1-beta.2** on a Kobra 2 Max in Firefox over LAN HTTP. The first attempt could time out after 20 seconds. From **0.5.1-beta.3**, that startup timeout is retried once with a newly requested session. The browser console identifies the pending startup stage. From **0.5.1-beta.2**, the viewer ignores empty Kinesis messages and logs the failure category to the browser console if a connection drops. If playback fails, start a printer diagnostics capture before opening the camera and share the reviewed export and the visible error. The capture includes the response type and vendor status code and omits camera credentials and signaling URLs. [Camera testing in #31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)
 
 The card currently has no setting to open its camera view automatically. `alwaysShow: true` keeps status and ACE controls expanded, but does not start camera playback. Automatically opening the camera would be a separate feature.
 
