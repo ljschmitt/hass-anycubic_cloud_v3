@@ -266,32 +266,32 @@
               </span>
             `:Z}
       </div>
-    `;}_renderSpools(){const e=Wr("card.spools.fill_level",this.language),t=Wr("card.spools.fill_unknown",this.language),i=new Intl.NumberFormat(this.language,{style:"percent",maximumFractionDigits:1});return Zr(this.spoolList,(n,r)=>{var o,s,a,c;const d=null!==(s=null!==(o=n.display_slot)&&void 0!==o?o:n.slot)&&void 0!==s?s:r+1,l=!0===n.reserved_by_ace,u={"background-color":l?"#5f6b7a":n.spool_loaded?`rgb(${n.color[0]}, ${n.color[1]}, ${n.color[2]})`:"#aaa"},h=l?this._labelAceFeed:n.spool_loaded?n.material_type:"---",p=n.consumables_percent,_="number"==typeof p?i.format(p/100):t;return J`
+    `;}_renderSpools(){const e=Wr("card.spools.fill_level",this.language),t=new Intl.NumberFormat(this.language,{style:"percent",maximumFractionDigits:1});return Zr(this.spoolList,(i,n)=>{var r,o,s,a;const c=null!==(o=null!==(r=i.display_slot)&&void 0!==r?r:i.slot)&&void 0!==o?o:n+1,d=!0===i.reserved_by_ace,l={"background-color":d?"#5f6b7a":i.spool_loaded?`rgb(${i.color[0]}, ${i.color[1]}, ${i.color[2]})`:"#aaa"},u=d?this._labelAceFeed:i.spool_loaded?i.material_type:"---",h=i.consumables_percent,p="number"==typeof h&&Number.isFinite(h)&&h>=0&&h<=100?t.format(h/100):void 0;return J`
           <div
-            class="ac-spool-info ${l?"ac-spool-reserved":""}"
-            .index=${r}
-            .local_slot=${null!==(a=n.local_slot)&&void 0!==a?a:r+1}
-            .display_slot=${d}
-            .box_id=${null!==(c=n.box_id)&&void 0!==c?c:this.box_id}
-            .material_type=${n.material_type}
-            .color=${n.color}
-            .reserved_by_ace=${l}
+            class="ac-spool-info ${d?"ac-spool-reserved":""}"
+            .index=${n}
+            .local_slot=${null!==(s=i.local_slot)&&void 0!==s?s:n+1}
+            .display_slot=${c}
+            .box_id=${null!==(a=i.box_id)&&void 0!==a?a:this.box_id}
+            .material_type=${i.material_type}
+            .color=${i.color}
+            .reserved_by_ace=${d}
             @click=${this._editSpool}
           >
             <div class="ac-spool-color-ring-cont">
               <div
                 class="ac-spool-color-ring-inner"
-                style=${Ui(u)}
+                style=${Ui(l)}
               >
-                <div class="ac-spool-color-num">${d}</div>
+                <div class="ac-spool-color-num">${c}</div>
               </div>
             </div>
             <div class="ac-spool-material-type">
-              ${h}
-              ${n.spool_loaded&&!l&&void 0!==p?J`<span
+              ${u}
+              ${i.spool_loaded&&!d&&void 0!==p?J`<span
                     class="ac-spool-fill"
-                    title=${`${e} · ${_}`}
-                    >${_}</span
+                    title=${`${e} · ${p}`}
+                    >${p}</span
                   >`:Z}
             </div>
           </div>
@@ -2962,7 +2962,7 @@
         font-weight: bold;
         font-size: 14px;
       }
-    `;}};r([Ee()],Ss.prototype,"hass",void 0),r([Ee()],Ss.prototype,"language",void 0),r([Ee({attribute:"card-config"})],Ss.prototype,"cardConfig",void 0),r([Ee()],Ss.prototype,"printers",void 0),r([ge()],Ss.prototype,"configPage",void 0),r([ge()],Ss.prototype,"availableStats",void 0),r([ge()],Ss.prototype,"formSchemaMain",void 0),r([ge()],Ss.prototype,"formSchemaColours",void 0),r([ge()],Ss.prototype,"printerEntities",void 0),r([ge()],Ss.prototype,"printerEntityIdPart",void 0),r([ge()],Ss.prototype,"hasColorbox",void 0),r([ge()],Ss.prototype,"isLCD",void 0),r([ge()],Ss.prototype,"_tabMain",void 0),r([ge()],Ss.prototype,"_tabStats",void 0),r([ge()],Ss.prototype,"_tabColours",void 0),r([ge()],Ss.prototype,"_labelPrinter_id",void 0),r([ge()],Ss.prototype,"_labelVertical",void 0),r([ge()],Ss.prototype,"_labelRound",void 0),r([ge()],Ss.prototype,"_labelUse_24hr",void 0),r([ge()],Ss.prototype,"_labelShowSettingsButton",void 0),r([ge()],Ss.prototype,"_labelAlwaysShow",void 0),r([ge()],Ss.prototype,"_labelTemperatureUnit",void 0),r([ge()],Ss.prototype,"_labelLightEntityId",void 0),r([ge()],Ss.prototype,"_labelPowerEntityId",void 0),r([ge()],Ss.prototype,"_labelCameraEntityId",void 0),r([ge()],Ss.prototype,"_labelScaleFactor",void 0),r([ge()],Ss.prototype,"_labelSlotColors",void 0),Ss=r([Si("anycubic-printercard-configure")],Ss),window.console.info("%c ANYCUBIC-CARD %c v0.5.1-beta.4 ","color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray");const vs=mi();e.AnycubicPrintercardEditor=class extends pe{constructor(){super(...arguments),this.config={};}async firstUpdated(){this.printers=qt(this.hass);}willUpdate(e){super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language),e.has("config")&&(this.config.vertical=fi(this.config.vertical,vs.vertical),this.config.round=fi(this.config.round,vs.round),this.config.use_24hr=fi(this.config.use_24hr,vs.use_24hr),this.config.alwaysShow=fi(this.config.alwaysShow,vs.alwaysShow),this.config.showSettingsButton=fi(this.config.showSettingsButton,vs.showSettingsButton),this.config.temperatureUnit=fi(this.config.temperatureUnit,vs.temperatureUnit),this.config.monitoredStats=fi(this.config.monitoredStats,vs.monitoredStats),this.config.slotColors=fi(this.config.slotColors,vs.slotColors),this.config.scaleFactor=fi(this.config.scaleFactor,vs.scaleFactor));}setConfig(e){this.config=e;}render(){return J`
+    `;}};r([Ee()],Ss.prototype,"hass",void 0),r([Ee()],Ss.prototype,"language",void 0),r([Ee({attribute:"card-config"})],Ss.prototype,"cardConfig",void 0),r([Ee()],Ss.prototype,"printers",void 0),r([ge()],Ss.prototype,"configPage",void 0),r([ge()],Ss.prototype,"availableStats",void 0),r([ge()],Ss.prototype,"formSchemaMain",void 0),r([ge()],Ss.prototype,"formSchemaColours",void 0),r([ge()],Ss.prototype,"printerEntities",void 0),r([ge()],Ss.prototype,"printerEntityIdPart",void 0),r([ge()],Ss.prototype,"hasColorbox",void 0),r([ge()],Ss.prototype,"isLCD",void 0),r([ge()],Ss.prototype,"_tabMain",void 0),r([ge()],Ss.prototype,"_tabStats",void 0),r([ge()],Ss.prototype,"_tabColours",void 0),r([ge()],Ss.prototype,"_labelPrinter_id",void 0),r([ge()],Ss.prototype,"_labelVertical",void 0),r([ge()],Ss.prototype,"_labelRound",void 0),r([ge()],Ss.prototype,"_labelUse_24hr",void 0),r([ge()],Ss.prototype,"_labelShowSettingsButton",void 0),r([ge()],Ss.prototype,"_labelAlwaysShow",void 0),r([ge()],Ss.prototype,"_labelTemperatureUnit",void 0),r([ge()],Ss.prototype,"_labelLightEntityId",void 0),r([ge()],Ss.prototype,"_labelPowerEntityId",void 0),r([ge()],Ss.prototype,"_labelCameraEntityId",void 0),r([ge()],Ss.prototype,"_labelScaleFactor",void 0),r([ge()],Ss.prototype,"_labelSlotColors",void 0),Ss=r([Si("anycubic-printercard-configure")],Ss),window.console.info("%c ANYCUBIC-CARD %c v0.5.1 ","color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray");const vs=mi();e.AnycubicPrintercardEditor=class extends pe{constructor(){super(...arguments),this.config={};}async firstUpdated(){this.printers=qt(this.hass);}willUpdate(e){super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language),e.has("config")&&(this.config.vertical=fi(this.config.vertical,vs.vertical),this.config.round=fi(this.config.round,vs.round),this.config.use_24hr=fi(this.config.use_24hr,vs.use_24hr),this.config.alwaysShow=fi(this.config.alwaysShow,vs.alwaysShow),this.config.showSettingsButton=fi(this.config.showSettingsButton,vs.showSettingsButton),this.config.temperatureUnit=fi(this.config.temperatureUnit,vs.temperatureUnit),this.config.monitoredStats=fi(this.config.monitoredStats,vs.monitoredStats),this.config.slotColors=fi(this.config.slotColors,vs.slotColors),this.config.scaleFactor=fi(this.config.scaleFactor,vs.scaleFactor));}setConfig(e){this.config=e;}render(){return J`
       <anycubic-printercard-configure
         .hass=${this.hass}
         .language=${this.language}

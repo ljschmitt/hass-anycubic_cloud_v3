@@ -10,6 +10,8 @@
 
 Home-Assistant-Integration fuer Anycubic-Cloud-Drucker mit Statussensoren, MQTT-Echtzeitupdates, Druck- und Dateifunktionen, ACE-/Materialverwaltung und optionaler Kameraansicht.
 
+**0.5.1 stabil** bündelt die Slicer-Anmelde- und Kopierhilfen aus #48/#49, die automatische ACE-Aktualisierung aus #45 und die Kobra-2-Max-Kamerakorrekturen aus der 0.5.1-Betaserie. Unbekannte Spulenfüllstände werden in Karte und Panel ausgeblendet. MQTT, Cloud-Abruf und ACE-Daten wurden nach dem HA-Neustart am Kobra X und Kobra 3 Combo V2 geprüft; hierfür wurde kein Druck- oder Heizzyklus gestartet. Das Kobra-2-Max-Livebild wurde vom Melder bestätigt; die Rückmeldung zum automatischen Neuversuch beim ersten Kamerastart steht noch aus (#31).
+
 **Hilf mit, weitere Drucker und Firmware-Versionen zu unterstützen.** Die bebilderte Diagnoseanleitung zeigt, wie du in Home Assistant eine Aufzeichnung startest und den geprüften Abschnitt `data` teilst. Nenne Druckermodell, Firmware, Zubehör und den Ablauf während der Aufzeichnung. [Diagnoseanleitung](https://apps.schmittit.de/anycubic_ha_cloud/druckerdiagnose.html) · [Deutsche Testdiskussion #43](https://github.com/ljschmitt/hass-anycubic_cloud_v3/discussions/43)
 
 [Beta 0.4.9-beta.4](https://github.com/ljschmitt/hass-anycubic_cloud_v3/releases/tag/v0.4.9-beta.4) ergänzt im Seitenleisten-Panel **Anycubic Cloud** den Reiter **Druckstatistik** neben **Hauptansicht** und **Nebenansicht**. Er erscheint, sobald für den ausgewählten Drucker mindestens einer der drei Werte aus der Cloud vorliegt. Die Integration legt dafür die Sensoren **Print Count**, **Total Print Time** und **Total Material Used** an. Der Druckzähler verwendet den Wert aus der Anycubic-Druckerliste. Getestet mit Kobra X und Kobra 3 Combo V2. Bei weiteren Modellen hängt die Anzeige von den gemeldeten Werten ab.
@@ -20,12 +22,12 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.5.1-beta.4**
+> 🗓️ **Aktuelles Release: 0.5.1**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
 > - Zentrierte Vorschauen in Spulengroesse. Die Integration liefert die originalen Slicer-Bilder fuer Panel und Dashboard-Card mit.
-> - ACE 2 Pro zeigt bei manuell konfigurierten Spulen ohne verifizierten Fuellstand **Unbekannt** ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
+> - ACE-2-Pro-Fuellstaende bleiben in HA bei fehlenden verifizierten Daten unbekannt; Karte und Panel zeigen dann keine Fuellstandszeile ([#18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)).
 > - Beim Entladen des letzten Kontos werden Aktionen und Seitenleisten-Panel abgemeldet. Beim Neuladen werden sie wieder registriert.
 > - Das Power-Symbol zeigt den Zustand der hinterlegten Entitaet.
 > - Das Anycubic-Cloud-Panel zeigt Druckanzahl, Gesamtdruckzeit und Filamentverbrauch im Reiter **Druckstatistik**.
@@ -196,7 +198,7 @@ Bei mehreren ACE-Geraeten gilt dieses Attribut ausschliesslich fuer die primaere
 
 ### Fuellstand der ACE 2 Pro
 
-Ab **0.4.6** enthaelt `spool_info` bei der ACE 2 Pro das Feld `consumables_percent`. Der Wert wird fuer belegte, automatisch erkannte Spulen uebernommen. Manuell konfigurierte, leere oder reservierte Slots und fehlende oder ungueltige Werte ergeben `null`. Panel und passende Card zeigen bei einer belegten Spule ohne bestaetigten Wert **Unbekannt**. Das gilt auch fuer die pauschalen 100 Prozent, die der Kobra X bei manuell konfigurierten Slots melden kann. [Ruckmeldungen zu #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
+Ab **0.4.6** enthaelt `spool_info` bei der ACE 2 Pro das Feld `consumables_percent`. Der Wert wird fuer belegte, automatisch erkannte Spulen uebernommen. Manuell konfigurierte, leere oder reservierte Slots und fehlende oder ungueltige Werte ergeben `null`. Ab **0.5.1** zeigen Panel und passende Card die Fuellstandszeile nur bei einem bestaetigten, endlichen Prozentwert zwischen 0 und 100 an. Unbekannte Werte bleiben in den HA-Daten `null` und werden nicht als 0 oder 100 Prozent ausgegeben. Materialname, Farbe und Slot-Bedienung bleiben sichtbar. Das gilt auch fuer die pauschalen 100 Prozent, die der Kobra X bei manuell konfigurierten Slots melden kann. [Ruckmeldungen zu #18](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/18)
 
 ---
 
@@ -396,7 +398,7 @@ Slicer Next 2.0.x schreibt den benoetigten Access-Token weiterhin in das aktuell
 
 [Token-Anleitung mit Kopierknopf für Windows und macOS](https://apps.schmittit.de/anycubic_ha_cloud/slicer-token.html). Der Knopf kopiert den Befehl; erst dessen lokale Ausführung kopiert den Token. Die Bestätigung prüft die Zwischenablage, nicht die Anmeldung beim Cloud-Dienst.
 
-**0.5.1-beta.4 (#48/#49):** Der HA-Einrichtungsdialog zeigt kurze, getrennte Anleitungen für Windows und macOS. Jeder Bereich verlinkt direkt den passenden Webseiten-Befehl mit Kopierknopf. Jede erneute Token-Eingabe prüft einen frischen API-Client mit den neu eingegebenen Zugangsdaten. In bisherigen Versionen bei einer Ablehnung den Dialog schließen und einen neuen Anmeldeversuch starten, damit kein vorheriger Token weitergeprüft wird. Diese Beta ändert nur die Integration; die separate Card 0.5.1-beta.3 bleibt kompatibel. Ein Kopierfehler und eine Ablehnung durch die Cloud sind unterschiedliche Fehlerbilder; ein dreiteiliger JWT allein belegt keine gültige Anmeldung.
+**0.5.1 (#48/#49):** Der HA-Einrichtungsdialog zeigt kurze, getrennte Anleitungen für Windows und macOS. Jeder Bereich verlinkt direkt den passenden Webseiten-Befehl mit Kopierknopf. Jede erneute Token-Eingabe prüft einen frischen API-Client mit den neu eingegebenen Zugangsdaten. In bisherigen Versionen bei einer Ablehnung den Dialog schließen und einen neuen Anmeldeversuch starten, damit kein vorheriger Token weitergeprüft wird. Verwende die integrierte Card oder die passende separate Card **0.5.1**. Ein Kopierfehler und eine Ablehnung durch die Cloud sind unterschiedliche Fehlerbilder; ein dreiteiliger JWT allein belegt keine gültige Anmeldung.
 
 1. **Slicer Next starten, einloggen und die Druckeransicht oeffnen.**
 2. Den Befehl fuer das eigene Betriebssystem vollstaendig kopieren und einmal ausfuehren.

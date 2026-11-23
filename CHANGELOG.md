@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+- Hide unknown or invalid spool-fill labels in the panel and dashboard card; retain valid estimates including 0% and 100%. Backend unknown values, spool materials, colors and controls remain unchanged.
+- Promote the beta fixes for fresh token retries, concise Windows/macOS copy instructions, automatic ACE refresh and Kobra 2 Max camera signaling/startup retry. See #48, #49, #45 and #31.
+- Publish integration and standalone card together as 0.5.1. Kobra X and Kobra 3 Combo V2 idle cloud/MQTT/ACE checks passed; the Kobra 2 Max first-start retry still awaits reporter confirmation.
+
 ## 0.5.1-beta.4
 
 - Validate each explicit authentication submission with a fresh API client, including retries and authentication-mode changes. Keep saved-token loading for existing printer configuration and correct the premature authentication-success log message. [#48](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/48)

@@ -36,7 +36,8 @@ const { outputText } = ts.transpileModule([selected.map((s) => s.getText(ast)).j
   }] },
 });
 const html = (strings, ...values) => strings.reduce((out, s, i) => out + s + String(values[i] ?? ""), "");
-const context = { exports: {}, LitElement: class { willUpdate() {} }, css: html, html, nothing: "", localize: (key) => key };
+const context = { exports: {}, LitElement: class { willUpdate() {} }, css: html, html, nothing: "", localize: (key) => key,
+  map: (items, fn) => Array.from(items, fn).join(""), styleMap: () => "" };
 vm.runInNewContext(outputText, context);
 const Dialog = context.exports.AnycubicPrintercardMulticolorboxModalDrying;
 const BoxView = context.exports.AnycubicPrintercardMulticolorboxview;
@@ -69,6 +70,22 @@ box.showControls = false;
 assert.equal(box._renderAceMeasurements(), "", "Internal rack must not show ACE measurements");
 box.showControls = true;
 setState("binary_sensor", "printer_online", "off");
+
+const loadedSpool = { spool_loaded: true, material_type: "PLA", color: [10, 20, 30] };
+for (const invalid of [undefined, null, NaN, Infinity, -1, 101, "50"]) {
+  box.spoolList = [{ ...loadedSpool, consumables_percent: invalid }];
+  const rendered = box._renderSpools();
+  assert.doesNotMatch(rendered, /ac-spool-fill|fill_unknown/, "Unverified or invalid estimates must stay hidden");
+  assert.match(rendered, /PLA/, "Hiding estimates must preserve the spool material");
+}
+for (const value of [0, 50, 100]) {
+  box.spoolList = [{ ...loadedSpool, consumables_percent: value }];
+  assert.match(box._renderSpools(), new RegExp(`ac-spool-fill[\\s\\S]*${value}%`), "Valid endpoints and estimates must remain visible");
+}
+for (const overrides of [{ spool_loaded: false }, { reserved_by_ace: true }]) {
+  box.spoolList = [{ ...loadedSpool, consumables_percent: 50, ...overrides }];
+  assert.doesNotMatch(box._renderSpools(), /ac-spool-fill/, "Empty slots and ACE feed must not show estimates");
+}
 assert.equal(box._renderAceMeasurements(), "", "Offline printer must not show stale measurements");
 
 function fixture(prefix = "test_", primary = true, secondary = true) {

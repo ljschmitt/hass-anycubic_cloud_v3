@@ -293,32 +293,32 @@
               </span>
             `:q}
       </div>
-    `;}_renderSpools(){const e=hr("card.spools.fill_level",this.language),t=hr("card.spools.fill_unknown",this.language),i=new Intl.NumberFormat(this.language,{style:"percent",maximumFractionDigits:1});return to(this.spoolList,(n,r)=>{var o,s,a,c;const d=null!==(s=null!==(o=n.display_slot)&&void 0!==o?o:n.slot)&&void 0!==s?s:r+1,l=!0===n.reserved_by_ace,u={"background-color":l?"#5f6b7a":n.spool_loaded?`rgb(${n.color[0]}, ${n.color[1]}, ${n.color[2]})`:"#aaa"},h=l?this._labelAceFeed:n.spool_loaded?n.material_type:"---",p=n.consumables_percent,_="number"==typeof p?i.format(p/100):t;return J`
+    `;}_renderSpools(){const e=hr("card.spools.fill_level",this.language),t=new Intl.NumberFormat(this.language,{style:"percent",maximumFractionDigits:1});return to(this.spoolList,(i,n)=>{var r,o,s,a;const c=null!==(o=null!==(r=i.display_slot)&&void 0!==r?r:i.slot)&&void 0!==o?o:n+1,d=!0===i.reserved_by_ace,l={"background-color":d?"#5f6b7a":i.spool_loaded?`rgb(${i.color[0]}, ${i.color[1]}, ${i.color[2]})`:"#aaa"},u=d?this._labelAceFeed:i.spool_loaded?i.material_type:"---",h=i.consumables_percent,p="number"==typeof h&&Number.isFinite(h)&&h>=0&&h<=100?t.format(h/100):void 0;return J`
           <div
-            class="ac-spool-info ${l?"ac-spool-reserved":""}"
-            .index=${r}
-            .local_slot=${null!==(a=n.local_slot)&&void 0!==a?a:r+1}
-            .display_slot=${d}
-            .box_id=${null!==(c=n.box_id)&&void 0!==c?c:this.box_id}
-            .material_type=${n.material_type}
-            .color=${n.color}
-            .reserved_by_ace=${l}
+            class="ac-spool-info ${d?"ac-spool-reserved":""}"
+            .index=${n}
+            .local_slot=${null!==(s=i.local_slot)&&void 0!==s?s:n+1}
+            .display_slot=${c}
+            .box_id=${null!==(a=i.box_id)&&void 0!==a?a:this.box_id}
+            .material_type=${i.material_type}
+            .color=${i.color}
+            .reserved_by_ace=${d}
             @click=${this._editSpool}
           >
             <div class="ac-spool-color-ring-cont">
               <div
                 class="ac-spool-color-ring-inner"
-                style=${Or(u)}
+                style=${Or(l)}
               >
-                <div class="ac-spool-color-num">${d}</div>
+                <div class="ac-spool-color-num">${c}</div>
               </div>
             </div>
             <div class="ac-spool-material-type">
-              ${h}
-              ${n.spool_loaded&&!l&&void 0!==p?J`<span
+              ${u}
+              ${i.spool_loaded&&!d&&void 0!==p?J`<span
                     class="ac-spool-fill"
-                    title=${`${e} · ${_}`}
-                    >${_}</span
+                    title=${`${e} · ${p}`}
+                    >${p}</span
                   >`:q}
             </div>
           </div>
@@ -3691,7 +3691,7 @@
       </ac-print-view>
     `;}static get styles(){return h`
       ${Ps}
-    `;}}r([Ee({attribute:!1})],Ls.prototype,"hass",void 0),r([Ee()],Ls.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ls.prototype,"narrow",void 0),r([Ee()],Ls.prototype,"route",void 0),r([Ee()],Ls.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ls.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ls.prototype,"selectedPrinterDevice",void 0),r([ge()],Ls.prototype,"_scriptData",void 0),r([ge()],Ls.prototype,"_error",void 0),r([ge()],Ls.prototype,"_serviceName",void 0),r([ge()],Ls.prototype,"_buttonPrint",void 0),r([ge()],Ls.prototype,"_buttonProgress",void 0);let ks=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],ks.prototype,"_serviceName",void 0),ks=r([yi("anycubic-view-print-no_cloud_save")],ks);let Ms=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ms.prototype,"_serviceName",void 0),Ms=r([yi("anycubic-view-print-save_in_cloud")],Ms);var Us="0.5.1-beta.4";const xs=["print_count","total_print_time","total_material_used"];window.console.info(`%c ANYCUBIC-PANEL %c v${Us} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),Nt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==ui(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=di(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),Nt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=hr("panels.main.title",this.language),this._tabSide=hr("panels.side.title",this.language),this._tabFilesLocal=hr("panels.files_local.title",this.language),this._tabFilesUdisk=hr("panels.files_udisk.title",this.language),this._tabFilesCloud=hr("panels.files_cloud.title",this.language),this._tabPrintNoSave=hr("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=hr("panels.print_save_in_cloud.title",this.language),this._tabDebug=hr("panels.debug.title",this.language),this._mainTitle=hr("title",this.language),this._selectPrinter=hr("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={},i=new Set(Object.values(e.entities).filter(e=>e.platform===Bt&&e.device_id).map(e=>e.device_id));for(const n in e.devices){const r=e.devices[n];"Anycubic"===r.manufacturer&&i.has(r.id)&&(t[r.id]=r);}return t;}(this.hass),this.selectedPage=ui(this.route),this.selectedPrinterID=di(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){const e=this._getPrintStatistics(),t="statistics"!==this.selectedPage||e.length?this.selectedPage:"main";return J`
+    `;}}r([Ee({attribute:!1})],Ls.prototype,"hass",void 0),r([Ee()],Ls.prototype,"language",void 0),r([Ee({type:Boolean,reflect:!0})],Ls.prototype,"narrow",void 0),r([Ee()],Ls.prototype,"route",void 0),r([Ee()],Ls.prototype,"panel",void 0),r([Ee({attribute:"selected-printer-id"})],Ls.prototype,"selectedPrinterID",void 0),r([Ee({attribute:"selected-printer-device"})],Ls.prototype,"selectedPrinterDevice",void 0),r([ge()],Ls.prototype,"_scriptData",void 0),r([ge()],Ls.prototype,"_error",void 0),r([ge()],Ls.prototype,"_serviceName",void 0),r([ge()],Ls.prototype,"_buttonPrint",void 0),r([ge()],Ls.prototype,"_buttonProgress",void 0);let ks=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_no_cloud_save";}};r([ge()],ks.prototype,"_serviceName",void 0),ks=r([yi("anycubic-view-print-no_cloud_save")],ks);let Ms=class extends Ls{constructor(){super(...arguments),this._serviceName="print_and_upload_save_in_cloud";}};r([ge()],Ms.prototype,"_serviceName",void 0),Ms=r([yi("anycubic-view-print-save_in_cloud")],Ms);var Us="0.5.1";const xs=["print_count","total_print_time","total_material_used"];window.console.info(`%c ANYCUBIC-PANEL %c v${Us} `,"color: orange; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray"),e.AnycubicCloudPanel=class extends pe{constructor(){super(...arguments),this.selectedPage="main",this._handleLocationChange=()=>{window.location.pathname.includes("anycubic-cloud")&&this.requestUpdate();},this._handlePrinterClick=e=>{((e,t,i=!1)=>{const n=`${e.route.prefix}/${t?`${t}/main`:""}`;i?history.replaceState(null,"",n):history.pushState(null,"",n),Nt(window,"location-changed",{replace:i});})(this,e.currentTarget.printer_id),this.requestUpdate();},this.handlePageSelected=e=>{const t=e.currentTarget.dataset.page;t!==ui(this.route)?(((e,t,i=!1)=>{const n=e.route.prefix,r=di(e.route),o=`${n}/${r?`${r}/${t}`:""}`;i?history.replaceState(null,"",o):history.pushState(null,"",o),Nt(window,"location-changed",{replace:i});})(this,t),this.requestUpdate()):scrollTo(0,0);};}connectedCallback(){super.connectedCallback(),window.addEventListener("location-changed",this._handleLocationChange);}disconnectedCallback(){window.removeEventListener("location-changed",this._handleLocationChange),super.disconnectedCallback();}willUpdate(e){var t,i;super.willUpdate(e),e.has("hass")&&this.hass.language!==this.language&&(this.language=this.hass.language,this._tabMain=hr("panels.main.title",this.language),this._tabSide=hr("panels.side.title",this.language),this._tabFilesLocal=hr("panels.files_local.title",this.language),this._tabFilesUdisk=hr("panels.files_udisk.title",this.language),this._tabFilesCloud=hr("panels.files_cloud.title",this.language),this._tabPrintNoSave=hr("panels.print_no_cloud_save.title",this.language),this._tabPrintSave=hr("panels.print_save_in_cloud.title",this.language),this._tabDebug=hr("panels.debug.title",this.language),this._mainTitle=hr("title",this.language),this._selectPrinter=hr("panels.initial.printer_select",this.language)),e.has("route")&&(this.printers=function(e){const t={},i=new Set(Object.values(e.entities).filter(e=>e.platform===Bt&&e.device_id).map(e=>e.device_id));for(const n in e.devices){const r=e.devices[n];"Anycubic"===r.manufacturer&&i.has(r.id)&&(t[r.id]=r);}return t;}(this.hass),this.selectedPage=ui(this.route),this.selectedPrinterID=di(this.route),this.selectedPrinterDevice=(t=this.printers,i=this.selectedPrinterID,t&&i?t[i]:void 0));}render(){return this.getInitialView();}renderPrinterPage(){const e=this._getPrintStatistics(),t="statistics"!==this.selectedPage||e.length?this.selectedPage:"main";return J`
       <div class="header">
         ${this.renderToolbar()}
         <nav class="tabs" role="tablist">
