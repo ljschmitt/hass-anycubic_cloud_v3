@@ -128,7 +128,7 @@ Slicer Next 2.0.x still writes the required access token to its current debug lo
 
 [Token instructions with copy buttons for Windows and macOS](https://apps.schmittit.de/anycubic_ha_cloud/en/slicer-token.html). The button copies the command; running it locally copies the token. Confirmation verifies the clipboard, not authentication with the cloud service.
 
-**0.5.1-beta.4 (#48/#49):** The HA setup dialog shows separate, initially collapsed Windows and macOS instructions. Each section links directly to the corresponding website command with a copy button. Every explicit authentication submission uses a fresh API client with the new credentials. In earlier versions, close the dialog and start a new authentication attempt after a failure so the previous token is not checked again. This is an integration-only beta; standalone Card 0.5.1-beta.3 remains compatible. A copying failure and rejection by the cloud are separate symptoms; a three-part JWT alone does not prove valid authentication.
+**0.5.1-beta.4 (#48/#49):** The HA setup dialog shows short, separate Windows and macOS instructions. Each section links directly to the corresponding website command with a copy button. Every explicit authentication submission uses a fresh API client with the new credentials. In earlier versions, close the dialog and start a new authentication attempt after a failure so the previous token is not checked again. This is an integration-only beta; standalone Card 0.5.1-beta.3 remains compatible. A copying failure and rejection by the cloud are separate symptoms; a three-part JWT alone does not prove valid authentication.
 
 1. Open Slicer Next, sign in and open the printer view.
 2. Copy the complete command for your operating system and run it once.

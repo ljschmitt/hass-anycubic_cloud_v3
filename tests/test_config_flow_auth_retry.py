@@ -8,7 +8,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
-
 SOURCE = Path(__file__).resolve().parents[1] / "custom_components/anycubic_ha_integration/config_flow.py"
 
 
