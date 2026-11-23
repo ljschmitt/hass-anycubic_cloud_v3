@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Slicer-Token kopieren">
+  <meta name="theme-color" content="#f6f8fb">
+  <title>Slicer-Token kopieren | Anycubic Cloud</title>
+  <link rel="icon" href="assets/icon.png">
+  <link rel="alternate" hreflang="en" href="en/slicer-token.html">
+  <link rel="stylesheet" href="assets/site-20261115/site.css?v=4">
+  <link rel="stylesheet" href="assets/token-guide-20261123/token-guide.css">
+  <script src="assets/token-guide-20261123/token-guide.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Zum Inhalt</a>
+  <header class="header">
+    <div class="wrap header-inner">
+      <a href="./" class="brand"><img src="assets/icon.png" alt="" width="34" height="34">Anycubic Cloud</a>
+      <nav aria-label="Hauptnavigation">
+        <a href="./#features">Funktionen</a>
+        <a href="./#installation">Installation</a>
+        <a href="druckerdiagnose.html">Druckerdiagnose</a>
+        <a href="release-notes.html">Versionen</a>
+        <a class="language-switch" href="en/slicer-token.html" lang="en" hreflang="en">English</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap token-guide"><h1>Slicer-Token kopieren</h1><p>Für die Anmeldung in Home Assistant brauchst du den Access-Token aus Anycubic Slicer Next. Der Kopierknopf kopiert den öffentlichen Befehl, nicht deinen Token. Der Befehl liest den Token auf deinem Computer und legt ihn in deine Zwischenablage.</p><ol><li>Öffne Anycubic Slicer Next, melde dich an und öffne die Druckeransicht.</li><li>Kopiere unten den vollständigen Befehl für dein Betriebssystem und führe ihn einmal aus.</li><li>Warte auf die Bestätigung. Füge den Token in Home Assistant im Schritt <strong>Slicer Next</strong> mit Strg+V (Windows) oder Cmd+V (macOS) ein.</li></ol>
+<section aria-labelledby="heading-windows"><div class="command-box">
+<div class="command-heading"><strong id="heading-windows">Windows · PowerShell</strong><button type="button" class="copy-command" data-copy-command="command-windows" data-success="Befehl kopiert. Jetzt im Terminal ausführen." data-failure="Automatisches Kopieren blockiert. Der Befehl ist markiert: bitte Strg+C oder Cmd+C drücken." aria-describedby="status-windows"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg><span>Befehl kopieren</span></button></div>
+<pre><code id="command-windows">&amp; {
+    $ErrorActionPreference = &#x27;Stop&#x27;
+    $log = Get-ChildItem &quot;$env:AppData\AnycubicSlicerNext\log\debug_*.log&quot; | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (!$log) { throw &#x27;Kein Slicer-Debug-Log gefunden. Slicer starten, einloggen und die Druckeransicht oeffnen.&#x27; }
+    $token = (Select-String -Path $log.FullName -Pattern &#x27;(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)&#x27; -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+    if (!$token) { throw &#x27;Kein Slicer-Token im neuesten Log gefunden.&#x27; }
+    Set-Clipboard -Value $token
+    if ((Get-Clipboard -Raw) -cne $token) { throw &#x27;Token konnte nicht in der Zwischenablage bestaetigt werden. Befehl erneut ausfuehren.&#x27; }
+    Write-Host &#x27;Token erfolgreich in die Zwischenablage kopiert. Jetzt in Home Assistant mit Strg+V einfuegen.&#x27; -ForegroundColor Green
+}</code></pre></div>
+<p class="copy-status" id="status-windows" role="status" aria-live="polite"></p></section>
+<section aria-labelledby="heading-macos"><div class="command-box">
+<div class="command-heading"><strong id="heading-macos">macOS · Terminal</strong><button type="button" class="copy-command" data-copy-command="command-macos" data-success="Befehl kopiert. Jetzt im Terminal ausführen." data-failure="Automatisches Kopieren blockiert. Der Befehl ist markiert: bitte Strg+C oder Cmd+C drücken." aria-describedby="status-macos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg><span>Befehl kopieren</span></button></div>
+<pre><code id="command-macos">bash &lt;&lt;&#x27;ANYCUBIC_TOKEN&#x27;
+f=
+for candidate in &quot;$HOME/Library/Application Support/AnycubicSlicerNext/log/&quot;debug_*.log; do
+    [ -f &quot;$candidate&quot; ] || continue
+    if [ -z &quot;$f&quot; ] || [ &quot;$candidate&quot; -nt &quot;$f&quot; ]; then f=$candidate; fi
+done
+if [ -z &quot;$f&quot; ]; then printf &#x27;%s\n&#x27; &#x27;Kein Slicer-Debug-Log gefunden. Einloggen und Druckeransicht oeffnen.&#x27; &gt;&amp;2; exit 1; fi
+t=$(grep -h -o -E &#x27;(accessToken[[:space:]]*=[[:space:]]*|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+&#x27; &quot;$f&quot; | tail -n 1 | sed -E &#x27;s/^(accessToken[[:space:]]*=[[:space:]]*|id_token=)//&#x27;)
+if [ -z &quot;$t&quot; ]; then printf &#x27;%s\n&#x27; &#x27;Kein Slicer-Token im neuesten Log gefunden.&#x27; &gt;&amp;2; exit 1; fi
+if ! printf &#x27;%s&#x27; &quot;$t&quot; | pbcopy; then printf &#x27;%s\n&#x27; &#x27;Token konnte nicht in die Zwischenablage kopiert werden.&#x27; &gt;&amp;2; exit 1; fi
+copied=$(pbpaste) || exit 1
+if [ &quot;$copied&quot; != &quot;$t&quot; ]; then printf &#x27;%s\n&#x27; &#x27;Token konnte nicht in der Zwischenablage bestaetigt werden. Befehl erneut ausfuehren.&#x27; &gt;&amp;2; exit 1; fi
+printf &#x27;%s\n&#x27; &#x27;Token erfolgreich kopiert und geprueft. Jetzt in Home Assistant mit Cmd+V einfuegen.&#x27;
+ANYCUBIC_TOKEN</code></pre></div>
+<p class="copy-status" id="status-macos" role="status" aria-live="polite"></p></section>
+<section><h2>Wenn die Anmeldung scheitert</h2><p>Beide Log-Schreibweisen <code>accessToken =</code> und <code>id_token=</code> werden berücksichtigt. Der Befehl prüft, ob der Token vollständig kopiert wurde; er bestätigt keine erfolgreiche Anmeldung beim Cloud-Dienst. Melde dich bei Bedarf im Slicer neu an und führe den Befehl erneut aus.</p><p>In älteren Integrationsversionen kann ein erneuter Versuch im selben Dialog noch den vorherigen Token prüfen. Schließe dann den Dialog und starte einen neuen Versuch. Die Regionsauswahl muss dafür nicht geändert werden.</p><p>Teile niemals Tokens oder unbereinigte Logs. Leere die Zwischenablage nach dem Einfügen, zum Beispiel indem du einen beliebigen anderen Text kopierst.</p><a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/README.md#-token-auslesen-slicer-next">Ausführliche Anleitung und Alternativen auf GitHub</a></section>
+  </main>
+  <footer class="footer"><div class="wrap footer-inner"><span>Anycubic Cloud für Home Assistant</span><a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3">Projekt auf GitHub</a></div></footer>
+</body>
+</html>

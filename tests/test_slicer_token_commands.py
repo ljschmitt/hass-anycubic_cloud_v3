@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import html
 import json
 import os
 import re
@@ -37,7 +38,11 @@ def code_block(text, language):
 
 
 def command_surfaces():
-    surfaces = {name: (ROOT / name).read_text(encoding="utf-8") for name in ("README.md", "README.en.md")}
+    return {name: (ROOT / name).read_text(encoding="utf-8") for name in ("README.md", "README.en.md")}
+
+
+def setup_descriptions():
+    surfaces = {}
     for name in ("strings.json", "translations/en.json", "translations/de.json"):
         data = json.loads((INTEGRATION / name).read_text(encoding="utf-8"))
         surfaces[name] = data["config"]["step"]["auth_mode_slicer"]["description"]
@@ -219,12 +224,10 @@ function Get-Clipboard {
             self.assertNotIn(self.clipboard.read_text(encoding="utf-8"), (TOKEN_OLD, TOKEN_NEW))
             self.assert_secret_not_printed(result)
 
-    def test_ui_mac_commands_match_readmes_and_only_declared_placeholders_exist(self):
-        for name, text in self.surfaces.items():
-            if not name.startswith("README"):
-                expected = self.surfaces["README.md" if name.endswith("de.json") else "README.en.md"]
-                self.assertEqual(code_block(text, "bash"), code_block(expected, "bash"))
-                self.assertEqual(re.findall(r"\{[^}]*\}", text), ["{token_instructions_url}"])
+    def test_setup_uses_only_declared_placeholders(self):
+        for name, text in setup_descriptions().items():
+            with self.subTest(surface=name):
+                self.assertEqual(re.findall(r"\{[^}]*\}", text), ["{token_instructions_url}"] * 2)
 
     def test_current_and_legacy_documentation_anchors_resolve(self):
         english = self.surfaces["README.en.md"]
@@ -235,9 +238,30 @@ function Get-Clipboard {
         self.assertIn("## 🔐 Token auslesen (Slicer Next)", german)
         tree = ast.parse((INTEGRATION / "config_flow.py").read_text(encoding="utf-8"))
         links = {node.value for node in ast.walk(tree) if isinstance(node, ast.Constant)
-                 and isinstance(node.value, str) and node.value.startswith("README")}
-        self.assertIn("README.en.md#recover-a-slicer-token-windows-and-macos", links)
-        self.assertIn("README.md#-token-auslesen-slicer-next", links)
+                 and isinstance(node.value, str)}
+        self.assertIn("en/slicer-token.html", links)
+        self.assertIn("slicer-token.html", links)
+
+    def test_setup_is_short_and_links_copy_instructions(self):
+        for name, text in setup_descriptions().items():
+            with self.subTest(surface=name):
+                self.assertNotIn("```", text)
+                self.assertLess(len(text), 1300)
+                self.assertIn("{token_instructions_url}", text)
+                self.assertNotRegex(text, r"</?[A-Za-z][^>]*>")
+                self.assertIn("#heading-windows", text)
+                self.assertIn("#heading-macos", text)
+                self.assertIn("Slicer", text)
+                self.assertIn("Windows", text)
+                self.assertIn("macOS", text)
+
+    def test_website_copy_commands_match_the_executed_readme_commands(self):
+        for page, readme in (("slicer-token.html", "README.md"), ("en/slicer-token.html", "README.en.md")):
+            text = (ROOT / "docs/website" / page).read_text(encoding="utf-8")
+            for key, language in (("windows", "powershell"), ("macos", "bash")):
+                match = re.search(r'<code id="command-' + key + r'">(.*?)</code>', text, re.S)
+                self.assertIsNotNone(match)
+                self.assertEqual(html.unescape(match.group(1)), code_block(self.surfaces[readme], language))
 
 
 if __name__ == "__main__":

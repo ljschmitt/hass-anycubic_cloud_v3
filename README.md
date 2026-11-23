@@ -20,7 +20,7 @@ Der Anzeigename lautet ab **0.4.5-beta.1** **Anycubic Cloud**, die optionale Das
 
 Die Integration wurde am 02.11.2026 in den [standardmaessigen HACS-Katalog aufgenommen](https://github.com/hacs/default/pull/8869). Eine bestehende Installation als benutzerdefiniertes Repository kann weiterverwendet werden.
 
-> 🗓️ **Aktuelles Release: 0.5.1-beta.3**
+> 🗓️ **Aktuelles Release: 0.5.1-beta.4**
 >
 > - Kobra X meldet Druckplatte, Duesenmaterial und Durchmesser beim ersten erfolgreichen Cloud-Abruf.
 > - Platten- und Duesenauswahl in Home Assistant und der passenden Card fuer den Kobra X im Leerlauf.
@@ -393,6 +393,10 @@ Fehler, Verbesserungsvorschlaege und Erfahrungen mit weiteren Druckermodellen ko
 ## 🔐 Token auslesen (Slicer Next)
 
 Slicer Next 2.0.x schreibt den benoetigten Access-Token weiterhin in das aktuelle Debug-Log, verwendet dort aber teilweise den Parameternamen `id_token=` statt der frueheren Zeile `accessToken = ...`. Der folgende Befehl unterstuetzt beide Schreibweisen. Python, ein Repository-Download und Speicherzugriff sind fuer den normalen Weg nicht erforderlich.
+
+[Token-Anleitung mit Kopierknopf für Windows und macOS](https://apps.schmittit.de/anycubic_ha_cloud/slicer-token.html). Der Knopf kopiert den Befehl; erst dessen lokale Ausführung kopiert den Token. Die Bestätigung prüft die Zwischenablage, nicht die Anmeldung beim Cloud-Dienst.
+
+**0.5.1-beta.4 (#48/#49):** Der HA-Einrichtungsdialog zeigt kurze, getrennte Anleitungen für Windows und macOS. Jeder Bereich verlinkt direkt den passenden Webseiten-Befehl mit Kopierknopf. Jede erneute Token-Eingabe prüft einen frischen API-Client mit den neu eingegebenen Zugangsdaten. In bisherigen Versionen bei einer Ablehnung den Dialog schließen und einen neuen Anmeldeversuch starten, damit kein vorheriger Token weitergeprüft wird. Diese Beta ändert nur die Integration; die separate Card 0.5.1-beta.3 bleibt kompatibel. Ein Kopierfehler und eine Ablehnung durch die Cloud sind unterschiedliche Fehlerbilder; ein dreiteiliger JWT allein belegt keine gültige Anmeldung.
 
 1. **Slicer Next starten, einloggen und die Druckeransicht oeffnen.**
 2. Den Befehl fuer das eigene Betriebssystem vollstaendig kopieren und einmal ausfuehren.

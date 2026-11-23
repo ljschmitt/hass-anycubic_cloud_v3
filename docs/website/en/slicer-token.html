@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Copy your Slicer token">
+  <meta name="theme-color" content="#f6f8fb">
+  <title>Copy your Slicer token | Anycubic Cloud</title>
+  <link rel="icon" href="../assets/icon.png">
+  <link rel="alternate" hreflang="de" href="../slicer-token.html">
+  <link rel="stylesheet" href="../assets/site-20261115/site.css?v=4">
+  <link rel="stylesheet" href="../assets/token-guide-20261123/token-guide.css">
+  <script src="../assets/token-guide-20261123/token-guide.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="wrap header-inner">
+      <a href="./" class="brand"><img src="../assets/icon.png" alt="" width="34" height="34">Anycubic Cloud</a>
+      <nav aria-label="Main navigation">
+        <a href="./#features">Features</a>
+        <a href="./#installation">Installation</a>
+        <a href="printer-diagnostics.html">Printer diagnostics</a>
+        <a href="release-notes.html">Releases</a>
+        <a class="language-switch" href="../slicer-token.html" lang="de" hreflang="de">Deutsch</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap token-guide"><h1>Copy your Slicer token</h1><p>Home Assistant needs the access token from Anycubic Slicer Next. The copy button copies the public command, not your token. The command reads the token on your computer and puts it on your clipboard.</p><ol><li>Open Anycubic Slicer Next, sign in and open the printer view.</li><li>Copy the complete command for your operating system below and run it once.</li><li>Wait for confirmation. Paste the token into Home Assistant in the <strong>Slicer Next</strong> step with Ctrl+V (Windows) or Cmd+V (macOS).</li></ol>
+<section aria-labelledby="heading-windows"><div class="command-box">
+<div class="command-heading"><strong id="heading-windows">Windows · PowerShell</strong><button type="button" class="copy-command" data-copy-command="command-windows" data-success="Command copied. Run it in your terminal." data-failure="Automatic copying was blocked. The command is selected: press Ctrl+C or Cmd+C." aria-describedby="status-windows"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg><span>Copy command</span></button></div>
+<pre><code id="command-windows">&amp; {
+    $ErrorActionPreference = &#x27;Stop&#x27;
+    $log = Get-ChildItem &quot;$env:AppData\AnycubicSlicerNext\log\debug_*.log&quot; | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (!$log) { throw &#x27;No Slicer debug log found. Start Slicer, sign in and open the printer view.&#x27; }
+    $token = (Select-String -Path $log.FullName -Pattern &#x27;(?:accessToken\s*=\s*|id_token=)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)&#x27; -AllMatches).Matches | ForEach-Object { $_.Groups[1].Value } | Select-Object -Last 1
+    if (!$token) { throw &#x27;No Slicer token found in the latest log.&#x27; }
+    Set-Clipboard -Value $token
+    if ((Get-Clipboard -Raw) -cne $token) { throw &#x27;Could not confirm the token in the clipboard. Run the command again.&#x27; }
+    Write-Host &#x27;Token successfully copied to clipboard. Paste into Home Assistant with Ctrl+V now.&#x27; -ForegroundColor Green
+}</code></pre></div>
+<p class="copy-status" id="status-windows" role="status" aria-live="polite"></p></section>
+<section aria-labelledby="heading-macos"><div class="command-box">
+<div class="command-heading"><strong id="heading-macos">macOS · Terminal</strong><button type="button" class="copy-command" data-copy-command="command-macos" data-success="Command copied. Run it in your terminal." data-failure="Automatic copying was blocked. The command is selected: press Ctrl+C or Cmd+C." aria-describedby="status-macos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg><span>Copy command</span></button></div>
+<pre><code id="command-macos">bash &lt;&lt;&#x27;ANYCUBIC_TOKEN&#x27;
+f=
+for candidate in &quot;$HOME/Library/Application Support/AnycubicSlicerNext/log/&quot;debug_*.log; do
+    [ -f &quot;$candidate&quot; ] || continue
+    if [ -z &quot;$f&quot; ] || [ &quot;$candidate&quot; -nt &quot;$f&quot; ]; then f=$candidate; fi
+done
+if [ -z &quot;$f&quot; ]; then printf &#x27;%s\n&#x27; &#x27;No Slicer debug log found. Sign in and open the printer view.&#x27; &gt;&amp;2; exit 1; fi
+t=$(grep -h -o -E &#x27;(accessToken[[:space:]]*=[[:space:]]*|id_token=)eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+&#x27; &quot;$f&quot; | tail -n 1 | sed -E &#x27;s/^(accessToken[[:space:]]*=[[:space:]]*|id_token=)//&#x27;)
+if [ -z &quot;$t&quot; ]; then printf &#x27;%s\n&#x27; &#x27;No Slicer token found in the latest log.&#x27; &gt;&amp;2; exit 1; fi
+if ! printf &#x27;%s&#x27; &quot;$t&quot; | pbcopy; then printf &#x27;%s\n&#x27; &#x27;Could not copy token to clipboard.&#x27; &gt;&amp;2; exit 1; fi
+copied=$(pbpaste) || exit 1
+if [ &quot;$copied&quot; != &quot;$t&quot; ]; then printf &#x27;%s\n&#x27; &#x27;Could not confirm the token in the clipboard. Run the command again.&#x27; &gt;&amp;2; exit 1; fi
+printf &#x27;%s\n&#x27; &#x27;Token successfully copied and verified. Paste into Home Assistant with Cmd+V now.&#x27;
+ANYCUBIC_TOKEN</code></pre></div>
+<p class="copy-status" id="status-macos" role="status" aria-live="polite"></p></section>
+<section><h2>If authentication fails</h2><p>The command supports both log formats, <code>accessToken =</code> and <code>id_token=</code>. It verifies that the token was copied completely; it does not confirm authentication with the cloud service. If needed, sign in to the Slicer again and run the command again.</p><p>Older integration versions may still check the previous token when you retry in the same dialog. Close that dialog and start a new attempt. You do not need to change the region.</p><p>Never share tokens or unredacted logs. Clear your clipboard after pasting, for example by copying any other text.</p><a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/README.en.md#recover-a-slicer-token-windows-and-macos">Detailed instructions and alternatives on GitHub</a></section>
+  </main>
+  <footer class="footer"><div class="wrap footer-inner"><span>Anycubic Cloud for Home Assistant</span><a href="https://github.com/ljschmitt/hass-anycubic_cloud_v3">Project on GitHub</a></div></footer>
+</body>
+</html>
