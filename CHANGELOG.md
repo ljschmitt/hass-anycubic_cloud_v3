@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1-beta.4
+
+- Validate each explicit authentication submission with a fresh API client, including retries and authentication-mode changes. Keep saved-token loading for existing printer configuration and correct the premature authentication-success log message. [#48](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/48)
+- Replace long inline commands in the setup dialog with separate, initially collapsed Windows and macOS instructions linking directly to the German/English website commands with copy buttons. The website copies only public commands; tokens remain on the user's computer. [#49](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/49)
+
+- This integration-only beta does not require a new standalone card release; Card 0.5.1-beta.3 remains compatible.
+
 ## 0.5.1-beta.3
 
 - Retry the Kobra 2 Max camera once with a fresh session after a startup timeout. Log the pending signaling or video stage and omit the empty numeric-code placeholder. Closing the camera cancels startup and retry. [#31](https://github.com/ljschmitt/hass-anycubic_cloud_v3/issues/31)

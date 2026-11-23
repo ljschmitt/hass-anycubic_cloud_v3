@@ -175,7 +175,7 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         await async_load_tokens_from_store(self.hass, self._anycubic_api)
 
     async def _async_check_login_errors(self) -> dict[str, str]:
-        LOGGER.debug("Config flow checking auth was successful.")
+        LOGGER.debug("Config flow checking authentication.")
         assert self._anycubic_api
         success = await self._anycubic_api.check_api_tokens()
         if not success:
@@ -216,7 +216,10 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
         try:
-            await self._async_check_anycubic_api_instance_exists()
+            # Each submission must validate the newly entered credentials, even
+            # after a failed attempt or an authentication-mode change. Loading
+            # saved credentials is reserved for the existing printer setup path.
+            self._anycubic_api = self._async_create_anycubic_api()
             errors = await self._async_check_login_errors()
 
         except Exception as error:
@@ -308,13 +311,13 @@ class AnycubicCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         description_placeholders = None
         if auth_mode == AnycubicAuthMode.SLICER:
             documentation_page = (
-                "README.md#-token-auslesen-slicer-next"
+                "slicer-token.html"
                 if self.hass.config.language == "de"
-                else "README.en.md#recover-a-slicer-token-windows-and-macos"
+                else "en/slicer-token.html"
             )
             description_placeholders = {
                 "token_instructions_url": (
-                    "https://github.com/ljschmitt/hass-anycubic_cloud_v3/blob/master/"
+                    "https://apps.schmittit.de/anycubic_ha_cloud/"
                     f"{documentation_page}"
                 ),
             }
